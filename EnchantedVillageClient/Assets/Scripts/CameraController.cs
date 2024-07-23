@@ -14,8 +14,8 @@ namespace Unical.Demacs.EnchantedVillage
         private bool _zoomming = false;
         private bool _moving = false;
 
-        private Vector3 _center= Vector3.zero;
-        private float _right=10f;
+        private Vector3 _center = Vector3.zero;
+        private float _right = 10f;
         private float _left = 10f;
         private float _up = 10f;
         private float _down = 10f;
@@ -24,13 +24,13 @@ namespace Unical.Demacs.EnchantedVillage
 
         private float _zoomMin = 10;
         private float _zoomMax = 1;
-        private Vector2 _zoomPositionOnScreen=Vector2.zero;
-        private Vector3 _zoomPositionInWorld=Vector3.zero;
+        private Vector2 _zoomPositionOnScreen = Vector2.zero;
+        private Vector3 _zoomPositionInWorld = Vector3.zero;
         private float _zoomBaseValue = 0;
         private float _zoomBaseDistance = 0;
 
-        private Transform _root=null;
-        private Transform _pivot=null;
+        private Transform _root = null;
+        private Transform _pivot = null;
         private Transform _target = null;
 
         private void Awake()
@@ -45,7 +45,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            Initialize(Vector3.zero, 10, 10, 10, 10, 45, 5, 3, 10);
+            Initialize(Vector3.zero, 40, 40, 40, 40, 45, 5, 10, 20);
         }
 
         private void Initialize(Vector3 center, float right, float left, float up, float down, float angle, float zoom, float zoomMin, float zoomMax)
@@ -67,13 +67,13 @@ namespace Unical.Demacs.EnchantedVillage
             _pivot.SetParent(_root);
             _target.SetParent(_pivot);
 
-            _root.position=center;
+            _root.position = center;
             _root.localEulerAngles = Vector3.zero;
 
-            _pivot.localPosition=Vector3.zero;
+            _pivot.localPosition = Vector3.zero;
             _pivot.localEulerAngles = new Vector3(_angle, 0, 0);
 
-            _target.localPosition = new Vector3(0, 0, -10);
+            _target.localPosition = new Vector3(0, 0, -100);
             _target.localEulerAngles = Vector3.zero;
         }
 
@@ -96,11 +96,11 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void MovePressed()
         {
-            _moving = true;   
+            _moving = true;
         }
         private void MoveStopped()
         {
-            _moving=false;
+            _moving = false;
         }
 
         private void ZoomPressed()
@@ -126,17 +126,17 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Update()
         {
-            if(!Input.touchSupported)
+            if (!Input.touchSupported)
             {
                 //stiamo usando il mouse
                 float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
                 if (mouseScroll > 0)
                 {
-                    _zoom-=3f*Time.deltaTime;
+                    _zoom -= _zoomSpeed * Time.deltaTime;
                 }
-                else if(mouseScroll < 0)
+                else if (mouseScroll < 0)
                 {
-                    _zoom += 3f * Time.deltaTime;
+                    _zoom += _zoomSpeed * Time.deltaTime;
                 }
             }
             else
@@ -144,7 +144,7 @@ namespace Unical.Demacs.EnchantedVillage
                 //stiamo usando il touch
             }
 
-            if(_zoomming)
+            if (_zoomming)
             {
 
                 Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
@@ -161,13 +161,13 @@ namespace Unical.Demacs.EnchantedVillage
                 Vector3 zoomCenter = CameraPositionToMapPosition(_zoomPositionOnScreen);
                 _root.position += (_zoomPositionInWorld - zoomCenter);
             }
-            else if(_moving)
+            else if (_moving)
             {
                 Vector2 move = _inputs.MainMap.MoveDelta.ReadValue<Vector2>();
-                if(move!=Vector2.zero)
+                if (move != Vector2.zero)
                 {
-                    move.x/=Screen.width;
-                    move.y/=Screen.height;
+                    move.x /= Screen.width;
+                    move.y /= Screen.height;
                     _root.position -= _root.right.normalized * move.x * _moveSpeed;
                     _root.position -= _root.forward.normalized * move.y * _moveSpeed;
                 }
@@ -178,11 +178,11 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 _camera.orthographicSize = Mathf.Lerp(_camera.orthographicSize, _zoom, _zoomSmooth * Time.deltaTime);
             }
-            if (_camera.transform.position!=_target.position)
+            if (_camera.transform.position != _target.position)
             {
-                _camera.transform.position = Vector3.Lerp(_camera.transform.position, _target.position, _moveSmooth*Time.deltaTime);
+                _camera.transform.position = Vector3.Lerp(_camera.transform.position, _target.position, _moveSmooth * Time.deltaTime);
             }
-            if(_camera.transform.rotation!= _target.rotation)
+            if (_camera.transform.rotation != _target.rotation)
             {
                 _camera.transform.rotation = _target.rotation;
             }
@@ -196,20 +196,59 @@ namespace Unical.Demacs.EnchantedVillage
 
             Vector3 ancher = _camera.transform.position - (_camera.transform.right.normalized * w / 2f) - (_camera.transform.up.normalized * h / 2f);
 
-            return ancher + (_camera.transform.right.normalized*screenPosition.x/Screen.width*w) + (_camera.transform.up.normalized* screenPosition.y /Screen.height*h);
+            return ancher + (_camera.transform.right.normalized * screenPosition.x / Screen.width * w) + (_camera.transform.up.normalized * screenPosition.y / Screen.height * h);
         }
 
         private Vector3 CameraPositionToMapPosition(Vector2 screenPosition)
         {
             Vector3 point = CameraPositionToWorldPosition(screenPosition);
             float h = point.y - _root.position.y;
-            float x = h / Mathf.Sign(_angle * Mathf.Deg2Rad);
+            float x = h / Mathf.Sin(_angle * Mathf.Deg2Rad);
             return point + _camera.transform.forward.normalized * x;
         }
 
         private void AdjustBounds()
         {
+            if (_zoom < _zoomMin)
+                _zoom = _zoomMin;
+            if (_zoom > _zoomMax)
+                _zoom = _zoomMax;
+            float h = getPlaneOrtographicSize();
+            float w = h * _camera.aspect;
 
+            if (h > (_up + _down) / 2f)
+            {
+                float n = (_up + _down) / 2f;
+                _zoom=n*Mathf.Sin(_angle*Mathf.Deg2Rad);
+            }
+            if (w > (_right + _left) / 2f)
+            {
+                float n = (_right + _left) / 2f;
+                _zoom = n * Mathf.Sin(_angle * Mathf.Deg2Rad) /_camera.aspect;
+            }
+
+            h = getPlaneOrtographicSize();
+            w = h * _camera.aspect;
+
+            Vector3 tr = _root.position + _root.right.normalized * w + _root.forward.normalized * h; //top_right
+            Vector3 tl = _root.position - _root.right.normalized * w + _root.forward.normalized * h; //top_left
+            Vector3 dr = _root.position + _root.right.normalized * w - _root.forward.normalized * h; //down_right
+            Vector3 dl = _root.position - _root.right.normalized * w - _root.forward.normalized * h; //down_left
+
+            if (tr.x > _center.x + _right)
+                _root.position += Vector3.left * Mathf.Abs(tr.x - (_center.x + _right));
+            if (tl.x < _center.x - _left)
+                _root.position += Vector3.right * Mathf.Abs((_center.x - _left) - tl.x);
+            if (tr.z > _center.x + _up)
+                _root.position += Vector3.back * Mathf.Abs(tr.z - (_center.z + _up));
+            if (dl.z < _center.z - _down)
+                _root.position += Vector3.forward * Mathf.Abs((_center.z - _down) - dl.z);
+        }
+
+        private float getPlaneOrtographicSize()
+        {
+            float h = _zoom * 2f;
+            return h / Mathf.Sin(_angle * Mathf.Deg2Rad) / 2f;
         }
     }
 }
