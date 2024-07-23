@@ -437,9 +437,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _camera: {fileID: 963194227}
   _moveSpeed: 10
-  _moveSmooth: 5
   _zoomSpeed: 10
-  _zoomSmooth: 5
 --- !u!1 &1186499960
 GameObject:
   m_ObjectHideFlags: 0
