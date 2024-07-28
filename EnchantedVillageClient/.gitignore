@@ -32,3 +32,7 @@ UserSettings/
 # Rider
 .idea/
 *.sln.iml
+
+# Don't check in the Documentation Library folder
+/docs/
+

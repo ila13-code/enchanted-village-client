@@ -1,0 +1,17 @@
+PROJECT_NAME           = "Enchanted Village"
+OUTPUT_DIRECTORY       = ./docs
+INPUT                  = ./Assets
+RECURSIVE              = YES
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_PACKAGE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+GENERATE_LATEX         = NO
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_TREEVIEW      = YES
+DISABLE_INDEX          = NO
+FULL_SIDEBAR           = NO
+HTML_STYLESHEET = doxygen-awesome.css
+USE_MDFILE_AS_MAINPAGE = README.md

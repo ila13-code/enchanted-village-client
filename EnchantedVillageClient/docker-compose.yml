@@ -1,0 +1,16 @@
+version: '3'
+services:
+  doxygen:
+    build: .
+    volumes:
+      - .:/app
+    command: sh -c "doxygen Doxyfile && chown -R 1000:1000 /app/docs"
+
+  web:
+    image: nginx:alpine
+    ports:
+      - "7000:80"
+    volumes:
+      - ./docs/html:/usr/share/nginx/html/enchanted-village-client/docs
+    depends_on:
+      - doxygen

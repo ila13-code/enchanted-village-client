@@ -5,42 +5,29 @@ namespace Unical.Demacs.EnchantedVillage
     using UnityEngine.UI;
     using System;
 
-    /// <summary>
-    /// Controlla l'interfaccia utente del gioco.
-    /// Implementa il pattern Singleton per garantire un'unica istanza.
-    /// </summary>
+    /// @brief Controlla l'interfaccia utente del gioco.
+    /// @details Implementa il pattern Singleton per garantire un'unica istanza.
     public class UIController : MonoBehaviour
     {
         private static UIController instance = null;
 
-        /// <summary>
-        /// Testo che mostra la quantità di elisir.
-        /// </summary>
+        /// @brief Testo che mostra la quantità di elisir.
         [SerializeField] private TextMeshProUGUI _elisirAmount;
 
-        /// <summary>
-        /// Testo che mostra la quantità di oro.
-        /// </summary>
+        /// @brief Testo che mostra la quantità di oro.
         [SerializeField] private TextMeshProUGUI _goldAmount;
 
-        /// <summary>
-        /// Testo che mostra il livello corrente.
-        /// </summary>
+        /// @brief Testo che mostra il livello corrente.
         [SerializeField] private TextMeshProUGUI _level;
 
-        /// <summary>
-        /// Pulsante per accedere allo shop.
-        /// </summary>
+        /// @brief Pulsante per accedere allo shop.
         [SerializeField] private Button _shop;
 
-        /// <summary>
-        /// Pulsante per iniziare una battaglia.
-        /// </summary>
+        /// @brief Pulsante per iniziare una battaglia.
         [SerializeField] private Button _battle;
 
-        /// <summary>
-        /// Proprietà per accedere all'istanza singleton di UIController.
-        /// </summary>
+        /// @brief Ottiene l'istanza singleton di UIController.
+        /// @return L'istanza di UIController.
         public static UIController Instance
         {
             get
@@ -57,49 +44,37 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
-        /// <summary>
-        /// Inizializza il controller UI.
-        /// </summary>
+        /// @brief Inizializza il controller UI.
         private void Start()
         {
             _shop.onClick.AddListener(OnClickShop);
         }
 
-        /// <summary>
-        /// Gestisce il click sul pulsante dello shop.
-        /// </summary>
+        /// @brief Gestisce il click sul pulsante dello shop.
         private void OnClickShop() { }
 
-        /// <summary>
-        /// Ottiene la quantità corrente di elisir.
-        /// </summary>
-        /// <returns>La quantità di elisir come intero.</returns>
+        /// @brief Ottiene la quantità corrente di elisir.
+        /// @return La quantità di elisir come intero.
         public int GetElisirAmount()
         {
             return int.Parse(_elisirAmount.text);
         }
 
-        /// <summary>
-        /// Ottiene la quantità corrente di oro.
-        /// </summary>
-        /// <returns>La quantità di oro come intero.</returns>
+        /// @brief Ottiene la quantità corrente di oro.
+        /// @return La quantità di oro come intero.
         public int GetGoldAmount()
         {
             return int.Parse(_goldAmount.text);
         }
 
-        /// <summary>
-        /// Ottiene il livello corrente.
-        /// </summary>
-        /// <returns>Il livello come intero.</returns>
+        /// @brief Ottiene il livello corrente.
+        /// @return Il livello come intero.
         public int GetLevel()
         {
             return int.Parse(_level.text);
         }
 
-        /// <summary>
-        /// Metodo chiamato ad ogni frame. Registra il livello corrente.
-        /// </summary>
+        /// @brief Metodo chiamato ad ogni frame. Registra il livello corrente.
         private void Update()
         {
             Debug.Log("Current Level: " + GetLevel());

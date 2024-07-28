@@ -1,9 +1,10 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM alpine:latest
+
+RUN apk add --no-cache doxygen graphviz ttf-freefont
+
 WORKDIR /app
 
-RUN dotnet tool install -g docfx
-ENV PATH="${PATH}:/root/.dotnet/tools"
+COPY Doxyfile /app/
+COPY doxygen-awesome.css /app/
 
-COPY . ./
-
-CMD ["docfx", "docfx.json"]
+CMD ["doxygen", "Doxyfile"]
