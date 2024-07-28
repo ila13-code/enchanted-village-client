@@ -110,70 +110,63 @@ namespace Unical.Demacs.EnchantedVillage
         {
             _zooming = true;
             if (!Input.touchSupported)
-                HandleMouseZoom();
+            {
+                float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
+                if (mouseScroll != 0)
+                {
+                    _zoom -= mouseScroll * _zoomSpeed * Time.deltaTime;
+                    _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
+                }
+            }
             else
-                HandleTouchZoom();
+            {
+                if (Input.touchCount == 2)
+                {
+                    Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
+                    Vector2 touch1 = _inputs.MainMap.TouchPosition1.ReadValue<Vector2>();
+                    _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
+                    _zoomPositionInWorld = CameraPositionToMapPosition(_zoomPositionOnScreen);
+                    _zoomBaseValue = _zoom;
+
+                    _zoomBaseDistance = Vector2.Distance(touch0, touch1) / Mathf.Max(Screen.width, Screen.height);
+                }
+            }
         }
+
         private void ZoomStopped()
         {
             _zooming = false;
-            _zoomBaseDistance = 0;
         }
 
-        private void HandleMouseZoom()
-        {
-            float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
-            if (mouseScroll != 0)
-            {
-                _zoom -= mouseScroll * _zoomSpeed * Time.deltaTime;
-                _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
-            }
-        }
-
-        private void HandleTouchZoom()
-        {
-            Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
-            Vector2 touch1 = _inputs.MainMap.TouchPosition1.ReadValue<Vector2>();
-
-            if (_zoomBaseDistance == 0)
-            {
-                _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
-                _zoomPositionInWorld = CameraPositionToMapPosition(_zoomPositionOnScreen);
-                _zoomBaseValue = _zoom;
-
-                touch0.x /= Screen.width;
-                touch1.x /= Screen.width;
-                touch0.y /= Screen.height;
-                touch1.y /= Screen.height;
-
-                _zoomBaseDistance = Vector2.Distance(touch0, touch1);
-            }
-            else
-            {
-                touch0.x /= Screen.width;
-                touch1.x /= Screen.width;
-                touch0.y /= Screen.height;
-                touch1.y /= Screen.height;
-
-                float currentDistance = Vector2.Distance(touch0, touch1);
-                float deltaDistance = currentDistance - _zoomBaseDistance;
-                _zoom = _zoomBaseValue - (deltaDistance * _zoomSpeed);
-                _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
-
-                Vector3 zoomCenter = CameraPositionToMapPosition(_zoomPositionOnScreen);
-                _root.position += (_zoomPositionInWorld - zoomCenter);
-            }
-        }
-
-        
         private void Update()
         {
             if (_zooming)
             {
                 if (!Input.touchSupported)
-                    HandleMouseZoom();
+                {
+                    float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
+                    if (mouseScroll != 0)
+                    {
+                        _zoom -= mouseScroll * _zoomSpeed * Time.deltaTime;
+                        _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
+                    }
+                }
                 else
-                    HandleTouchZoom();
+                {
+                    if (Input.touchCount == 2)
+                    {
+                        Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
+                        Vector2 touch1 = _inputs.MainMap.TouchPosition1.ReadValue<Vector2>();
+
+                        float currentDistance = Vector2.Distance(touch0, touch1) / Mathf.Max(Screen.width, Screen.height);
+                        float deltaDistance = currentDistance - _zoomBaseDistance;
+                        _zoom = _zoomBaseValue - (deltaDistance * _zoomSpeed * 10f);
+                        _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
+
+                        Vector3 zoomCenter = CameraPositionToMapPosition(_zoomPositionOnScreen);
+                        _root.position += (_zoomPositionInWorld - zoomCenter);
+                    }
+                }
             }
             else if (_moving)
             {
@@ -190,11 +183,17 @@ namespace Unical.Demacs.EnchantedVillage
             AdjustBounds();
 
             if (_camera.orthographicSize != _zoom)
+            {
                 _camera.orthographicSize = Mathf.Lerp(_camera.orthographicSize, _zoom, _zoomSpeed * Time.deltaTime);
+            }
             if (_camera.transform.position != _target.position)
+            {
                 _camera.transform.position = Vector3.Lerp(_camera.transform.position, _target.position, _zoomSpeed * Time.deltaTime);
+            }
             if (_camera.transform.rotation != _target.rotation)
+            {
                 _camera.transform.rotation = _target.rotation;
+            }
         }
 
         private Vector3 CameraPositionToWorldPosition(Vector2 screenPosition)
