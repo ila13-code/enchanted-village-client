@@ -23,6 +23,6 @@ namespace Unical.Demacs.EnchantedVillage
                 Gizmos.DrawLine(point, point + transform.forward.normalized * _cellSize * (float)_nRows);
             }
         }
-    }
 #endif
+    }
 }
