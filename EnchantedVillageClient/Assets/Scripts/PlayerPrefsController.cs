@@ -1,6 +1,8 @@
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 namespace Unical.Demacs.EnchantedVillage
 {
     public class PlayerPrefsController : MonoBehaviour
@@ -25,6 +27,10 @@ namespace Unical.Demacs.EnchantedVillage
         private const string GoldKey = "PlayerGold";
         private const string BuildingsKey = "PlayerBuildings";
 
+        public event Action<int> OnLevelChanged;
+        public event Action<int> OnElixirChanged;
+        public event Action<int> OnGoldChanged;
+
         [System.Serializable]
         public class Building
         {
@@ -35,19 +41,34 @@ namespace Unical.Demacs.EnchantedVillage
         public int Level
         {
             get { return PlayerPrefs.GetInt(LevelKey, 1); }
-            set { PlayerPrefs.SetInt(LevelKey, value); PlayerPrefs.Save(); }
+            set
+            {
+                PlayerPrefs.SetInt(LevelKey, value);
+                PlayerPrefs.Save();
+                OnLevelChanged?.Invoke(value);
+            }
         }
 
         public int Elixir
         {
             get { return PlayerPrefs.GetInt(ElixirKey, 0); }
-            set { PlayerPrefs.SetInt(ElixirKey, value); PlayerPrefs.Save(); }
+            set
+            {
+                PlayerPrefs.SetInt(ElixirKey, value);
+                PlayerPrefs.Save();
+                OnElixirChanged?.Invoke(value);
+            }
         }
 
         public int Gold
         {
             get { return PlayerPrefs.GetInt(GoldKey, 0); }
-            set { PlayerPrefs.SetInt(GoldKey, value); PlayerPrefs.Save(); }
+            set
+            {
+                PlayerPrefs.SetInt(GoldKey, value);
+                PlayerPrefs.Save();
+                OnGoldChanged?.Invoke(value);
+            }
         }
 
         public List<Building> GetBuildings()

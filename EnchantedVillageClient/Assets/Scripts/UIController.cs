@@ -1,33 +1,24 @@
+using UnityEngine;
+using TMPro;
+using UnityEngine.UI;
+using Unity.VisualScripting;
+using System;
+
 namespace Unical.Demacs.EnchantedVillage
 {
-    using UnityEngine;
-    using TMPro;
-    using UnityEngine.UI;
-    using System;
-
-    /// @brief Controlla l'interfaccia utente del gioco.
-    /// @details Implementa il pattern Singleton per garantire un'unica istanza.
     public class UIController : MonoBehaviour
     {
         private static UIController instance = null;
 
-        /// @brief Testo che mostra la quantità di elisir.
         [SerializeField] private TextMeshProUGUI _elisirAmount;
-
-        /// @brief Testo che mostra la quantità di oro.
         [SerializeField] private TextMeshProUGUI _goldAmount;
-
-        /// @brief Testo che mostra il livello corrente.
         [SerializeField] private TextMeshProUGUI _level;
-
-        /// @brief Pulsante per accedere allo shop.
+        [SerializeField] private Slider _levelSlider;
+        [SerializeField] private Slider _elisirSlider;
+        [SerializeField] private Slider _goldSlider;
         [SerializeField] private Button _shop;
-
-        /// @brief Pulsante per iniziare una battaglia.
         [SerializeField] private Button _battle;
 
-        /// @brief Ottiene l'istanza singleton di UIController.
-        /// @return L'istanza di UIController.
         public static UIController Instance
         {
             get
@@ -44,40 +35,53 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
-        /// @brief Inizializza il controller UI.
+
         private void Start()
         {
             _shop.onClick.AddListener(OnClickShop);
+
+            PlayerPrefsController.Instance.OnLevelChanged += UpdateLevel;
+            PlayerPrefsController.Instance.OnElixirChanged += UpdateElixir;
+            PlayerPrefsController.Instance.OnGoldChanged += UpdateGold;
+
+            UpdateLevel(PlayerPrefsController.Instance.Level);
+            UpdateElixir(PlayerPrefsController.Instance.Elixir);
+            UpdateGold(PlayerPrefsController.Instance.Gold);
         }
 
-        /// @brief Gestisce il click sul pulsante dello shop.
+        private void OnDestroy()
+        {
+            PlayerPrefsController.Instance.OnLevelChanged -= UpdateLevel;
+            PlayerPrefsController.Instance.OnElixirChanged -= UpdateElixir;
+            PlayerPrefsController.Instance.OnGoldChanged -= UpdateGold;
+        }
+
         private void OnClickShop() { }
 
-        /// @brief Ottiene la quantità corrente di elisir.
-        /// @return La quantità di elisir come intero.
-        public int GetElisirAmount()
+        private void UpdateLevel(int newLevel)
         {
-            return int.Parse(_elisirAmount.text);
+            double experience = newLevel / 100;
+            int level =Convert.ToInt32(experience);
+            _level.text = level.ToString();
+            if(experience % 1 != 0)
+            {
+                double pointsToNextLevel = Mathf.Abs((float) (level - experience));
+                _levelSlider.value = Convert.ToInt32(pointsToNextLevel * 100);
+                Debug.Log(level.ToString());
+                Debug.Log(pointsToNextLevel.ToString());
+                Debug.Log(experience.ToString());
+            }
+
         }
 
-        /// @brief Ottiene la quantità corrente di oro.
-        /// @return La quantità di oro come intero.
-        public int GetGoldAmount()
+        private void UpdateElixir(int newElixir)
         {
-            return int.Parse(_goldAmount.text);
+            _elisirAmount.text = newElixir.ToString();
         }
 
-        /// @brief Ottiene il livello corrente.
-        /// @return Il livello come intero.
-        public int GetLevel()
+        private void UpdateGold(int newGold)
         {
-            return int.Parse(_level.text);
-        }
-
-        /// @brief Metodo chiamato ad ogni frame. Registra il livello corrente.
-        private void Update()
-        {
-            Debug.Log("Current Level: " + GetLevel());
+            _goldAmount.text = newGold.ToString();
         }
     }
 }
