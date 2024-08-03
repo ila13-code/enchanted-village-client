@@ -22,12 +22,23 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        public static void DestroyInstance()
+        {
+            if (_instance != null)
+            {
+                Destroy(_instance.gameObject);
+                _instance = null;
+            }
+        }
+
         private const string LevelKey = "PlayerLevel";
+        private const string ExpKey = "ExpKey";
         private const string ElixirKey = "PlayerElixir";
         private const string GoldKey = "PlayerGold";
         private const string BuildingsKey = "PlayerBuildings";
 
         public event Action<int> OnLevelChanged;
+        public event Action<int> OnExpChanged;
         public event Action<int> OnElixirChanged;
         public event Action<int> OnGoldChanged;
 
@@ -46,6 +57,25 @@ namespace Unical.Demacs.EnchantedVillage
                 PlayerPrefs.SetInt(LevelKey, value);
                 PlayerPrefs.Save();
                 OnLevelChanged?.Invoke(value);
+            }
+        }
+
+        public int Exp
+        {
+            get { return PlayerPrefs.GetInt(ExpKey, 0); }
+            set
+            {
+                int currentLevel = Level;
+                while (value >= ExperienceForNextLevel(currentLevel))
+                {
+                    value -= ExperienceForNextLevel(currentLevel);
+                    currentLevel++;
+                }
+
+                PlayerPrefs.SetInt(ExpKey, value);
+                Level = currentLevel;
+                PlayerPrefs.Save();
+                OnExpChanged?.Invoke(value);
             }
         }
 
@@ -84,9 +114,10 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefs.Save();
         }
 
-        public void SaveAllData(int level, int elixir, int gold, List<Building> buildings)
+        public void SaveAllData(int level, int exp, int elixir, int gold, List<Building> buildings)
         {
             Level = level;
+            Exp = exp;
             Elixir = elixir;
             Gold = gold;
             SaveBuildings(buildings);
@@ -97,5 +128,17 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
         }
+
+        public int ExperienceForNextLevel(int level)
+        {
+            // Constants for the log growth model
+            const int a = 100;
+            const int b = 2;
+            const int c = 10;
+
+            return (int)(a * Mathf.Log(b * level + c));
+        }
+
+
     }
 }

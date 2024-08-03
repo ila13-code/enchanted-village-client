@@ -99,6 +99,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void MovePressed()
         {
+            //todo disattivare se UI attiva
             _moving = true;
         }
         private void MoveStopped()
@@ -135,6 +136,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void ZoomStopped()
         {
+            //todo disattivare se UI attiva
             _zooming = false;
         }
 

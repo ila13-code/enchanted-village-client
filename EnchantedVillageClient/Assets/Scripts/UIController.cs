@@ -9,6 +9,7 @@ namespace Unical.Demacs.EnchantedVillage
     public class UIController : MonoBehaviour
     {
         private static UIController instance = null;
+        
 
         [SerializeField] private TextMeshProUGUI _elisirAmount;
         [SerializeField] private TextMeshProUGUI _goldAmount;
@@ -16,9 +17,9 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Slider _levelSlider;
         [SerializeField] private Slider _elisirSlider;
         [SerializeField] private Slider _goldSlider;
-        [SerializeField] private Button _shop;
         [SerializeField] private Button _battle;
-
+        [SerializeField] private Building[] _buildings;
+        public bool isActive = true;
         public static UIController Instance
         {
             get
@@ -28,6 +29,7 @@ namespace Unical.Demacs.EnchantedVillage
                     instance = FindObjectOfType<UIController>();
                     if (instance == null)
                     {
+                        instance = new UIController();
                         GameObject go = new GameObject("UIController");
                         instance = go.AddComponent<UIController>();
                     }
@@ -38,13 +40,14 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            _shop.onClick.AddListener(OnClickShop);
-
+            
             PlayerPrefsController.Instance.OnLevelChanged += UpdateLevel;
+            PlayerPrefsController.Instance.OnExpChanged += UpdateExp;
             PlayerPrefsController.Instance.OnElixirChanged += UpdateElixir;
             PlayerPrefsController.Instance.OnGoldChanged += UpdateGold;
 
             UpdateLevel(PlayerPrefsController.Instance.Level);
+            UpdateExp(PlayerPrefsController.Instance.Exp);
             UpdateElixir(PlayerPrefsController.Instance.Elixir);
             UpdateGold(PlayerPrefsController.Instance.Gold);
         }
@@ -52,26 +55,23 @@ namespace Unical.Demacs.EnchantedVillage
         private void OnDestroy()
         {
             PlayerPrefsController.Instance.OnLevelChanged -= UpdateLevel;
+            PlayerPrefsController.Instance.OnExpChanged -= UpdateExp;
             PlayerPrefsController.Instance.OnElixirChanged -= UpdateElixir;
             PlayerPrefsController.Instance.OnGoldChanged -= UpdateGold;
         }
 
-        private void OnClickShop() { }
 
         private void UpdateLevel(int newLevel)
         {
-            double experience = newLevel / 100;
-            int level =Convert.ToInt32(experience);
-            _level.text = level.ToString();
-            if(experience % 1 != 0)
-            {
-                double pointsToNextLevel = Mathf.Abs((float) (level - experience));
-                _levelSlider.value = Convert.ToInt32(pointsToNextLevel * 100);
-                Debug.Log(level.ToString());
-                Debug.Log(pointsToNextLevel.ToString());
-                Debug.Log(experience.ToString());
-            }
+            _level.text = newLevel.ToString();
+        }
 
+        private void UpdateExp(int newExp)
+        {
+            int currentLevel = PlayerPrefsController.Instance.Level;
+            int expForNextLevel = PlayerPrefsController.Instance.ExperienceForNextLevel(currentLevel);
+            _levelSlider.maxValue = expForNextLevel;
+            _levelSlider.value = newExp;
         }
 
         private void UpdateElixir(int newElixir)
