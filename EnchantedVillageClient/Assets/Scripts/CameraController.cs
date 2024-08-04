@@ -1,8 +1,8 @@
+using UnityEngine;
+using UnityEngine.EventSystems;
+
 namespace Unical.Demacs.EnchantedVillage
 {
-    using UnityEngine;
-    using UnityEngine.EventSystems;
-
     public class CameraController : MonoBehaviour
     {
         [SerializeField] private Camera _camera = null;
