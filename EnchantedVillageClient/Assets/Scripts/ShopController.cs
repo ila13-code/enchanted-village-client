@@ -1,16 +1,14 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Windows;
+using UnityEngine.EventSystems;
+
 namespace Unical.Demacs.EnchantedVillage
 {
     public class ShopController : MonoBehaviour
     {
-
         private static ShopController instance = null;
-        public Boolean isActive = false;
-        private InputControls _inputs = null;
+        public bool isActive = false;
+        [SerializeField] public GameObject shop;
+
         public static ShopController Instance
         {
             get
@@ -27,16 +25,10 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
-
-
-        
-   
-        public void OnClickShop()
+        private void Awake()
         {
-            Debug.Log("cjdjdc");
-            isActive = true;
+            instance = this;
+            shop.SetActive(false);
         }
-
-
     }
 }

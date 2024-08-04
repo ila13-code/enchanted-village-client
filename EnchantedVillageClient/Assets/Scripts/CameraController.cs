@@ -1,6 +1,7 @@
 namespace Unical.Demacs.EnchantedVillage
 {
     using UnityEngine;
+    using UnityEngine.EventSystems;
 
     public class CameraController : MonoBehaviour
     {
@@ -33,7 +34,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Awake()
         {
-            _inputs = new InputControls();
+            _inputs = InputManager.Instance.Controls;
             _root = new GameObject("CameraRoot").transform;
             _pivot = new GameObject("CameraPivot").transform;
             _target = new GameObject("CameraTarget").transform;
@@ -99,9 +100,9 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void MovePressed()
         {
-            //todo disattivare se UI attiva
             _moving = true;
         }
+
         private void MoveStopped()
         {
             _moving = false;
@@ -109,39 +110,42 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void ZoomPressed()
         {
-            _zooming = true;
-            if (!Input.touchSupported)
-            {
-                float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
-                if (mouseScroll != 0)
+                _zooming = true;
+                if (!Input.touchSupported)
                 {
-                    _zoom -= mouseScroll * _zoomSpeed * Time.deltaTime;
-                    _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
+                    float mouseScroll = _inputs.MainMap.MouseScroll.ReadValue<float>();
+                    if (mouseScroll != 0)
+                    {
+                        _zoom -= mouseScroll * _zoomSpeed * Time.deltaTime;
+                        _zoom = Mathf.Clamp(_zoom, _zoomMax, _zoomMin);
+                    }
                 }
-            }
-            else
-            {
-                if (Input.touchCount == 2)
+                else
                 {
-                    Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
-                    Vector2 touch1 = _inputs.MainMap.TouchPosition1.ReadValue<Vector2>();
-                    _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
-                    _zoomPositionInWorld = CameraPositionToMapPosition(_zoomPositionOnScreen);
-                    _zoomBaseValue = _zoom;
+                    if (Input.touchCount == 2)
+                    {
+                        Vector2 touch0 = _inputs.MainMap.TouchPosition0.ReadValue<Vector2>();
+                        Vector2 touch1 = _inputs.MainMap.TouchPosition1.ReadValue<Vector2>();
+                        _zoomPositionOnScreen = Vector2.Lerp(touch0, touch1, 0.5f);
+                        _zoomPositionInWorld = CameraPositionToMapPosition(_zoomPositionOnScreen);
+                        _zoomBaseValue = _zoom;
 
-                    _zoomBaseDistance = Vector2.Distance(touch0, touch1) / Mathf.Max(Screen.width, Screen.height);
+                        _zoomBaseDistance = Vector2.Distance(touch0, touch1) / Mathf.Max(Screen.width, Screen.height);
+                    }
                 }
-            }
         }
 
         private void ZoomStopped()
         {
-            //todo disattivare se UI attiva
             _zooming = false;
         }
 
         private void Update()
         {
+            //se sono su un elemento della UI non devo muovermi nella mappa
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+
             if (_zooming)
             {
                 if (!Input.touchSupported)
