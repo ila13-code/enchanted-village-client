@@ -6,8 +6,6 @@ namespace Unical.Demacs.EnchantedVillage
     public class ShopController : MonoBehaviour
     {
         private static ShopController instance = null;
-        public bool isActive = false;
-        [SerializeField] public GameObject shop;
 
         public static ShopController Instance
         {
@@ -28,7 +26,6 @@ namespace Unical.Demacs.EnchantedVillage
         private void Awake()
         {
             instance = this;
-            shop.SetActive(false);
         }
     }
 }

@@ -17,8 +17,6 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Slider _levelSlider;
         [SerializeField] private Slider _elisirSlider;
         [SerializeField] private Slider _goldSlider;
-        [SerializeField] private Button _battlePls;
-        [SerializeField] private Button _shopPls;
         [SerializeField] private Building[] _buildings;
         [SerializeField] public GameObject _elements = null;
         private bool _active = true;
@@ -50,7 +48,6 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            _shopPls.onClick.AddListener(onClickShopPls);
             PlayerPrefsController.Instance.OnLevelChanged += UpdateLevel;
             PlayerPrefsController.Instance.OnExpChanged += UpdateExp;
             PlayerPrefsController.Instance.OnElixirChanged += UpdateElixir;
@@ -94,13 +91,6 @@ namespace Unical.Demacs.EnchantedVillage
             _goldAmount.text = newGold.ToString();
         }
 
-        public void onClickShopPls()
-        {
-            ShopController.Instance.shop.SetActive(true);
-            _elements.SetActive(false);
-            _active = false;
-            Debug.Log("ho clicc");
-        }
 
         public bool isActive
         {
