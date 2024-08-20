@@ -58,5 +58,39 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        public static Sprite getSprite(ItemType itemType)
+        {
+            switch(itemType)
+            {
+                case ItemType.cannon:
+                    return Resources.Load<Sprite>("Sprites/cannon");
+                case ItemType.tower:
+                    return Resources.Load<Sprite>("Sprites/tower");
+                case ItemType.wall:
+                    return Resources.Load<Sprite>("Sprites/wall");
+                case ItemType.barrack:
+                    return Resources.Load<Sprite>("Sprites/barrack");
+                case ItemType.trainingBase:
+                    return Resources.Load<Sprite>("Sprites/trainingBase");
+                case ItemType.boath:
+                    return Resources.Load<Sprite>("Sprites/boath");
+                case ItemType.camp:
+                    return Resources.Load<Sprite>("Sprites/camp");
+                case ItemType.flag:
+                    return Resources.Load<Sprite>("Sprites/flag");
+                case ItemType.tree:
+                    return Resources.Load<Sprite>("Sprites/tree1");
+                case ItemType.elisirStorage:
+                    return Resources.Load<Sprite>("Sprites/elisirStorage");
+                case ItemType.elisirCollector:
+                    return Resources.Load<Sprite>("Sprites/elisirCollector");
+                case ItemType.goldStorage:
+                    return Resources.Load<Sprite>("Sprites/goldStorage");
+                case ItemType.goldCollector:
+                    return Resources.Load<Sprite>("Sprites/goldCollector");
+                default:
+                    return null;
+            }   
+        }
     }
 }
