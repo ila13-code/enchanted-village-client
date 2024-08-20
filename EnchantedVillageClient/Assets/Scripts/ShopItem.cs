@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,8 +22,58 @@ namespace Unical.Demacs.EnchantedVillage
             goldStorage,
             goldCollector
         }
-        
-        public static int getCost(ItemType item)
+
+        public enum ItemCategory
+        {
+            construction,
+            production,
+            defense,
+            decoration,
+            nullCategory
+        }
+
+        public static ItemCategory GetCategory(ItemType itemType)
+        {
+            if(itemType.Equals(ItemType.cannon) || itemType.Equals(ItemType.tower) || itemType.Equals(ItemType.wall))
+            {
+                return ItemCategory.defense;
+            }
+            else if(itemType.Equals(ItemType.elisirStorage) || itemType.Equals(ItemType.elisirCollector) || itemType.Equals(ItemType.goldStorage) || itemType.Equals(ItemType.goldCollector))
+            {
+                return ItemCategory.production;
+            }
+            else if(itemType.Equals(ItemType.barrack) || itemType.Equals(ItemType.trainingBase)  || itemType.Equals(ItemType.camp))
+            {
+                return ItemCategory.construction;
+            }
+            else if(itemType.Equals(ItemType.flag) || itemType.Equals(ItemType.tree) || itemType.Equals(ItemType.boath))
+            {
+                 return ItemCategory.decoration;
+            }
+            else
+            {
+                return ItemCategory.nullCategory;
+            }
+        }
+
+        public static ItemType[] getByCategory(ItemCategory category)
+        {
+            switch(category)
+            {
+                case ItemCategory.construction:
+                    return new ItemType[] { ItemType.barrack, ItemType.trainingBase, ItemType.camp };
+                case ItemCategory.production:
+                    return new ItemType[] { ItemType.elisirStorage, ItemType.elisirCollector, ItemType.goldStorage, ItemType.goldCollector };
+                case ItemCategory.defense:
+                    return new ItemType[] { ItemType.cannon, ItemType.tower, ItemType.wall };
+                case ItemCategory.decoration:
+                    return new ItemType[] { ItemType.flag, ItemType.tree, ItemType.boath };
+                default:
+                    return new ItemType[] { };
+            }
+        }
+
+        public static int GetCost(ItemType item)
         {
             switch (item)
             {
@@ -58,7 +109,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public static Sprite getSprite(ItemType itemType)
+        public static Sprite GetSprite(ItemType itemType)
         {
             switch(itemType)
             {
@@ -92,5 +143,7 @@ namespace Unical.Demacs.EnchantedVillage
                     return null;
             }   
         }
+
+ 
     }
 }
