@@ -9,12 +9,13 @@ namespace Unical.Demacs.EnchantedVillage
     public class ShopController : MonoBehaviour
     {
         private static ShopController instance = null;
-        private Transform shopItemTemplate;
-       
-        private Boolean isConstructionOpen = true;
-        private Boolean isProductionOpen = false;
-        private Boolean isDefenseOpen = false;
-        private Boolean isDecorationOpen = false;
+        public GameObject shopItemTemplatePrefab;
+        [SerializeField] private Transform container;
+
+        private bool isConstructionOpen = true;
+        private bool isProductionOpen = false;
+        private bool isDefenseOpen = false;
+        private bool isDecorationOpen = false;
 
         public static ShopController Instance
         {
@@ -32,28 +33,60 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
+
         private void Awake()
         {
             instance = this;
-            shopItemTemplate = transform.Find("ShopItemTemplate");
-            
         }
 
         private void CreateItemButtons(ItemCategory category)
         {
-            Transform shopItemTransform=Instantiate(shopItemTemplate);
-            RectTransform shopItemRectTransform = shopItemTransform.GetComponent<RectTransform>();
-            ItemType[] items = getByCategory(category);
-            for(int i = 0; i < items.Length; i++)
+            for (int i = container.childCount - 1; i >= 0; i--)
             {
-                ItemType item = items[i];
-                shopItemRectTransform.Find("itemName").GetComponent<Text>().text = item.ToString();
-                shopItemRectTransform.Find("itemCost").GetComponent<Text>().text = GetCost(item).ToString();
-                shopItemRectTransform.Find("itemImage").GetComponent<Image>().sprite = GetSprite(item);
-                //shopItemRectTransform.Find("itemButton").GetComponent<Button>().onClick.AddListener(() => OnShopItemButtonClick(item));
-                shopItemTransform = Instantiate(shopItemTemplate);
-                shopItemRectTransform = shopItemTransform.GetComponent<RectTransform>();
+                Destroy(container.GetChild(i).gameObject);
             }
+            ItemType[] items = getByCategory(category);
+   
+
+            int itemsPerRow = 4;
+            float itemWidth = 200f;
+            float itemHeight = 200f;
+            float spacing = 20f;
+
+            int numRows = Mathf.CeilToInt((float)items.Length / itemsPerRow);
+            float totalHeight = (numRows * itemHeight) + ((numRows - 1) * spacing);
+            float totalWidth = (itemsPerRow * itemWidth) + ((itemsPerRow - 1) * spacing);
+            float containerCenterY = container.GetComponent<RectTransform>().rect.center.y+((itemHeight/2)-20);
+            float containerCenterX = container.GetComponent<RectTransform>().rect.center.x + ((itemWidth / 2) - 20);
+
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items.Length == 4)
+                {
+                    spacing = -3f;
+                    containerCenterX = container.GetComponent<RectTransform>().rect.center.x + ((itemWidth / 2) -55);
+                }
+                
+                
+                ItemType item = items[i];
+                GameObject shopItemGameObject = Instantiate(shopItemTemplatePrefab, container);
+                RectTransform shopItemRectTransform = shopItemGameObject.GetComponent<RectTransform>();
+
+                int row = i / itemsPerRow;
+                int col = i % itemsPerRow;
+                float xPosition = (col * (itemWidth + spacing)) - (totalWidth / 2f) + (itemWidth / 2f) + (col * spacing) + containerCenterX;
+                float yPosition = -(row * (itemHeight + spacing)) + containerCenterY - (totalHeight / 2f);
+                shopItemRectTransform.anchoredPosition = new Vector2(xPosition, yPosition);
+
+                shopItemGameObject.transform.Find("Name").GetComponent<TMPro.TextMeshProUGUI>().text = item.ToString().ToUpper();
+                shopItemGameObject.transform.Find("Cost").GetComponent<TMPro.TextMeshProUGUI>().text = GetCost(item).ToString();
+                shopItemGameObject.transform.Find("Image").GetComponent<Image>().sprite = GetSprite(item);
+            }
+        }
+        private void Start()
+        {
+            setProductionOpen();
+            CreateItemButtons(ItemCategory.production);
         }
 
         public void setConstructionOpen()
@@ -62,6 +95,7 @@ namespace Unical.Demacs.EnchantedVillage
             isProductionOpen = false;
             isDefenseOpen = false;
             isDecorationOpen = false;
+            CreateItemButtons(ItemCategory.construction);
         }
 
         public void setProductionOpen()
@@ -70,6 +104,7 @@ namespace Unical.Demacs.EnchantedVillage
             isProductionOpen = true;
             isDefenseOpen = false;
             isDecorationOpen = false;
+            CreateItemButtons(ItemCategory.production);
         }
 
         public void setDefenseOpen()
@@ -78,6 +113,7 @@ namespace Unical.Demacs.EnchantedVillage
             isProductionOpen = false;
             isDefenseOpen = true;
             isDecorationOpen = false;
+            CreateItemButtons(ItemCategory.defense);
         }
 
         public void setDecorationOpen()
@@ -86,6 +122,7 @@ namespace Unical.Demacs.EnchantedVillage
             isProductionOpen = false;
             isDefenseOpen = false;
             isDecorationOpen = true;
+            CreateItemButtons(ItemCategory.decoration);
         }
     }
 }

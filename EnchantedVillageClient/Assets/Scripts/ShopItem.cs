@@ -13,7 +13,7 @@ namespace Unical.Demacs.EnchantedVillage
             wall,
             barrack,
             trainingBase,
-            boath,
+            boat,
             camp,
             flag,
             tree,
@@ -46,7 +46,7 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 return ItemCategory.construction;
             }
-            else if(itemType.Equals(ItemType.flag) || itemType.Equals(ItemType.tree) || itemType.Equals(ItemType.boath))
+            else if(itemType.Equals(ItemType.flag) || itemType.Equals(ItemType.tree) || itemType.Equals(ItemType.boat))
             {
                  return ItemCategory.decoration;
             }
@@ -67,7 +67,7 @@ namespace Unical.Demacs.EnchantedVillage
                 case ItemCategory.defense:
                     return new ItemType[] { ItemType.cannon, ItemType.tower, ItemType.wall };
                 case ItemCategory.decoration:
-                    return new ItemType[] { ItemType.flag, ItemType.tree, ItemType.boath };
+                    return new ItemType[] { ItemType.flag, ItemType.tree, ItemType.boat };
                 default:
                     return new ItemType[] { };
             }
@@ -87,7 +87,7 @@ namespace Unical.Demacs.EnchantedVillage
                     return 150;
                 case ItemType.trainingBase:
                    return 200;
-                case ItemType.boath:
+                case ItemType.boat:
                     return 100;
                 case ItemType.camp:
                     return 100;
@@ -123,8 +123,8 @@ namespace Unical.Demacs.EnchantedVillage
                     return Resources.Load<Sprite>("Sprites/barrack");
                 case ItemType.trainingBase:
                     return Resources.Load<Sprite>("Sprites/trainingBase");
-                case ItemType.boath:
-                    return Resources.Load<Sprite>("Sprites/boath");
+                case ItemType.boat:
+                    return Resources.Load<Sprite>("Sprites/boat");
                 case ItemType.camp:
                     return Resources.Load<Sprite>("Sprites/camp");
                 case ItemType.flag:
