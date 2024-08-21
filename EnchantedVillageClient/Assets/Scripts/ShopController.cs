@@ -42,9 +42,9 @@ namespace Unical.Demacs.EnchantedVillage
         private void CreateItemButtons(ItemCategory category)
         {
             for (int i = container.childCount - 1; i >= 0; i--)
-            {
-                Destroy(container.GetChild(i).gameObject);
-            }
+    {
+        Destroy(container.GetChild(i).gameObject);
+    }
             ItemType[] items = getByCategory(category);
    
 
@@ -123,6 +123,11 @@ namespace Unical.Demacs.EnchantedVillage
             isDefenseOpen = false;
             isDecorationOpen = true;
             CreateItemButtons(ItemCategory.decoration);
+        }
+
+        public void disableButtonPressed(Button button)
+        {
+            button.interactable = false;
         }
     }
 }
