@@ -129,5 +129,6 @@ namespace Unical.Demacs.EnchantedVillage
         {
             button.interactable = false;
         }
+
     }
 }

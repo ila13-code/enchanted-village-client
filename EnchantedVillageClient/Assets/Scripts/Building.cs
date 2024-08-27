@@ -20,4 +20,5 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private MeshRenderer _base = null;
         [SerializeField] private Level[] levels = null;
     }
+    
 }

@@ -131,7 +131,6 @@ namespace Unical.Demacs.EnchantedVillage
 
         public int ExperienceForNextLevel(int level)
         {
-            // Constants for the log growth model
             const int a = 100;
             const int b = 2;
             const int c = 10;
