@@ -11,7 +11,6 @@ namespace Unical.Demacs.EnchantedVillage
         
         [SerializeField] private GameObject CashDialogPrefab;
         private Transform buildingsContainer;
-        private Coroutine currentCoroutine;
 
         private void Awake()
         {
@@ -25,8 +24,6 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.LogError("Map non trovato nella scena.");
             }
         }
-
-       
 
         private async void PlaceBuilding()
         {
