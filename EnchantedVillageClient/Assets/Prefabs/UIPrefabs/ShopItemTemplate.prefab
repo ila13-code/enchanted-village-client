@@ -270,7 +270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _prefabIndex: 0
-  _buildingsParent: {fileID: 0}
+  CashDialogPrefab: {fileID: 4216548217369666783, guid: 6baa4f88a2a912244b4220ebdfdea856, type: 3}
 --- !u!1 &3803649912135384799
 GameObject:
   m_ObjectHideFlags: 0

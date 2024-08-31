@@ -20,6 +20,7 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Building[] _buildings;
         [SerializeField] public GameObject _elements = null;
         [SerializeField] public BuildGrid _buildGrid = null;
+        [SerializeField] public GameObject _dialogs = null;
         private bool _active = true;
 
 
