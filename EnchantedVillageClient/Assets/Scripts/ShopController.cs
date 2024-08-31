@@ -42,9 +42,9 @@ namespace Unical.Demacs.EnchantedVillage
         private void CreateItemButtons(ItemCategory category)
         {
             for (int i = container.childCount - 1; i >= 0; i--)
-    {
-        Destroy(container.GetChild(i).gameObject);
-    }
+            {
+                Destroy(container.GetChild(i).gameObject);
+            }
             ItemType[] items = getByCategory(category);
    
 
@@ -71,6 +71,8 @@ namespace Unical.Demacs.EnchantedVillage
                 ItemType item = items[i];
                 GameObject shopItemGameObject = Instantiate(shopItemTemplatePrefab, container);
                 RectTransform shopItemRectTransform = shopItemGameObject.GetComponent<RectTransform>();
+
+                shopItemGameObject.GetComponent<UIBuilding>().setPrefabIndex(GetIndex(item));
 
                 int row = i / itemsPerRow;
                 int col = i % itemsPerRow;

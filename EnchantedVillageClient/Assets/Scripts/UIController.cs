@@ -19,6 +19,7 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Slider _goldSlider;
         [SerializeField] private Building[] _buildings;
         [SerializeField] public GameObject _elements = null;
+        [SerializeField] public BuildGrid _buildGrid = null;
         private bool _active = true;
 
 
@@ -95,6 +96,11 @@ namespace Unical.Demacs.EnchantedVillage
         public bool isActive
         {
             get { return _active; }
+        }
+
+        public Building[] Buildings
+        {
+            get { return _buildings; }
         }
     }
 }

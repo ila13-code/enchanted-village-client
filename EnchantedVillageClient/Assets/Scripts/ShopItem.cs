@@ -144,6 +144,41 @@ namespace Unical.Demacs.EnchantedVillage
             }   
         }
 
+        public static int GetIndex(ItemType itemType)
+        {
+            switch(itemType)
+            {
+                case ItemType.cannon:
+                    return 0;
+                case ItemType.tower:
+                    return 1;
+                case ItemType.wall:
+                    return 2;
+                case ItemType.barrack:
+                    return 3;
+                case ItemType.trainingBase:
+                    return 4;
+                case ItemType.boat:
+                    return 5;
+                case ItemType.camp:
+                    return 6;
+                case ItemType.flag:
+                    return 7;
+                case ItemType.tree:
+                    return 8;
+                case ItemType.elisirStorage:
+                    return 9;
+                case ItemType.elisirCollector:
+                    return 10;
+                case ItemType.goldStorage:
+                    return 11;
+                case ItemType.goldCollector:
+                    return 12;
+                default:
+                    return 0;
+            }
+        }
+
  
     }
 }
