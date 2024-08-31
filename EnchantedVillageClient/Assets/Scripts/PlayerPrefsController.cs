@@ -16,10 +16,27 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     GameObject go = new GameObject("PlayerPrefsController");
                     _instance = go.AddComponent<PlayerPrefsController>();
-                    DontDestroyOnLoad(go);
                 }
                 return _instance;
             }
+        }
+
+        private void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (_instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            DestroyInstance();
         }
 
         public static void DestroyInstance()
@@ -138,6 +155,13 @@ namespace Unical.Demacs.EnchantedVillage
             return (int)(a * Mathf.Log(b * level + c));
         }
 
-
+        public void InitializeNewGame()
+        {
+            Level = 1;
+            Exp = 0;
+            Gold = 300;
+            Elixir = 300;
+            SaveBuildings(new List<Building>());
+        }
     }
 }

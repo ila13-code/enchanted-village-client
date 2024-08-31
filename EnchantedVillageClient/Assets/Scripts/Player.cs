@@ -13,6 +13,8 @@ namespace Unical.Demacs.EnchantedVillage
         {
             level = PlayerPrefsController.Instance.Level;
             experiencePoints = PlayerPrefsController.Instance.Exp;
+            PlayerPrefsController.Instance.Elixir = 300;
+            PlayerPrefsController.Instance.Gold = 300;
         }
 
         public void AddExperience(int amount)
@@ -45,12 +47,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Update()
         {
-            //PlayerPrefsController.Instance.ClearAllData();
+    
             
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                this.AddExperience(20);
-            }
         }
 
         private void OnApplicationQuit()

@@ -86,11 +86,13 @@ namespace Unical.Demacs.EnchantedVillage
         private void UpdateElixir(int newElixir)
         {
             _elisirAmount.text = newElixir.ToString();
+            _elisirSlider.value = newElixir;
         }
 
         private void UpdateGold(int newGold)
         {
             _goldAmount.text = newGold.ToString();
+            _goldSlider.value = newGold;
         }
 
 
