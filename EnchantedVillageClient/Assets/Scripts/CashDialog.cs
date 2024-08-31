@@ -1,45 +1,35 @@
-using System.Collections;
 using UnityEngine;
+using System.Threading.Tasks;
 
 namespace Unical.Demacs.EnchantedVillage
 {
     public class CashDialog : MonoBehaviour
     {
-        public bool UserConfirmed { get; private set; }
-        private bool inputReceived = false;
+        private TaskCompletionSource<bool> tcs;
 
-        public IEnumerator WaitForUserInput()
+        public void Show()
         {
-            Debug.Log("In attesa dell'input utente...");
+            gameObject.SetActive(true);
+            tcs = new TaskCompletionSource<bool>();
+        }
 
-            // Aspetta finché l'utente non fa una scelta
-            while (!inputReceived)
-            {
-                yield return null;  // Aspetta il frame successivo
-            }
-
-            Debug.Log("Input utente ricevuto: " + UserConfirmed);
+        public Task<bool> WaitForUserInput()
+        {
+            return tcs.Task;
         }
 
         public void OnConfirm()
         {
             Debug.Log("OnConfirm chiamato");
-            UserConfirmed = true;
-            inputReceived = true;
+            tcs.TrySetResult(true);
+            gameObject.SetActive(false);
         }
 
         public void OnCancel()
         {
             Debug.Log("OnCancel chiamato");
-            UserConfirmed = false;
-            inputReceived = true;
-        }
-
-        public void ResetState()
-        {
-            UserConfirmed = false;
-            inputReceived = false;
+            tcs.TrySetResult(false);
+            gameObject.SetActive(false);
         }
     }
 }
-

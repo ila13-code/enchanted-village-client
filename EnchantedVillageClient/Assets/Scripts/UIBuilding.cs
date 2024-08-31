@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 namespace Unical.Demacs.EnchantedVillage
@@ -25,30 +26,12 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public void PlaceBuilding()
+       
+
+        private async void PlaceBuilding()
         {
-            // Se c'è una coroutine in corso, fermala
-            if (currentCoroutine != null)
-            {
-                StopCoroutine(currentCoroutine);
-            }
-
-            // Avvia una nuova coroutine
-            currentCoroutine = StartCoroutine(PlaceBuildingCoroutine());
-        }
-
-        private IEnumerator PlaceBuildingCoroutine()
-        {
-            bool confirmed = false;
-
-            // Log per verificare l'inizio della coroutine
-            Debug.Log("Inizio PlaceBuildingCoroutine");
-
-            yield return StartCoroutine(ShowCashDialogCoroutine(result =>
-            {
-                confirmed = result;
-                Debug.Log("Risultato dialogo: " + confirmed);
-            }));
+            Debug.Log("Inizio PlaceBuilding");
+            bool confirmed = await ShowCashDialog();
 
             if (confirmed)
             {
@@ -60,30 +43,20 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 Debug.Log("L'utente ha annullato il posizionamento dell'edificio.");
             }
-
-            currentCoroutine = null;
         }
 
-        private IEnumerator ShowCashDialogCoroutine(System.Action<bool> onComplete)
+        private async Task<bool> ShowCashDialog()
         {
-            // Trova e attiva il dialogo
             GameObject dialogInstance = UIController.Instance._dialogs.transform.Find("CashDialog").gameObject;
-            dialogInstance.SetActive(true);
-
-            // Ottieni il componente CashDialog e resetta lo stato
             CashDialog dialog = dialogInstance.GetComponent<CashDialog>();
-            dialog.ResetState();
+            dialog.Show();
 
             Debug.Log("Dialogo attivato");
 
-            // Aspetta l'input dell'utente
-            yield return StartCoroutine(dialog.WaitForUserInput());
+            bool result = await dialog.WaitForUserInput();
 
-            Debug.Log("Completa ShowCashDialogCoroutine con: " + dialog.UserConfirmed);
-
-            // Passa il risultato al callback
-            onComplete(dialog.UserConfirmed);
-
+            Debug.Log("Completa ShowCashDialog con: " + result);
+            return result;
         }
 
         public int getPrefabIndex()
