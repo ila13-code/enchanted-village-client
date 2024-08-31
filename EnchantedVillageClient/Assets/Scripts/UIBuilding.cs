@@ -25,20 +25,31 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        private async void PlaceBuilding()
+        public async void PlaceBuilding()
         {
             Debug.Log("Inizio PlaceBuilding");
-            bool confirmed = await ShowCashDialog();
-
-            if (confirmed)
+            if (PlayerPrefsController.Instance.Gold < ShopItem.GetCostFromIndex(_prefabIndex))
             {
-                Debug.Log("Conferma ricevuta, piazzamento edificio.");
-                Vector3 position = Vector3.zero;
-                Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
+                Debug.Log("L'utente non ha abbastanza risorse per acquistare l'edificio");
+                await ShowErrorDialog();
+                return;
             }
             else
             {
-                Debug.Log("L'utente ha annullato il posizionamento dell'edificio.");
+                bool confirmed = await ShowCashDialog();
+
+                if (confirmed)
+                {
+                    Debug.Log("Conferma ricevuta, piazzamento edificio.");
+                    PlayerPrefsController.Instance.Gold -= ShopItem.GetCostFromIndex(_prefabIndex);
+                    
+                    Vector3 position = Vector3.zero;
+                    Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
+                }
+                else
+                {
+                    Debug.Log("L'utente ha annullato il posizionamento dell'edificio.");
+                }
             }
         }
 
@@ -54,6 +65,21 @@ namespace Unical.Demacs.EnchantedVillage
 
             Debug.Log("Completa ShowCashDialog con: " + result);
             return result;
+        }
+
+        private async Task<bool> ShowErrorDialog()
+        {
+            GameObject dialogInstance = UIController.Instance._dialogs.transform.Find("ErrorDialog").gameObject;
+            ErrorDialog dialog = dialogInstance.GetComponent<ErrorDialog>();
+            dialog.Show();
+            Debug.Log("Error Dialog attivato");
+
+            await Task.Delay(3000);
+
+            dialog.Hide();
+
+            Debug.Log("Completa ShowErrorDialog dopo 3 secondi");
+            return true; 
         }
 
         public int getPrefabIndex()

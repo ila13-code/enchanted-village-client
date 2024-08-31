@@ -179,6 +179,45 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
- 
+        public static ItemType GetItemType(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return ItemType.cannon;
+                case 1:
+                    return ItemType.tower;
+                case 2:
+                    return ItemType.wall;
+                case 3:
+                    return ItemType.barrack;
+                case 4:
+                    return ItemType.trainingBase;
+                case 5:
+                    return ItemType.boat;
+                case 6:
+                    return ItemType.camp;
+                case 7:
+                    return ItemType.flag;
+                case 8:
+                    return ItemType.tree;
+                case 9:
+                    return ItemType.elisirStorage;
+                case 10:
+                    return ItemType.elisirCollector;
+                case 11:
+                    return ItemType.goldStorage;
+                case 12:
+                    return ItemType.goldCollector;
+                default:
+                    return ItemType.cannon;
+            }
+        }
+
+        public static int GetCostFromIndex(int index)
+        {
+            return GetCost(GetItemType(index));
+        }
+
     }
 }
