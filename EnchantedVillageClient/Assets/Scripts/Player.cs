@@ -11,10 +11,16 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            level = PlayerPrefsController.Instance.Level;
-            experiencePoints = PlayerPrefsController.Instance.Exp;
-            PlayerPrefsController.Instance.Elixir = 300;
-            PlayerPrefsController.Instance.Gold = 300;
+            if(this.IsNewGame())
+            {
+                level = 1;
+                experiencePoints = 0;
+                PlayerPrefsController.Instance.Elixir = 300;
+                PlayerPrefsController.Instance.Gold = 300;
+            }
+            else
+                LoadPlayerData();
+         
         }
 
         public void AddExperience(int amount)
@@ -30,30 +36,27 @@ namespace Unical.Demacs.EnchantedVillage
                 experiencePoints -= ExperienceForNextLevel(level);
                 level++;
             }
-
             PlayerPrefsController.Instance.Level = level;
             PlayerPrefsController.Instance.Exp = experiencePoints;
         }
 
         private int ExperienceForNextLevel(int currentLevel)
         {
-            // Constants for the log growth model
             const int a = 100;
             const int b = 2;
             const int c = 10;
-
             return (int)(a * Mathf.Log(b * currentLevel + c));
         }
-
-        private void Update()
+        private bool IsNewGame()
         {
-    
-            
+            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0 && PlayerPrefsController.Instance.GetBuildings().Count == 0;
         }
 
-        private void OnApplicationQuit()
+        private void LoadPlayerData()
         {
-            PlayerPrefsController.DestroyInstance();
+            level = PlayerPrefsController.Instance.Level;
+            experiencePoints = PlayerPrefsController.Instance.Exp;
+            
         }
     }
 }

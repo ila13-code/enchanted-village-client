@@ -26,7 +26,6 @@ namespace Unical.Demacs.EnchantedVillage
             if (_instance == null)
             {
                 _instance = this;
-                DontDestroyOnLoad(gameObject);
             }
             else if (_instance != this)
             {
@@ -36,16 +35,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void OnApplicationQuit()
         {
+            SaveAllData(Level, Exp, Elixir, Gold, GetBuildings());
             DestroyInstance();
-        }
-
-        public static void DestroyInstance()
-        {
-            if (_instance != null)
-            {
-                Destroy(_instance.gameObject);
-                _instance = null;
-            }
         }
 
         private const string LevelKey = "PlayerLevel";
@@ -72,7 +63,6 @@ namespace Unical.Demacs.EnchantedVillage
             set
             {
                 PlayerPrefs.SetInt(LevelKey, value);
-                PlayerPrefs.Save();
                 OnLevelChanged?.Invoke(value);
             }
         }
@@ -91,7 +81,6 @@ namespace Unical.Demacs.EnchantedVillage
 
                 PlayerPrefs.SetInt(ExpKey, value);
                 Level = currentLevel;
-                PlayerPrefs.Save();
                 OnExpChanged?.Invoke(value);
             }
         }
@@ -102,7 +91,6 @@ namespace Unical.Demacs.EnchantedVillage
             set
             {
                 PlayerPrefs.SetInt(ElixirKey, value);
-                PlayerPrefs.Save();
                 OnElixirChanged?.Invoke(value);
             }
         }
@@ -113,7 +101,6 @@ namespace Unical.Demacs.EnchantedVillage
             set
             {
                 PlayerPrefs.SetInt(GoldKey, value);
-                PlayerPrefs.Save();
                 OnGoldChanged?.Invoke(value);
             }
         }
@@ -128,7 +115,6 @@ namespace Unical.Demacs.EnchantedVillage
         {
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
-            PlayerPrefs.Save();
         }
 
         public void SaveAllData(int level, int exp, int elixir, int gold, List<Building> buildings)
@@ -138,6 +124,7 @@ namespace Unical.Demacs.EnchantedVillage
             Elixir = elixir;
             Gold = gold;
             SaveBuildings(buildings);
+            PlayerPrefs.Save();
         }
 
         public void ClearAllData()
@@ -162,6 +149,17 @@ namespace Unical.Demacs.EnchantedVillage
             Gold = 300;
             Elixir = 300;
             SaveBuildings(new List<Building>());
+            PlayerPrefs.Save();
+        }
+ 
+
+        public static void DestroyInstance()
+        {
+            if (_instance != null)
+            {
+                Destroy(_instance.gameObject);
+                _instance = null;
+            }
         }
     }
 }
