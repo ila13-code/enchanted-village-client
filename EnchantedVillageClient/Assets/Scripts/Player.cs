@@ -11,7 +11,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            if(this.IsNewGame())
+            if (this.IsNewGame())
             {
                 level = 1;
                 experiencePoints = 0;
@@ -19,7 +19,10 @@ namespace Unical.Demacs.EnchantedVillage
                 PlayerPrefsController.Instance.Gold = 300;
             }
             else
+            {
+                PlayerPrefsController.Instance.Gold = 300;
                 LoadPlayerData();
+            }
          
         }
 

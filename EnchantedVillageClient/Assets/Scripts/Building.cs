@@ -1,24 +1,61 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+
 namespace Unical.Demacs.EnchantedVillage
 {
     public class Building : MonoBehaviour
     {
-        [System.Serializable] public class Level
+        [System.Serializable]
+        public class Level
         {
             public int level;
             public Sprite icon;
             public GameObject mesh;
         }
 
-        private BuildGrid _buildGrid = null;
         [SerializeField] private int _rows = 1;
         [SerializeField] private int _columns = 1;
-        private int _currentX = 0;
-        private int _currentY = 0;
-        [SerializeField] private MeshRenderer _base = null;
-        [SerializeField] private Level[] levels = null;
+        [SerializeField] private Level[] levels;
+
+        private int _currentX;
+        private int _currentY;
+        private BuildGrid _buildGrid;
+
+        public int Rows => _rows;
+        public int Columns => _columns;
+        public int CurrentX => _currentX;
+        public int CurrentY => _currentY;
+
+        private void Start()
+        {
+            _buildGrid = FindObjectOfType<BuildGrid>();
+        }
+
+        public void PlaceOnGrid(int x, int y)
+        {
+            _currentX = x;
+            _currentY = y;
+            Vector3 position = _buildGrid.GetCenterPosition(x, y, _rows, _columns);
+            transform.position = position;
+        }
+
+        public void Rotate()
+        {
+            transform.Rotate(Vector3.up, 90);
+            int temp = _rows;
+            _rows = _columns;
+            _columns = temp;
+            PlaceOnGrid(_currentX, _currentY);
+        }
+
+        public Vector3 GetCenterPosition()
+        {
+            return _buildGrid.GetCenterPosition(_currentX, _currentY, _rows, _columns);
+        }
+        public void UpdateGridPosition(int x, int y)
+        {
+            _currentX = x;
+            _currentY = y;
+        }
+
     }
-    
 }

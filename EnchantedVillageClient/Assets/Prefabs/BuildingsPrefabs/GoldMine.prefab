@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5309891302998177599}
   - component: {fileID: 2752299662842068385}
+  - component: {fileID: 7600901856453726661}
+  - component: {fileID: 9150435002275726088}
   m_Layer: 0
   m_Name: GoldMine
   m_TagString: Untagged
@@ -48,11 +50,43 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rows: 3
   _columns: 3
-  _base: {fileID: 6206074329120514907}
   levels:
   - level: 1
     icon: {fileID: 21300000, guid: e7efde9a4cd82f0478dfef022ccb1469, type: 3}
     mesh: {fileID: 4716246210078359604}
+--- !u!114 &7600901856453726661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3691641752519195514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 588da7af76e887145a87063e326403c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &9150435002275726088
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3691641752519195514}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4716246210078359604
 GameObject:
   m_ObjectHideFlags: 0

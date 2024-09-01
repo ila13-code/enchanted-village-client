@@ -32,6 +32,8 @@ namespace Unical.Demacs.EnchantedVillage
         private Transform _pivot = null;
         private Transform _target = null;
 
+        private bool _isBuildingMoving = false;
+
         private void Awake()
         {
             _inputs = InputManager.Instance.Controls;
@@ -40,6 +42,8 @@ namespace Unical.Demacs.EnchantedVillage
             _target = new GameObject("CameraTarget").transform;
             _camera.orthographic = true;
             _camera.nearClipPlane = 0f;
+            BuildingMovementEvents.OnBuildingDragStart += OnBuildingDragStart;
+            BuildingMovementEvents.OnBuildingDragEnd += OnBuildingDragEnd;
         }
 
         private void Start()
@@ -140,10 +144,26 @@ namespace Unical.Demacs.EnchantedVillage
             _zooming = false;
         }
 
+        private void OnDestroy()
+        {
+            BuildingMovementEvents.OnBuildingDragStart -= OnBuildingDragStart;
+            BuildingMovementEvents.OnBuildingDragEnd -= OnBuildingDragEnd;
+        }
+
+        private void OnBuildingDragStart()
+        {
+            _isBuildingMoving = true;
+        }
+
+        private void OnBuildingDragEnd()
+        {
+            _isBuildingMoving = false;
+        }
+
         private void Update()
         {
-            //se sono su un elemento della UI non devo muovermi nella mappa
-            if (EventSystem.current.IsPointerOverGameObject())
+            //se sono su un elemento della UI o sto spostando un edificio non devo muovermi nella mappa
+            if (EventSystem.current.IsPointerOverGameObject() || _isBuildingMoving)
                 return;
 
             if (_zooming)
