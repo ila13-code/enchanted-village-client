@@ -14,56 +14,62 @@ namespace Unical.Demacs.EnchantedVillage
 
         public Vector3 GetNearestPointOnGrid(Vector3 position)
         {
-            position -= transform.position;
-            int xCount = Mathf.RoundToInt(position.x / _cellSize);
-            int yCount = Mathf.RoundToInt(position.z / _cellSize);
+            Vector3 localPosition = transform.InverseTransformPoint(position);
+            int xCount = Mathf.RoundToInt(localPosition.x / _cellSize);
+            int zCount = Mathf.RoundToInt(localPosition.z / _cellSize);
 
             Vector3 result = new Vector3(
-                (float)xCount * _cellSize,
+                xCount * _cellSize,
                 0,
-                (float)yCount * _cellSize
+                zCount * _cellSize
             );
 
-            result += transform.position;
-            return result;
+            return transform.TransformPoint(result);
         }
 
         public Vector3 GetCenterPosition(int x, int y, int rows, int columns)
         {
-            Vector3 position = GetStartPosition(x, y);
-            position += (transform.right * columns * _cellSize / 2f) + (transform.forward * rows * _cellSize / 2f);
-            return position;
+            Vector3 localStartPosition = new Vector3(x * _cellSize, 0, y * _cellSize);
+            Vector3 localCenterOffset = new Vector3(columns * _cellSize / 2f, 0, rows * _cellSize / 2f);
+            Vector3 localCenterPosition = localStartPosition + localCenterOffset;
+            return transform.TransformPoint(localCenterPosition);
         }
 
-        private Vector3 GetStartPosition(int x, int y)
+        public (int, int) WorldToGridPosition(Vector3 worldPosition)
         {
-            Vector3 position = transform.position;
-            position += (transform.right * _cellSize * x) + (transform.forward * _cellSize * y);
-            return position;
+            Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
+            int gridX = Mathf.FloorToInt(localPosition.x / _cellSize);
+            int gridY = Mathf.FloorToInt(localPosition.z / _cellSize);
+            return (gridX, gridY);
         }
 
-        public bool IsPositionInMap(Vector3 position, int x, int y, int rows, int columns)
+        public bool IsPositionInMap(int gridX, int gridY, int buildingRows, int buildingColumns)
         {
-            position = transform.InverseTransformPoint(position);
-            Rect rect = new Rect(x, y, columns, rows);
-            return rect.Contains(new Vector2(position.x, position.z));
+            
+            int maxGridX = gridX + buildingColumns - 1;
+            int maxGridY = gridY + buildingRows - 1;
+
+            bool isInsideHorizontalBounds = gridX >= 0 && maxGridX < this.Columns;
+            bool isInsideVerticalBounds = gridY >= 0 && maxGridY < this.Rows;
+            Debug.Log($"Checking if position {gridX}, {gridY} is inside the map. Result: {isInsideHorizontalBounds && isInsideVerticalBounds}");
+            return isInsideHorizontalBounds && isInsideVerticalBounds;
         }
 
-#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.white;
+            Gizmos.color = Color.red;
             for (int k = 0; k <= _nRows; k++)
             {
-                Vector3 point = transform.position + transform.forward * _cellSize * k;
-                Gizmos.DrawLine(point, point + transform.right * _cellSize * _nCols);
+                Vector3 startPoint = transform.TransformPoint(new Vector3(0, 0, k * _cellSize));
+                Vector3 endPoint = transform.TransformPoint(new Vector3(_nCols * _cellSize, 0, k * _cellSize));
+                Gizmos.DrawLine(startPoint, endPoint);
             }
             for (int k = 0; k <= _nCols; k++)
             {
-                Vector3 point = transform.position + transform.right * _cellSize * k;
-                Gizmos.DrawLine(point, point + transform.forward * _cellSize * _nRows);
+                Vector3 startPoint = transform.TransformPoint(new Vector3(k * _cellSize, 0, 0));
+                Vector3 endPoint = transform.TransformPoint(new Vector3(k * _cellSize, 0, _nRows * _cellSize));
+                Gizmos.DrawLine(startPoint, endPoint);
             }
         }
-#endif
     }
 }

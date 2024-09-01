@@ -9,12 +9,19 @@ namespace Unical.Demacs.EnchantedVillage
         private Building building;
         private BuildGrid buildGrid;
         private Camera mainCamera;
+        private Renderer baseRenderer;
+        private BoxCollider buildingCollider;
+
+        [SerializeField] private Material validPlacementMaterial;
+        [SerializeField] private Material invalidPlacementMaterial;
 
         private void Start()
         {
             building = GetComponent<Building>();
             buildGrid = FindObjectOfType<BuildGrid>();
             mainCamera = Camera.main;
+            baseRenderer = GetComponentInChildren<Renderer>();
+            buildingCollider = GetComponentInChildren<BoxCollider>();
         }
 
         private void OnMouseDown()
@@ -35,6 +42,8 @@ namespace Unical.Demacs.EnchantedVillage
                     mousePos.z + offset.z
                 );
                 transform.position = newPosition;
+
+                UpdatePlacementVisualization();
             }
         }
 
@@ -43,26 +52,77 @@ namespace Unical.Demacs.EnchantedVillage
             if (isDragging)
             {
                 isDragging = false;
-                SnapToGrid();
+                if (CanPlaceBuilding())
+                {
+                    SnapToGrid();
+                    baseRenderer.material = validPlacementMaterial;
+                }
+                else
+                {
+                    // L'edificio rimane "in mano" all'utente
+                    baseRenderer.material = invalidPlacementMaterial;
+                }
                 BuildingMovementEvents.TriggerBuildingDragEnd();
             }
         }
 
+        private void UpdatePlacementVisualization()
+        {
+            baseRenderer.material = CanPlaceBuilding() ? validPlacementMaterial : invalidPlacementMaterial;
+        }
+
+        private bool CanPlaceBuilding()
+        {
+            (int gridX, int gridY) = GetGridCoordinates();
+
+            bool isInMap = buildGrid.IsPositionInMap(gridX, gridY, building.Rows, building.Columns);
+            if (!isInMap)
+            {
+                return false;
+            }
+
+            return !HasCollisions();
+        }
+
+        private (int, int) GetGridCoordinates()
+        {
+            Vector3 localBuildingPosition = buildGrid.transform.InverseTransformPoint(transform.position);
+            int gridX = Mathf.FloorToInt(localBuildingPosition.x / buildGrid.CellSize);
+            int gridY = Mathf.FloorToInt(localBuildingPosition.z / buildGrid.CellSize);
+            return (gridX, gridY);
+        }
+
+        private bool HasCollisions()
+        {
+            Collider[] colliders = Physics.OverlapBox(
+                buildingCollider.bounds.center,
+                buildingCollider.bounds.extents,
+                transform.rotation,
+                LayerMask.GetMask("Buildings")
+            );
+
+            foreach (Collider collider in colliders)
+            {
+                if (collider.gameObject != gameObject)
+                {
+                    Debug.Log("Collisione con: " + collider.gameObject.name);
+                    return true;
+
+                }
+            }
+            Debug.Log("Nessuna collisione");
+            return false;
+        }
+
         private void SnapToGrid()
         {
-            Vector3 buildingPosition = transform.position - buildGrid.transform.position;
+            (int gridX, int gridY) = GetGridCoordinates();
 
-            int gridX = Mathf.FloorToInt(buildingPosition.x / buildGrid.CellSize);
-            int gridY = Mathf.FloorToInt(buildingPosition.z / buildGrid.CellSize);
-
+            // Clamping per mantenere l'edificio all'interno dei limiti della griglia
             gridX = Mathf.Clamp(gridX, 0, buildGrid.Columns - building.Columns);
             gridY = Mathf.Clamp(gridY, 0, buildGrid.Rows - building.Rows);
 
-            Vector3 snappedPosition = buildGrid.transform.position +
-                new Vector3(gridX * buildGrid.CellSize, 0, gridY * buildGrid.CellSize);
-
-            snappedPosition += new Vector3(building.Columns * buildGrid.CellSize / 2, 0, building.Rows * buildGrid.CellSize / 2);
-
+            Vector3 snappedPosition = buildGrid.GetCenterPosition(gridX, gridY, building.Rows, building.Columns);
             transform.position = snappedPosition;
 
             building.UpdateGridPosition(gridX, gridY);
