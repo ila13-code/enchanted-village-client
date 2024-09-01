@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5309891302998177599}
   - component: {fileID: 2752299662842068385}
   - component: {fileID: 7600901856453726661}
-  - component: {fileID: 9150435002275726088}
+  - component: {fileID: 5037398441004631666}
   m_Layer: 0
   m_Name: GoldMine
   m_TagString: Untagged
@@ -68,7 +68,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validPlacementMaterial: {fileID: 2100000, guid: 405f72ef26a6a594ebb58d9312098200, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: 13980c02f31750441b5e7ee56b04bdc0, type: 2}
---- !u!65 &9150435002275726088
+--- !u!65 &5037398441004631666
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

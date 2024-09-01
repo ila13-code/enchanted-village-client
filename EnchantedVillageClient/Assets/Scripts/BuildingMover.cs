@@ -94,23 +94,26 @@ namespace Unical.Demacs.EnchantedVillage
 
         private bool HasCollisions()
         {
-            Collider[] colliders = Physics.OverlapBox(
-                buildingCollider.bounds.center,
-                buildingCollider.bounds.extents,
-                transform.rotation,
-                LayerMask.GetMask("Buildings")
-            );
-
-            foreach (Collider collider in colliders)
+            // L'utente non ha nessun edificio, non possono esserci collisioni
+            if (Player.Instance.GetPlayerBuildings() == null)
             {
-                if (collider.gameObject != gameObject)
-                {
-                    Debug.Log("Collisione con: " + collider.gameObject.name);
-                    return true;
+                return false;
+            }
 
+            (int gridX, int gridY) = GetGridCoordinates();
+            Building[,] playerBuildings = Player.Instance.GetPlayerBuildings();
+            for (int x = 0; x < building.Columns; x++)
+            {
+                for (int y = 0; y < building.Rows; y++)
+                {
+                    Debug.Log($"Checking for collision at {gridX + x}, {gridY + y}");
+                    Debug.Log("Player buildings: " + playerBuildings.Length);
+                    if (playerBuildings[gridX + x, gridY + y] != null)
+                    {
+                        return true;
+                    }
                 }
             }
-            Debug.Log("Nessuna collisione");
             return false;
         }
 
@@ -118,7 +121,6 @@ namespace Unical.Demacs.EnchantedVillage
         {
             (int gridX, int gridY) = GetGridCoordinates();
 
-            // Clamping per mantenere l'edificio all'interno dei limiti della griglia
             gridX = Mathf.Clamp(gridX, 0, buildGrid.Columns - building.Columns);
             gridY = Mathf.Clamp(gridY, 0, buildGrid.Rows - building.Rows);
 

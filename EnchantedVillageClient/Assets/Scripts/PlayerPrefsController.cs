@@ -50,12 +50,8 @@ namespace Unical.Demacs.EnchantedVillage
         public event Action<int> OnElixirChanged;
         public event Action<int> OnGoldChanged;
 
-        [System.Serializable]
-        public class Building
-        {
-            public string Type;
-            public Vector2 Position;
-        }
+        
+       
 
         public int Level
         {
@@ -105,19 +101,19 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public List<Building> GetBuildings()
+        public Building[,] GetBuildings()
         {
             string json = PlayerPrefs.GetString(BuildingsKey, "[]");
-            return JsonConvert.DeserializeObject<List<Building>>(json);
+            return JsonConvert.DeserializeObject<Building[,]>(json);
         }
 
-        public void SaveBuildings(List<Building> buildings)
+        public void SaveBuildings(Building[,] buildings)
         {
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
         }
 
-        public void SaveAllData(int level, int exp, int elixir, int gold, List<Building> buildings)
+        public void SaveAllData(int level, int exp, int elixir, int gold, Building[,] buildings)
         {
             Level = level;
             Exp = exp;
@@ -148,7 +144,7 @@ namespace Unical.Demacs.EnchantedVillage
             Exp = 0;
             Gold = 300;
             Elixir = 300;
-            SaveBuildings(new List<Building>());
+            SaveBuildings(new Building[45,45]);
             PlayerPrefs.Save();
         }
  

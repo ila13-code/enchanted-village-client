@@ -6,8 +6,37 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class Player : MonoBehaviour
     {
+
+        private static Player instance = null;
+      
+
+        public static Player Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = FindObjectOfType<Player>();
+                    if (instance == null)
+                    {
+                        instance = new Player();
+                        GameObject go = new GameObject("Player");
+                        instance = go.AddComponent<Player>();
+                    }
+                }
+                return instance;
+            }
+        }
         private int level;
         private int experiencePoints;
+        private Building[,] PlayerBuildings; // Matrice che corrisponde alla mappa di gioco dell'utente
+
+        public Building[,] GetPlayerBuildings()
+        {
+            return PlayerBuildings;
+        }
+
+        
 
         private void Start()
         {
@@ -17,6 +46,7 @@ namespace Unical.Demacs.EnchantedVillage
                 experiencePoints = 0;
                 PlayerPrefsController.Instance.Elixir = 300;
                 PlayerPrefsController.Instance.Gold = 300;
+                PlayerBuildings = new Building[45, 45];
             }
             else
             {
@@ -52,14 +82,18 @@ namespace Unical.Demacs.EnchantedVillage
         }
         private bool IsNewGame()
         {
-            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0 && PlayerPrefsController.Instance.GetBuildings().Count == 0;
+            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0 ;
         }
 
         private void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
             experiencePoints = PlayerPrefsController.Instance.Exp;
-            
+            PlayerBuildings = PlayerPrefsController.Instance.GetBuildings();
+            if(PlayerBuildings.Length == 0)
+            {
+                PlayerBuildings = new Building[45, 45];
+            }
         }
     }
 }

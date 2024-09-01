@@ -53,8 +53,14 @@ namespace Unical.Demacs.EnchantedVillage
         }
         public void UpdateGridPosition(int x, int y)
         {
+            if (_currentX >= 0 && _currentY >= 0)
+            {
+                Player.Instance.GetPlayerBuildings()[_currentX, _currentY] = null;
+            }
+
             _currentX = x;
             _currentY = y;
+            Player.Instance.GetPlayerBuildings()[x, y] = this;
         }
 
     }
