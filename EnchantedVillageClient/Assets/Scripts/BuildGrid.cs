@@ -51,7 +51,6 @@ namespace Unical.Demacs.EnchantedVillage
 
             bool isInsideHorizontalBounds = gridX >= 0 && maxGridX < this.Columns;
             bool isInsideVerticalBounds = gridY >= 0 && maxGridY < this.Rows;
-            Debug.Log($"Checking if position {gridX}, {gridY} is inside the map. Result: {isInsideHorizontalBounds && isInsideVerticalBounds}");
             return isInsideHorizontalBounds && isInsideVerticalBounds;
         }
 

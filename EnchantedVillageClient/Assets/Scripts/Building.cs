@@ -12,6 +12,17 @@ namespace Unical.Demacs.EnchantedVillage
             public GameObject mesh;
         }
 
+        public class BuildingPlaceholder : Building
+        {
+            public Building ParentBuilding { get; private set; }
+
+            public BuildingPlaceholder(Building parentBuilding)
+            {
+                ParentBuilding = parentBuilding;
+            }
+        }
+
+
         [SerializeField] private int _rows = 1;
         [SerializeField] private int _columns = 1;
         [SerializeField] private Level[] levels;
@@ -24,6 +35,8 @@ namespace Unical.Demacs.EnchantedVillage
         public int Columns => _columns;
         public int CurrentX => _currentX;
         public int CurrentY => _currentY;
+
+        public string Name { get; set; } 
 
         private void Start()
         {
@@ -51,17 +64,39 @@ namespace Unical.Demacs.EnchantedVillage
         {
             return _buildGrid.GetCenterPosition(_currentX, _currentY, _rows, _columns);
         }
+
         public void UpdateGridPosition(int x, int y)
         {
             if (_currentX >= 0 && _currentY >= 0)
             {
-                Player.Instance.GetPlayerBuildings()[_currentX, _currentY] = null;
+                for (int i = 0; i < this.Rows; i++)
+                {
+                    for (int j = 0; j < this.Columns; j++)
+                    {
+                        Player.Instance.GetPlayerBuildings()[_currentX + i, _currentY + j] = null;
+                    }
+                }
             }
 
             _currentX = x;
             _currentY = y;
-            Player.Instance.GetPlayerBuildings()[x, y] = this;
+
+            for (int i = 0; i < this.Rows; i++)
+            {
+                for (int j = 0; j < this.Columns; j++)
+                {
+                    if (i == 0 && j == 0)
+                    {
+                        Player.Instance.GetPlayerBuildings()[x + i, y + j] = this;
+                    }
+                    else
+                    {
+                        Player.Instance.GetPlayerBuildings()[x + i, y + j] = gameObject.AddComponent<BuildingPlaceholder>();
+                    }
+                }
+            }
         }
+
 
     }
 }

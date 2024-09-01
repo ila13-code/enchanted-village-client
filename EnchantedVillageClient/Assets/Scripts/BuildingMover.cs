@@ -59,7 +59,6 @@ namespace Unical.Demacs.EnchantedVillage
                 }
                 else
                 {
-                    // L'edificio rimane "in mano" all'utente
                     baseRenderer.material = invalidPlacementMaterial;
                 }
                 BuildingMovementEvents.TriggerBuildingDragEnd();
@@ -68,11 +67,13 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void UpdatePlacementVisualization()
         {
+            
             baseRenderer.material = CanPlaceBuilding() ? validPlacementMaterial : invalidPlacementMaterial;
         }
 
         private bool CanPlaceBuilding()
         {
+
             (int gridX, int gridY) = GetGridCoordinates();
 
             bool isInMap = buildGrid.IsPositionInMap(gridX, gridY, building.Rows, building.Columns);
@@ -102,18 +103,13 @@ namespace Unical.Demacs.EnchantedVillage
 
             (int gridX, int gridY) = GetGridCoordinates();
             Building[,] playerBuildings = Player.Instance.GetPlayerBuildings();
-            for (int x = 0; x < building.Columns; x++)
-            {
-                for (int y = 0; y < building.Rows; y++)
-                {
-                    Debug.Log($"Checking for collision at {gridX + x}, {gridY + y}");
-                    Debug.Log("Player buildings: " + playerBuildings.Length);
-                    if (playerBuildings[gridX + x, gridY + y] != null)
-                    {
-                        return true;
-                    }
-                }
-            }
+
+
+
+            if (playerBuildings[gridX, gridY] != null && playerBuildings[gridX, gridY].GetInstanceID()!=building.GetInstanceID())
+               return true;
+
+ 
             return false;
         }
 
