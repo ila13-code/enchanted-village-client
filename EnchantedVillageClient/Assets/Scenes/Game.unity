@@ -3790,7 +3790,6 @@ MonoBehaviour:
   _elisirSlider: {fileID: 1563913289}
   _goldSlider: {fileID: 1792483953}
   _buildings:
-  - {fileID: 2752299662842068385, guid: fc9acb6b604584c43a4178416fc9a186, type: 3}
   - {fileID: 2752299662842068385, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
   _elements: {fileID: 2131757227}
   _buildGrid: {fileID: 1529929957}

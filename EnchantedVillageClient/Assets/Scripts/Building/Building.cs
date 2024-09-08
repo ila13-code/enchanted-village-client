@@ -115,6 +115,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             _isConfirmed = true;
             _isMoving = false;
+            _button.SetActive(false);
         }
 
         public void Cancel()

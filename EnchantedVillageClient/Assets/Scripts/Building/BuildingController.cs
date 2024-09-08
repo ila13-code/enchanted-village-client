@@ -166,8 +166,20 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Confirm()
         {
-            baseRenderer.material = placedBuildingMaterial;
-            building.Confirm();
+            // Controlla se l'edificio è in una posizione valida
+            if (!CanPlaceBuilding())
+            {
+                // Posizione non valida: non confermare, mantieni il materiale "invalidPlacementMaterial"
+                Debug.LogWarning("Cannot confirm building placement: invalid position");
+                baseRenderer.material = invalidPlacementMaterial; // Assicura che il materiale non valido rimanga
+            }
+            else
+            {
+                // Posizione valida: conferma l'edificio e disattiva il movimento
+                baseRenderer.material = placedBuildingMaterial;
+                building.Confirm(); // Conferma l'edificio chiamando il metodo nel Building
+            }
         }
+
     }
 }
