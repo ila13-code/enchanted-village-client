@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
 {
+
     public class Building : MonoBehaviour
     {
         [System.Serializable]
@@ -14,15 +15,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         public class BuildingPlaceholder : Building
         {
-            public Building ParentBuilding { get; private set; }
-
-            public BuildingPlaceholder(Building parentBuilding)
-            {
-                ParentBuilding = parentBuilding;
-            }
+            public Building ParentBuilding { get; set; }
         }
-
-
         [SerializeField] private int _rows = 1;
         [SerializeField] private int _columns = 1;
         [SerializeField] private Level[] levels;
@@ -73,6 +67,11 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     for (int j = 0; j < this.Columns; j++)
                     {
+                        var cell = Player.Instance.GetPlayerBuildings()[_currentX + i, _currentY + j];
+                        if (cell is BuildingPlaceholder placeholder)
+                        {
+                            Destroy(placeholder);
+                        }
                         Player.Instance.GetPlayerBuildings()[_currentX + i, _currentY + j] = null;
                     }
                 }
@@ -91,7 +90,9 @@ namespace Unical.Demacs.EnchantedVillage
                     }
                     else
                     {
-                        Player.Instance.GetPlayerBuildings()[x + i, y + j] = gameObject.AddComponent<BuildingPlaceholder>();
+                        var placeholder = gameObject.AddComponent<BuildingPlaceholder>();
+                        placeholder.ParentBuilding = this;
+                        Player.Instance.GetPlayerBuildings()[x + i, y + j] = placeholder;
                     }
                 }
             }

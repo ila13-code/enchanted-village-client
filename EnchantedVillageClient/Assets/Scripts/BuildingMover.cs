@@ -95,21 +95,48 @@ namespace Unical.Demacs.EnchantedVillage
 
         private bool HasCollisions()
         {
-            // L'utente non ha nessun edificio, non possono esserci collisioni
-            if (Player.Instance.GetPlayerBuildings() == null)
+            if (Player.Instance == null || Player.Instance.GetPlayerBuildings() == null || buildGrid == null)
             {
+                Debug.LogError("Critical components are null in HasCollisions");
                 return false;
             }
 
             (int gridX, int gridY) = GetGridCoordinates();
             Building[,] playerBuildings = Player.Instance.GetPlayerBuildings();
 
+            for (int x = gridX - 1; x < gridX + building.Columns + 1; x++)
+            {
+                for (int y = gridY - 1; y < gridY + building.Rows + 1; y++)
+                {
+                    if (x < 0 || y < 0 || x >= buildGrid.Columns || y >= buildGrid.Rows)
+                        continue;
 
+                    var cellContent = playerBuildings[x, y];
+                    if (cellContent != null && cellContent != building)
+                    {
+                        Building otherBuilding = cellContent;
 
-            if (playerBuildings[gridX, gridY] != null && playerBuildings[gridX, gridY].GetInstanceID()!=building.GetInstanceID())
-               return true;
+                        if (cellContent is Building.BuildingPlaceholder placeholder)
+                        {
+                            otherBuilding = placeholder.ParentBuilding;
+                        }
 
  
+                        if (otherBuilding == building)
+                            continue;
+
+                        int minDistanceX = otherBuilding.Columns / 2 + building.Columns / 2 + 1;
+                        int minDistanceY = otherBuilding.Rows / 2 + building.Rows / 2 + 1;
+
+                        if (Mathf.Abs(gridX + building.Columns / 2 - (otherBuilding.CurrentX + otherBuilding.Columns / 2)) < minDistanceX &&
+                            Mathf.Abs(gridY + building.Rows / 2 - (otherBuilding.CurrentY + otherBuilding.Rows / 2)) < minDistanceY)
+                        {
+                            return true; 
+                        }
+                    }
+                }
+            }
+
             return false;
         }
 
