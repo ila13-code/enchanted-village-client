@@ -120,7 +120,23 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Cancel()
         {
+            if (_currentX >= 0 && _currentY >= 0)
+            {
+                for (int i = 0; i < this.Rows; i++)
+                {
+                    for (int j = 0; j < this.Columns; j++)
+                    {
+                        var cell = Player.Instance.GetPlayerBuildings()[_currentX + i, _currentY + j];
+                        if (cell is BuildingPlaceholder placeholder)
+                        {
+                            Destroy(placeholder);
+                        }
+                        Player.Instance.GetPlayerBuildings()[_currentX + i, _currentY + j] = null;
+                    }
+                }
+            }
             Destroy(gameObject);
+
         }
 
     }
