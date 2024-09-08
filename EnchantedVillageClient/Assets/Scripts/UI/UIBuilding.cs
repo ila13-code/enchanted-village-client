@@ -9,7 +9,6 @@ namespace Unical.Demacs.EnchantedVillage
     {
         [SerializeField]private int _prefabIndex = 0;
         
-        [SerializeField] private GameObject CashDialogPrefab;
         private Transform buildingsContainer;
 
         private void Awake()
@@ -74,11 +73,11 @@ namespace Unical.Demacs.EnchantedVillage
             dialog.Show();
             Debug.Log("Error Dialog attivato");
 
-            await Task.Delay(3000);
+            await Task.Delay(2000);
 
             dialog.Hide();
 
-            Debug.Log("Completa ShowErrorDialog dopo 3 secondi");
+            Debug.Log("Completa ShowErrorDialog dopo 2 secondi");
             return true; 
         }
 

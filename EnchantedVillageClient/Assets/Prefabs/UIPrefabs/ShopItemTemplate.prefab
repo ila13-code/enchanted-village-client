@@ -260,6 +260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _prefabIndex: 0
   CashDialogPrefab: {fileID: 4216548217369666783, guid: 6baa4f88a2a912244b4220ebdfdea856, type: 3}
+  ErrorDialogPrefab: {fileID: 267760496734485565, guid: 5419d419f3bdf504ba2532f036adf465, type: 3}
 --- !u!114 &8186058066486865231
 MonoBehaviour:
   m_ObjectHideFlags: 0
