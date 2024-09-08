@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
 {
-    public class BuildingMover : MonoBehaviour
+    public class BuildingController : MonoBehaviour
     {
         private bool isDragging = false;
         private Vector3 offset;
@@ -10,10 +10,10 @@ namespace Unical.Demacs.EnchantedVillage
         private BuildGrid buildGrid;
         private Camera mainCamera;
         private Renderer baseRenderer;
-        private BoxCollider buildingCollider;
 
         [SerializeField] private Material validPlacementMaterial;
         [SerializeField] private Material invalidPlacementMaterial;
+        [SerializeField] private Material placedBuildingMaterial;
 
         private void Start()
         {
@@ -21,7 +21,6 @@ namespace Unical.Demacs.EnchantedVillage
             buildGrid = FindObjectOfType<BuildGrid>();
             mainCamera = Camera.main;
             baseRenderer = GetComponentInChildren<Renderer>();
-            buildingCollider = GetComponentInChildren<BoxCollider>();
         }
 
         private void OnMouseDown()
@@ -67,7 +66,6 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void UpdatePlacementVisualization()
         {
-            
             baseRenderer.material = CanPlaceBuilding() ? validPlacementMaterial : invalidPlacementMaterial;
         }
 
@@ -164,6 +162,12 @@ namespace Unical.Demacs.EnchantedVillage
             }
 
             return Vector3.zero;
+        }
+
+        public void Confirm()
+        {
+            baseRenderer.material = placedBuildingMaterial;
+            building.Confirm();
         }
     }
 }
