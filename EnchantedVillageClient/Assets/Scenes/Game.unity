@@ -3791,6 +3791,18 @@ MonoBehaviour:
   _goldSlider: {fileID: 1792483953}
   _buildings:
   - {fileID: 2752299662842068385, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
+  - {fileID: 2752299662842068385, guid: 96677e4f06f97184e9130c6871ac80eb, type: 3}
+  - {fileID: 2752299662842068385, guid: abb08b472b7e2194888358792dae8a66, type: 3}
+  - {fileID: 2752299662842068385, guid: cb6086fb81867cc41947d55da3e53b0f, type: 3}
+  - {fileID: 2752299662842068385, guid: dd0b025014ddcce40a273f995f8fcdfa, type: 3}
+  - {fileID: 2752299662842068385, guid: 7062bbfbbd9370a4cabdcadd6b1519b3, type: 3}
+  - {fileID: 2752299662842068385, guid: eb779e150887bde4a8308e2e723f5dda, type: 3}
+  - {fileID: 2752299662842068385, guid: be85d509a393ff2439bf6e2563caf6ad, type: 3}
+  - {fileID: 2752299662842068385, guid: 7433921c7763f484884e6d19f75611b9, type: 3}
+  - {fileID: 2752299662842068385, guid: b23c418a42649b44bae6d537a730a1c5, type: 3}
+  - {fileID: 2752299662842068385, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
+  - {fileID: 2752299662842068385, guid: 956a0383e892f9f45bbc2c3a53373244, type: 3}
+  - {fileID: 2752299662842068385, guid: e2b902b89329a744cbe2965fb0e96218, type: 3}
   _elements: {fileID: 2131757227}
   _buildGrid: {fileID: 1529929957}
   _dialogs: {fileID: 1704434749}
