@@ -20,7 +20,7 @@ namespace Unical.Demacs.EnchantedVillage
             buildGrid = FindObjectOfType<BuildGrid>();
             mainCamera = Camera.main;
             baseRenderer = GetComponentInChildren<Renderer>();
-            SnapToGrid();
+            
         }
 
         private void OnMouseDown()

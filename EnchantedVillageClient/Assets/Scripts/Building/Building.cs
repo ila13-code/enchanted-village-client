@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
@@ -25,7 +27,7 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Level[] levels;
         [SerializeField] private GameObject _button;
 
-
+        [SerializeField] private int _prefabIndex;
         private int _currentX;
         private int _currentY;
         private bool _isConfirmed;
@@ -39,11 +41,18 @@ namespace Unical.Demacs.EnchantedVillage
 
         public string Name { get; set; } 
 
+        public bool IsConfirmed => _isConfirmed;
+        public int PrefabIndex => _prefabIndex;
+
         private void Start()
         {
-            _isConfirmed = false;
             _buildGrid = FindObjectOfType<BuildGrid>();
             baseRenderer = GetComponentInChildren<Renderer>();
+            if (IsConfirmed) //se il building è stato confermato vuol dire che c'era già
+            {
+                baseRenderer.material = placedBuildingMaterial;
+                _button.SetActive(false);
+            }
         }
 
         public void PlaceOnGrid(int x, int y)
@@ -117,10 +126,65 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Confirm()
         {
-            baseRenderer.material = placedBuildingMaterial;
-            _isConfirmed = true;
-            _isMoving = false;
-            _button.SetActive(false);
+            try
+            {
+                _buildGrid = FindObjectOfType<BuildGrid>();
+                baseRenderer = GetComponentInChildren<Renderer>();
+                if (baseRenderer == null)
+                {
+                    Debug.LogError($"baseRenderer è null per l'edificio {gameObject.name}");
+                    return;
+                }
+                if (placedBuildingMaterial == null)
+                {
+                    Debug.LogError($"placedBuildingMaterial è null per l'edificio {gameObject.name}");
+                    return;
+                }
+                baseRenderer.material = placedBuildingMaterial;
+
+                _isConfirmed = true;
+                _isMoving = false;
+
+                if (_button == null)
+                {
+                    Debug.LogError($"_button è null per l'edificio {gameObject.name}");
+                }
+                else
+                {
+                    _button.SetActive(false);
+                }
+
+                if (PlayerPrefsController.Instance == null)
+                {
+                    Debug.LogError("PlayerPrefsController.Instance è null");
+                    return;
+                }
+                List<BuildingData> list = PlayerPrefsController.Instance.GetBuildings();
+                if (list == null)
+                {
+                    Debug.LogError("La lista di BuildingData è null");
+                    list = new List<BuildingData>();
+                }
+
+                if (_prefabIndex < 0)
+                {
+                    Debug.LogError($"_prefabIndex non valido: {_prefabIndex}");
+                    return;
+                }
+
+                list.Add(new BuildingData(_prefabIndex, _currentX, _currentY));
+                Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
+
+                PlayerPrefsController.Instance.SaveBuildings(list);
+                Debug.Log($"Edificio confermato: {gameObject.name}");
+            }
+            catch (NullReferenceException e)
+            {
+                Debug.LogError($"NullReferenceException in Confirm per l'edificio {gameObject.name}: {e.Message}");
+                Debug.LogError($"StackTrace: {e.StackTrace}");
+                // Instead of rethrowing, we'll just return to avoid crashing the game
+                return;
+            }
         }
 
         public void Cancel()

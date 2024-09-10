@@ -32,9 +32,6 @@ namespace Unical.Demacs.EnchantedVillage
         public event Action<int> OnElixirChanged;
         public event Action<int> OnGoldChanged;
 
-
-
-
         public int Level
         {
             get { return PlayerPrefs.GetInt(LevelKey, 1); }
@@ -103,26 +100,45 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public Building[,] GetBuildings()
+        public List<BuildingData> GetBuildings()
         {
             string json = PlayerPrefs.GetString(BuildingsKey, "[]");
-            return JsonConvert.DeserializeObject<Building[,]>(json);
+            var buildings = JsonConvert.DeserializeObject<List<BuildingData>>(json);
+
+            // Aggiungi questo controllo
+            if (buildings == null || buildings.Count == 0)
+            {
+                Debug.LogWarning("Nessun edificio recuperato dai PlayerPrefs.");
+                return new List<BuildingData>();
+            }
+
+            return buildings;
         }
 
-        public void SaveBuildings(Building[,] buildings)
+        public void SaveBuildings(List<BuildingData> buildings)
         {
             
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
         }
 
-        public void SaveAllData(int level, int exp, int elixir, int gold, Building[,] buildings)
+        public void SaveAllData(int level, int exp, int elixir, int gold, List<BuildingData> buildings)
         {
             Level = level;
             Exp = exp;
             Elixir = elixir;
             Gold = gold;
-            SaveBuildings(buildings);
+
+            // Aggiungi un controllo prima del salvataggio
+            if (buildings != null && buildings.Count > 0)
+            {
+                SaveBuildings(buildings);
+            }
+            else
+            {
+                Debug.LogWarning("Tentativo di salvare una lista di edifici vuota o nulla.");
+            }
+
             PlayerPrefs.Save();
         }
 
@@ -147,7 +163,7 @@ namespace Unical.Demacs.EnchantedVillage
             Exp = 0;
             Gold = 300;
             Elixir = 300;
-            SaveBuildings(new Building[45,45]);
+            SaveBuildings(new List<BuildingData>());
             PlayerPrefs.Save();
         }
  
