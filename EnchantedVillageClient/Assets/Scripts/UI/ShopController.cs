@@ -12,10 +12,6 @@ namespace Unical.Demacs.EnchantedVillage
         public GameObject shopItemTemplatePrefab;
         [SerializeField] private Transform container;
 
-        private bool isConstructionOpen = true;
-        private bool isProductionOpen = false;
-        private bool isDefenseOpen = false;
-        private bool isDecorationOpen = false;
 
         public static ShopController Instance
         {
@@ -93,37 +89,21 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void setConstructionOpen()
         {
-            isConstructionOpen = true;
-            isProductionOpen = false;
-            isDefenseOpen = false;
-            isDecorationOpen = false;
             CreateItemButtons(ItemCategory.construction);
         }
 
         public void setProductionOpen()
         {
-            isConstructionOpen = false;
-            isProductionOpen = true;
-            isDefenseOpen = false;
-            isDecorationOpen = false;
             CreateItemButtons(ItemCategory.production);
         }
 
         public void setDefenseOpen()
         {
-            isConstructionOpen = false;
-            isProductionOpen = false;
-            isDefenseOpen = true;
-            isDecorationOpen = false;
             CreateItemButtons(ItemCategory.defense);
         }
 
         public void setDecorationOpen()
         {
-            isConstructionOpen = false;
-            isProductionOpen = false;
-            isDefenseOpen = false;
-            isDecorationOpen = true;
             CreateItemButtons(ItemCategory.decoration);
         }
 
