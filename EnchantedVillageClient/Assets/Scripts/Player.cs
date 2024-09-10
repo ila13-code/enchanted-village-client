@@ -55,7 +55,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-
+            //PlayerPrefsController.Instance.ClearAllData();
             if (this.IsNewGame())
             {
                 NewGame();
@@ -161,7 +161,7 @@ namespace Unical.Demacs.EnchantedVillage
 
                 try
                 {
-                    building.Confirm();
+                    building.Confirm(false);
                 }
                 catch (NullReferenceException e)
                 {

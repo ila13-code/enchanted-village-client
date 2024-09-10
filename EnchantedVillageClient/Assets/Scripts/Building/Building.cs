@@ -124,7 +124,8 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public void Confirm()
+
+        public void Confirm(Boolean create)
         {
             try
             {
@@ -171,12 +172,14 @@ namespace Unical.Demacs.EnchantedVillage
                     Debug.LogError($"_prefabIndex non valido: {_prefabIndex}");
                     return;
                 }
+                if (create)
+                {
+                    list.Add(new BuildingData(_prefabIndex, _currentX, _currentY));
+                    Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
 
-                list.Add(new BuildingData(_prefabIndex, _currentX, _currentY));
-                Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
-
-                PlayerPrefsController.Instance.SaveBuildings(list);
-                Debug.Log($"Edificio confermato: {gameObject.name}");
+                    PlayerPrefsController.Instance.SaveBuildings(list);
+                    Debug.Log($"Edificio confermato: {gameObject.name}");
+                }
             }
             catch (NullReferenceException e)
             {

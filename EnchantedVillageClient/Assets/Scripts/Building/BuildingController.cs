@@ -172,7 +172,7 @@ namespace Unical.Demacs.EnchantedVillage
                 baseRenderer.material = invalidPlacementMaterial;
             }
             else
-                building.Confirm();
+                building.Confirm(true);
         }
 
     }
