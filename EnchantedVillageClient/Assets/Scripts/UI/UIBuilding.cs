@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using static Unical.Demacs.EnchantedVillage.Building;
 namespace Unical.Demacs.EnchantedVillage
 {
     public class UIBuilding : MonoBehaviour
@@ -44,6 +45,7 @@ namespace Unical.Demacs.EnchantedVillage
                     
                     Vector3 position = Vector3.zero;
                     Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
+                    building.UpdateGridPosition((int)position.x, (int)position.y);
                 }
                 else
                 {

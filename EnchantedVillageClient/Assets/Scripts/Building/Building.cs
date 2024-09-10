@@ -17,6 +17,9 @@ namespace Unical.Demacs.EnchantedVillage
         {
             public Building ParentBuilding { get; set; }
         }
+        private Renderer baseRenderer;
+
+        [SerializeField] private Material placedBuildingMaterial;
         [SerializeField] private int _rows = 1;
         [SerializeField] private int _columns = 1;
         [SerializeField] private Level[] levels;
@@ -40,6 +43,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             _isConfirmed = false;
             _buildGrid = FindObjectOfType<BuildGrid>();
+            baseRenderer = GetComponentInChildren<Renderer>();
         }
 
         public void PlaceOnGrid(int x, int y)
@@ -113,6 +117,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Confirm()
         {
+            baseRenderer.material = placedBuildingMaterial;
             _isConfirmed = true;
             _isMoving = false;
             _button.SetActive(false);

@@ -13,7 +13,6 @@ namespace Unical.Demacs.EnchantedVillage
 
         [SerializeField] private Material validPlacementMaterial;
         [SerializeField] private Material invalidPlacementMaterial;
-        [SerializeField] private Material placedBuildingMaterial;
 
         private void Start()
         {
@@ -21,6 +20,7 @@ namespace Unical.Demacs.EnchantedVillage
             buildGrid = FindObjectOfType<BuildGrid>();
             mainCamera = Camera.main;
             baseRenderer = GetComponentInChildren<Renderer>();
+            SnapToGrid();
         }
 
         private void OnMouseDown()
@@ -172,10 +172,7 @@ namespace Unical.Demacs.EnchantedVillage
                 baseRenderer.material = invalidPlacementMaterial;
             }
             else
-            {
-                baseRenderer.material = placedBuildingMaterial;
                 building.Confirm();
-            }
         }
 
     }

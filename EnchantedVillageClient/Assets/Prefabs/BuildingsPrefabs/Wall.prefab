@@ -314,6 +314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3994c673040785d4a84450f04f0eb8f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  placedBuildingMaterial: {fileID: 2100000, guid: 579909d19ba6c2f48907615196f1dbd5, type: 2}
   _rows: 1
   _columns: 1
   levels:
@@ -335,7 +336,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validPlacementMaterial: {fileID: 2100000, guid: 405f72ef26a6a594ebb58d9312098200, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: 13980c02f31750441b5e7ee56b04bdc0, type: 2}
-  placedBuildingMaterial: {fileID: 2100000, guid: 579909d19ba6c2f48907615196f1dbd5, type: 2}
 --- !u!65 &5037398441004631666
 BoxCollider:
   m_ObjectHideFlags: 0

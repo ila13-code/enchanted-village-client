@@ -21,6 +21,30 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        private const string LevelKey = "PlayerLevel";
+        private const string ExpKey = "ExpKey";
+        private const string ElixirKey = "PlayerElixir";
+        private const string GoldKey = "PlayerGold";
+        private const string BuildingsKey = "PlayerBuildings";
+
+        public event Action<int> OnLevelChanged;
+        public event Action<int> OnExpChanged;
+        public event Action<int> OnElixirChanged;
+        public event Action<int> OnGoldChanged;
+
+
+
+
+        public int Level
+        {
+            get { return PlayerPrefs.GetInt(LevelKey, 1); }
+            set
+            {
+                PlayerPrefs.SetInt(LevelKey, value);
+                OnLevelChanged?.Invoke(value);
+            }
+        }
+
         private void Awake()
         {
             if (_instance == null)
@@ -39,29 +63,7 @@ namespace Unical.Demacs.EnchantedVillage
             DestroyInstance();
         }
 
-        private const string LevelKey = "PlayerLevel";
-        private const string ExpKey = "ExpKey";
-        private const string ElixirKey = "PlayerElixir";
-        private const string GoldKey = "PlayerGold";
-        private const string BuildingsKey = "PlayerBuildings";
-
-        public event Action<int> OnLevelChanged;
-        public event Action<int> OnExpChanged;
-        public event Action<int> OnElixirChanged;
-        public event Action<int> OnGoldChanged;
-
         
-       
-
-        public int Level
-        {
-            get { return PlayerPrefs.GetInt(LevelKey, 1); }
-            set
-            {
-                PlayerPrefs.SetInt(LevelKey, value);
-                OnLevelChanged?.Invoke(value);
-            }
-        }
 
         public int Exp
         {
@@ -109,6 +111,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void SaveBuildings(Building[,] buildings)
         {
+            
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
         }

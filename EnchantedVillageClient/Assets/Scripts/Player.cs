@@ -8,7 +8,10 @@ namespace Unical.Demacs.EnchantedVillage
     {
 
         private static Player instance = null;
-      
+        private int level;
+        private int experiencePoints;
+        private Building[,] PlayerBuildings;
+        private Transform buildingsContainer;
 
         public static Player Instance
         {
@@ -27,33 +30,51 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
-        private int level;
-        private int experiencePoints;
-        private Building[,] PlayerBuildings; // Matrice che corrisponde alla mappa di gioco dell'utente
+      
 
         public Building[,] GetPlayerBuildings()
         {
             return PlayerBuildings;
         }
 
-        
-
-        private void Start()
+        private void Awake()
         {
-            if (this.IsNewGame())
+            GameObject map = GameObject.Find("Map");
+            if (map != null)
             {
-                level = 1;
-                experiencePoints = 0;
-                PlayerPrefsController.Instance.Elixir = 300;
-                PlayerPrefsController.Instance.Gold = 300;
-                PlayerBuildings = new Building[45, 45];
+                buildingsContainer = map.transform.Find("Buildings").transform;
             }
             else
             {
-                PlayerPrefsController.Instance.Gold = 0;
+                Debug.LogError("Map non trovato nella scena.");
+            }
+        }
+
+        private void Start()
+        {
+            PlayerPrefsController.Instance.ClearAllData();
+            if (this.IsNewGame())
+            {
+                NewGame();
+            }
+            else
+            {
+                PlayerPrefsController.Instance.Gold = 38904892;
                 LoadPlayerData();
             }
          
+        }
+
+        private void NewGame()
+        {
+            level = 1;
+            experiencePoints = 0;
+            PlayerPrefsController.Instance.Elixir = 300;
+            PlayerPrefsController.Instance.Gold = 300;
+            PlayerBuildings = new Building[45, 45];
+            Vector3 position = Vector3.zero;
+            Building building = Instantiate(UIController.Instance.Buildings[13], position, Quaternion.identity, buildingsContainer);
+            
         }
 
         public void AddExperience(int amount)
@@ -95,5 +116,6 @@ namespace Unical.Demacs.EnchantedVillage
                 PlayerBuildings = new Building[45, 45];
             }
         }
+
     }
 }
