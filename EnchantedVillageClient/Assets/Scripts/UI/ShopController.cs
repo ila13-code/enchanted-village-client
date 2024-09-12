@@ -45,8 +45,8 @@ namespace Unical.Demacs.EnchantedVillage
    
 
             int itemsPerRow = 4;
-            float itemWidth = 200f;
-            float itemHeight = 200f;
+            float itemWidth = 400f;
+            float itemHeight = 400f;
             float spacing = 20f;
 
             int numRows = Mathf.CeilToInt((float)items.Length / itemsPerRow);
@@ -60,7 +60,7 @@ namespace Unical.Demacs.EnchantedVillage
                 if (items.Length == 4)
                 {
                     spacing = -3f;
-                    containerCenterX = container.GetComponent<RectTransform>().rect.center.x + ((itemWidth / 2) -55);
+                    containerCenterX = container.GetComponent<RectTransform>().rect.center.x + ((itemWidth / 2) -150);
                 }
                 
                 
