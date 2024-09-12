@@ -2,30 +2,33 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SwordManController : MonoBehaviour
+namespace Unical.Demacs.EnchantedVillage
 {
-    private Animator animator;
-    private static readonly int IdleState = Animator.StringToHash("idle");
-    private static readonly int WalkState = Animator.StringToHash("walk");
-    private static readonly int AttackState = Animator.StringToHash("attack");
-
-    void Start()
+    public class SwordManController : MonoBehaviour
     {
-        animator = GetComponent<Animator>();
-    }
+        private Animator animator;
+        private static readonly int IdleState = Animator.StringToHash("idle");
+        private static readonly int WalkState = Animator.StringToHash("walk");
+        private static readonly int AttackState = Animator.StringToHash("attack");
 
-    public void PlayIdle()
-    {
-        animator.Play(IdleState);
-    }
+        void Start()
+        {
+            animator = GetComponent<Animator>();
+        }
 
-    public void PlayWalk()
-    {
-        animator.Play(WalkState);
-    }
+        public void PlayIdle()
+        {
+            animator.Play(IdleState);
+        }
 
-    public void PlayAttack()
-    {
-        animator.Play(AttackState);
+        public void PlayWalk()
+        {
+            animator.Play(WalkState);
+        }
+
+        public void PlayAttack()
+        {
+            animator.Play(AttackState);
+        }
     }
 }
