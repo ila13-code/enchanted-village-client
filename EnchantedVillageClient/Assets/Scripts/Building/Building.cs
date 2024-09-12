@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
@@ -172,20 +173,30 @@ namespace Unical.Demacs.EnchantedVillage
                     Debug.LogError($"_prefabIndex non valido: {_prefabIndex}");
                     return;
                 }
-                if (create)
+
+                
+                var existingBuilding = list.FirstOrDefault(b => b.getPrefabIndex() == _prefabIndex);
+
+                if (existingBuilding != null)
                 {
+                    existingBuilding.setX(_currentX);
+                    existingBuilding.setY(_currentY);
+                    Debug.Log($"Aggiornato: {_prefabIndex} {_currentX} {_currentY}");
+                }
+                else if (create)
+                {
+                    // Aggiungi un nuovo edificio solo se non esiste e create è true
                     list.Add(new BuildingData(_prefabIndex, _currentX, _currentY));
                     Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
-
-                    PlayerPrefsController.Instance.SaveBuildings(list);
-                    Debug.Log($"Edificio confermato: {gameObject.name}");
                 }
+
+                PlayerPrefsController.Instance.SaveBuildings(list);
+                Debug.Log($"Edificio confermato: {gameObject.name}");
             }
             catch (NullReferenceException e)
             {
                 Debug.LogError($"NullReferenceException in Confirm per l'edificio {gameObject.name}: {e.Message}");
                 Debug.LogError($"StackTrace: {e.StackTrace}");
-                // Instead of rethrowing, we'll just return to avoid crashing the game
                 return;
             }
         }
@@ -194,6 +205,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             if (_currentX >= 0 && _currentY >= 0)
             {
+                // Rimuovi l'edificio dalla griglia di gioco
                 for (int i = 0; i < this.Rows; i++)
                 {
                     for (int j = 0; j < this.Columns; j++)
@@ -207,9 +219,27 @@ namespace Unical.Demacs.EnchantedVillage
                     }
                 }
             }
-            Destroy(gameObject);
 
+            // Rimuovi l'edificio dai dati salvati
+            if (PlayerPrefsController.Instance != null)
+            {
+                List<BuildingData> list = PlayerPrefsController.Instance.GetBuildings();
+                if (list != null)
+                {
+                    var buildingToRemove = list.FirstOrDefault(b => b.getPrefabIndex() == _prefabIndex);
+                    if (buildingToRemove != null)
+                    {
+                        list.Remove(buildingToRemove);
+                        PlayerPrefsController.Instance.SaveBuildings(list);
+                        Debug.Log($"Edificio rimosso: {_prefabIndex}");
+                    }
+                }
+            }
+
+            // Distruggi il GameObject associato all'edificio
+            Destroy(gameObject);
         }
+
 
     }
 }

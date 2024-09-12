@@ -3703,7 +3703,7 @@ MonoBehaviour:
   - {fileID: 2752299662842068385, guid: 96677e4f06f97184e9130c6871ac80eb, type: 3}
   - {fileID: 2752299662842068385, guid: abb08b472b7e2194888358792dae8a66, type: 3}
   - {fileID: 2752299662842068385, guid: cb6086fb81867cc41947d55da3e53b0f, type: 3}
-  - {fileID: 2752299662842068385, guid: dd0b025014ddcce40a273f995f8fcdfa, type: 3}
+  - {fileID: 2752299662842068385, guid: c864f270c3d40074db09e2054b3e9b68, type: 3}
   - {fileID: 2752299662842068385, guid: 7062bbfbbd9370a4cabdcadd6b1519b3, type: 3}
   - {fileID: 2752299662842068385, guid: eb779e150887bde4a8308e2e723f5dda, type: 3}
   - {fileID: 2752299662842068385, guid: be85d509a393ff2439bf6e2563caf6ad, type: 3}
@@ -4592,7 +4592,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3411035907797248701}
   - component: {fileID: 1042429730362273500}
-  - component: {fileID: 3391636021202979682}
   m_Layer: 5
   m_Name: TrainingUI
   m_TagString: Untagged
@@ -4600,20 +4599,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &3391636021202979682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3350349066150721912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce2e7a307c14eac479e36dcf229e2630, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dialogPanel: {fileID: 558593003339906991}
-  UIPanel: {fileID: 2131757227}
 --- !u!224 &3411035907797248701
 RectTransform:
   m_ObjectHideFlags: 0

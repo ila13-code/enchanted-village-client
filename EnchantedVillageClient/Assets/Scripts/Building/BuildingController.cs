@@ -166,6 +166,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Confirm()
         {
+            Debug.Log("Confirm method called");
+
             if (!CanPlaceBuilding())
             {
                 Debug.LogWarning("Cannot confirm building placement: invalid position");

@@ -1,35 +1,34 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TrainingDialog : MonoBehaviour
+namespace Unical.Demacs.EnchantedVillage
 {
-    public static TrainingDialog Instance { get; private set; }
-    [SerializeField] private GameObject dialogPanel;
-    [SerializeField] private GameObject UIPanel;
-
-    private void Awake()
+    public class TrainingDialog : MonoBehaviour
     {
-        if (Instance == null)
+        public static TrainingDialog Instance { get; private set; }
+        [SerializeField] private GameObject dialogPanel;
+        [SerializeField] private GameObject UIPanel;
+
+        private void Awake()
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else if (Instance != this)
+            {
+                Destroy(gameObject);
+            }
         }
-        else
+
+        public void ShowDialog()
         {
-            Destroy(gameObject);
+            if (UIPanel != null) UIPanel.SetActive(false);
+            if (dialogPanel != null) dialogPanel.SetActive(true);
         }
-    }
 
-    public void ShowDialog()
-    {
-        UIPanel.SetActive(false);
-        dialogPanel.SetActive(true);
-
-    }
-
-    public void HideDialog()
-    {
-        dialogPanel.SetActive(false);
+        public void HideDialog()
+        {
+            if (dialogPanel != null) dialogPanel.SetActive(false);
+        }
     }
 }

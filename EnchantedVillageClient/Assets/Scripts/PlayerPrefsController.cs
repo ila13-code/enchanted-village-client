@@ -54,11 +54,6 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        private void OnApplicationQuit()
-        {
-            SaveAllData(Level, Exp, Elixir, Gold, GetBuildings());
-            DestroyInstance();
-        }
 
         
 
