@@ -15,7 +15,7 @@ namespace Unical.Demacs.EnchantedVillage
         private Building[,] PlayerBuildings;
         [SerializeField] private Troops[] troops;
         private Transform buildingsContainer;
-        private Transform troopsContainer; // New field for troops container
+       private Transform troopsContainer; 
 
         public static Player Instance
         {
@@ -152,7 +152,6 @@ namespace Unical.Demacs.EnchantedVillage
 
                 Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
                 building.Id = data.GetUniqueId();
-
                 if (building == null)
                 {
                     Debug.LogError($"Impossibile istanziare l'edificio con indice {data.getPrefabIndex()}");
@@ -217,6 +216,13 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 TroopsData troopData = troopsData[i];
                 Vector3 spawnPosition = new Vector3(data.getX(), 1f, data.getY());
+                Transform troopsContainer = building.transform.Find("TroopsContainer");
+                if (troopsContainer == null)
+                {
+                    GameObject container = new GameObject("TroopsContainer");
+                    container.transform.SetParent(building.transform);
+                    troopsContainer = container.transform;
+                }
                 Troops troopInstance = Instantiate(troops[troopData.getType()], spawnPosition, Quaternion.identity, troopsContainer);
                 troopInstance.PlaceOnGrid(data.getX(), data.getY(), i + 1);
                 Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione={i + 1}");

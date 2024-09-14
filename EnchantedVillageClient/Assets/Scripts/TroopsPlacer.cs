@@ -112,5 +112,8 @@ namespace Unical.Demacs.EnchantedVillage
 
             return filteredBuildings;
         }
+
+
+
     }
 }
