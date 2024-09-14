@@ -16,6 +16,7 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     GameObject go = new GameObject("PlayerPrefsController");
                     _instance = go.AddComponent<PlayerPrefsController>();
+                    DontDestroyOnLoad(go);
                 }
                 return _instance;
             }
@@ -44,18 +45,15 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Awake()
         {
-            if (_instance == null)
-            {
-                _instance = this;
-            }
-            else if (_instance != this)
+            if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);
+                return;
             }
+
+            _instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-
-
-        
 
         public int Exp
         {
@@ -100,7 +98,6 @@ namespace Unical.Demacs.EnchantedVillage
             string json = PlayerPrefs.GetString(BuildingsKey, "[]");
             var buildings = JsonConvert.DeserializeObject<List<BuildingData>>(json);
 
-            // Aggiungi questo controllo
             if (buildings == null || buildings.Count == 0)
             {
                 Debug.LogWarning("Nessun edificio recuperato dai PlayerPrefs.");
@@ -112,7 +109,6 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void SaveBuildings(List<BuildingData> buildings)
         {
-            
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
         }
@@ -124,7 +120,6 @@ namespace Unical.Demacs.EnchantedVillage
             Elixir = elixir;
             Gold = gold;
 
-            // Aggiungi un controllo prima del salvataggio
             if (buildings != null && buildings.Count > 0)
             {
                 SaveBuildings(buildings);
@@ -161,7 +156,6 @@ namespace Unical.Demacs.EnchantedVillage
             SaveBuildings(new List<BuildingData>());
             PlayerPrefs.Save();
         }
- 
 
         public static void DestroyInstance()
         {
@@ -170,6 +164,11 @@ namespace Unical.Demacs.EnchantedVillage
                 Destroy(_instance.gameObject);
                 _instance = null;
             }
+        }
+
+        private void OnApplicationQuit()
+        {
+            DestroyInstance();
         }
     }
 }

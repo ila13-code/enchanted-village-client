@@ -5,11 +5,20 @@ namespace Unical.Demacs.EnchantedVillage
     using UnityEngine;
     using UnityEngine.SceneManagement;
 
-    public class MainMenu : MonoBehaviour
+    public class SceneLoader : MonoBehaviour
     {
         public void PlayGame()
         {
             SceneManager.LoadSceneAsync(1);
+        }
+
+        public void Battle()
+        {
+            SceneManager.LoadSceneAsync(2);
+        }
+        public void Home()
+        {
+            SceneManager.LoadSceneAsync(0);
         }
     }
 }
