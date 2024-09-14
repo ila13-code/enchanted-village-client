@@ -152,6 +152,11 @@ namespace Unical.Demacs.EnchantedVillage
 
                 Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
                 building.Id = data.GetUniqueId();
+                if(building.PrefabIndex == 4) // Training base
+                {
+                    building.name = building.Id;
+                }
+
                 if (building == null)
                 {
                     Debug.LogError($"Impossibile istanziare l'edificio con indice {data.getPrefabIndex()}");
@@ -188,7 +193,7 @@ namespace Unical.Demacs.EnchantedVillage
                         }
                         else
                         {
-                            var placeholder = gameObject.AddComponent<BuildingPlaceholder>();
+                            var placeholder = building.gameObject.AddComponent<BuildingPlaceholder>();
                             placeholder.ParentBuilding = building;
                             PlayerBuildings[data.getX() + i, data.getY() + j] = placeholder;
                         }

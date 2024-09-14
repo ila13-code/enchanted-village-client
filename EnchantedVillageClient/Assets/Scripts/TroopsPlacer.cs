@@ -32,7 +32,6 @@ namespace Unical.Demacs.EnchantedVillage
         {
             PlaceTroops(2);
         }
-
         private void PlaceTroops(int troopsType)
         {
             List<BuildingData> trainingBases = GetTrainingBases();
@@ -41,7 +40,10 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.LogError("Nessun campo di addestramento trovato");
                 return;
             }
-            for(int k = 0; k< trainingBases.Count; k++ )
+
+            List<BuildingData> updatedBuildings = new List<BuildingData>();
+
+            for (int k = 0; k < trainingBases.Count; k++)
             {
                 BuildingData trainingBase = trainingBases[k];
                 Debug.Log($"Campo di addestramento {k}: {trainingBase.GetUniqueId()}");
@@ -70,23 +72,27 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.Log($"Truppa inserita nell'edificio {buildingId}. Totale truppe: {troopsData.Count}");
                 troopInstance.PlaceOnGrid(trainingBase.getX(), trainingBase.getY(), troopsData.Count);
 
-                // Aggiorna l'edificio nella lista completa degli edifici
-                List<BuildingData> allBuildings = PlayerPrefsController.Instance.GetBuildings();
-                int index = allBuildings.FindIndex(b => b.GetUniqueId() == buildingId);
+                // Aggiungi l'edificio aggiornato alla lista
+                updatedBuildings.Add(trainingBase);
+            }
+
+            // Aggiorna gli edifici nella lista completa e salva
+            List<BuildingData> allBuildings = PlayerPrefsController.Instance.GetBuildings();
+            foreach (var updatedBuilding in updatedBuildings)
+            {
+                int index = allBuildings.FindIndex(b => b.GetUniqueId() == updatedBuilding.GetUniqueId());
                 if (index != -1)
                 {
-                    allBuildings[index] = trainingBase;
-                    PlayerPrefsController.Instance.SaveBuildings(allBuildings);
-                    break;
+                    allBuildings[index] = updatedBuilding;
                 }
                 else
                 {
-                    Debug.LogError($"Impossibile trovare l'edificio con ID {buildingId} nella lista completa degli edifici");
+                    Debug.LogError($"Impossibile trovare l'edificio con ID {updatedBuilding.GetUniqueId()} nella lista completa degli edifici");
                 }
             }
-           
-            
+            PlayerPrefsController.Instance.SaveBuildings(allBuildings);
         }
+
 
 
         //recupera tutti i campi di addestramento in cui posso inserire truppe

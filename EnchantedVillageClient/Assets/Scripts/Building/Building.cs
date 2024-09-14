@@ -181,14 +181,26 @@ namespace Unical.Demacs.EnchantedVillage
                     return;
                 }
 
-                
+
                 var existingBuilding = list.FirstOrDefault(b => b.GetUniqueId() == _id);
-         
+
                 if (existingBuilding != null)
                 {
                     Debug.Log($"Edificio già esistente: {_prefabIndex} {existingBuilding.getX()} {existingBuilding.getY()}");
+
+                    // Crea un nuovo BuildingData mantenendo i dati delle truppe esistenti
+                    var updatedBuildingData = new BuildingData(this.Id, _prefabIndex, _currentX, _currentY);
+
+                    // Se l'edificio è una Training Base (assumendo che _prefabIndex 4 sia la Training Base)
+                    if (_prefabIndex == 4)
+                    {
+                        // Trasferisci i dati delle truppe esistenti al nuovo BuildingData
+                        updatedBuildingData.setTroopsData(existingBuilding.getTroopsData());
+
+                    }
+
                     list.Remove(existingBuilding);
-                    list.Add(new BuildingData(this.Id, _prefabIndex, _currentX, _currentY));
+                    list.Add(updatedBuildingData);
                     Debug.Log($"Aggiornato: {_prefabIndex} {_currentX} {_currentY}");
                 }
                 else if (create)
