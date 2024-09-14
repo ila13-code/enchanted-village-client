@@ -8,14 +8,6 @@ namespace Unical.Demacs.EnchantedVillage
 
     public class Building : MonoBehaviour
     {
-        [System.Serializable]
-        public class Level
-        {
-            public int level;
-            public Sprite icon;
-            public GameObject mesh;
-        }
-
         public class BuildingPlaceholder : Building
         {
             public Building ParentBuilding { get; set; }
@@ -25,7 +17,6 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Material placedBuildingMaterial;
         [SerializeField] private int _rows = 1;
         [SerializeField] private int _columns = 1;
-        [SerializeField] private Level[] levels;
         [SerializeField] private GameObject _button;
 
         [SerializeField] private int _prefabIndex;

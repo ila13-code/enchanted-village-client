@@ -68,7 +68,7 @@ namespace Unical.Demacs.EnchantedVillage
                 TroopsData newTroop = new TroopsData(0, 0, 0, troopsType);
                 troopsData.Add(newTroop);
                 trainingBase.setTroopsData(troopsData);
-
+    
                 Vector3 spawnPosition = new Vector3(trainingBase.getX(), 1f, trainingBase.getY());
                 Troops troopInstance = Instantiate(troops[troopsType], spawnPosition, Quaternion.identity, troopsContainer);
                 Debug.Log($"Truppa inserita nell'edificio {buildingId}. Totale truppe: {troopsData.Count}");
