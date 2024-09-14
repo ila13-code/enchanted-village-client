@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3650766723378704928, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
+      propertyPath: particles
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 3691641752519195514, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
       propertyPath: m_Name
       value: ElisirCollector Variant
@@ -61,6 +65,7 @@ PrefabInstance:
     - {fileID: 7600901856453726661, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
     m_RemovedGameObjects:
     - {fileID: 4718427487519531417, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
+    - {fileID: 5317399362556590503, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 20f42fbe3b59cb44fbb3704558bfe10d, type: 3}
