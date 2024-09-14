@@ -42,7 +42,7 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     Debug.Log("Conferma ricevuta, piazzamento edificio.");
                     PlayerPrefsController.Instance.Gold -= ShopItem.GetCostFromIndex(_prefabIndex);
-                    
+                    PlayerPrefsController.Instance.Exp += ShopItem.GetExperiencePoints(_prefabIndex);
                     Vector3 position = Vector3.zero;
                     Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
                     building.Id= UnityEditor.GUID.Generate().ToString();

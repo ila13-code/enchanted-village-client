@@ -62,6 +62,8 @@ namespace Unical.Demacs.EnchantedVillage
                     continue;
                 }
 
+                PlayerPrefsController.Instance.Elixir -= getCost(troopsType);
+
                 // Inserimento della nuova truppa
                 TroopsData newTroop = new TroopsData(0, 0, 0, troopsType);
                 troopsData.Add(newTroop);
@@ -120,6 +122,19 @@ namespace Unical.Demacs.EnchantedVillage
         }
 
 
-
+        private int getCost(int type)
+        {
+            switch (type)
+            {
+                case 0:
+                    return 200;
+                case 1:
+                    return 100;
+                case 2:
+                    return 150;
+                default:
+                    return 0;
+            }
+        }
     }
 }

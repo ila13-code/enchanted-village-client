@@ -219,5 +219,40 @@ namespace Unical.Demacs.EnchantedVillage
             return GetCost(GetItemType(index));
         }
 
+        public static int GetExperiencePoints(int index)
+        {
+            switch (index)
+            {
+                case 0:
+                    return 6; 
+                case 1:
+                    return 15; 
+                case 2:
+                    return 10; 
+                case 3:
+                    return 20; 
+                case 4:
+                    return 10; 
+                case 5:
+                    return 12; 
+                case 6:
+                    return 18; 
+                case 7:
+                    return 17; 
+                case 8:
+                    return 9;  
+                case 9:
+                    return 14;
+                case 10:
+                    return 15; 
+                case 11:
+                    return 16; 
+                case 12:
+                    return 17; 
+                default:
+                    return 0;  
+            }
+
+        }
     }
 }
