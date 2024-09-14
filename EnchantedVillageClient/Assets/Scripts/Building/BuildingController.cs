@@ -1,3 +1,4 @@
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
@@ -5,6 +6,7 @@ namespace Unical.Demacs.EnchantedVillage
     public class BuildingController : MonoBehaviour
     {
         private bool isDragging = false;
+        private bool isMoving = false;  // Nuova variabile per sapere se si sta realmente muovendo
         private Vector3 offset;
         private Building building;
         private BuildGrid buildGrid;
@@ -14,19 +16,23 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Material validPlacementMaterial;
         [SerializeField] private Material invalidPlacementMaterial;
 
+        private Vector3 initialMousePosition;
+        private float dragThreshold = 0.1f;
+
         private void Start()
         {
             building = GetComponent<Building>();
             buildGrid = FindObjectOfType<BuildGrid>();
             mainCamera = Camera.main;
             baseRenderer = GetComponentInChildren<Renderer>();
-            
         }
 
         private void OnMouseDown()
         {
+            initialMousePosition = GetMouseWorldPosition();
             isDragging = true;
-            offset = transform.position - GetMouseWorldPosition();
+            isMoving = false;  // Resetta la variabile di movimento
+            offset = transform.position - initialMousePosition;
             BuildingMovementEvents.TriggerBuildingDragStart();
         }
 
@@ -40,9 +46,14 @@ namespace Unical.Demacs.EnchantedVillage
                     transform.position.y,
                     mousePos.z + offset.z
                 );
-                transform.position = newPosition;
 
-                UpdatePlacementVisualization();
+                // Se il mouse si è mosso oltre la soglia, consideriamo che sta trascinando
+                if (Vector3.Distance(initialMousePosition, GetMouseWorldPosition()) > dragThreshold)
+                {
+                    isMoving = true;  // L'utente sta trascinando
+                    transform.position = newPosition;
+                    UpdatePlacementVisualization();  // Cambia il materiale solo durante il trascinamento
+                }
             }
         }
 
@@ -51,15 +62,34 @@ namespace Unical.Demacs.EnchantedVillage
             if (isDragging)
             {
                 isDragging = false;
-                if (CanPlaceBuilding())
+
+                if (!isMoving)
                 {
-                    SnapToGrid();
-                    baseRenderer.material = validPlacementMaterial;
+                    //voglio collezionare risorse
+                    if(building.PrefabIndex==10) //colleziono elisir
+                    {
+                        Debug.Log("Colleziono elisir");
+                    }
+                    else if(building.PrefabIndex==12) //colleziono elisir
+                    {
+                        Debug.Log("Colleziono oro");
+                    }
+
                 }
                 else
                 {
-                    baseRenderer.material = invalidPlacementMaterial;
+                    // Se ha spostato il mouse, gestiamo il rilascio del trascinamento
+                    if (CanPlaceBuilding())
+                    {
+                        SnapToGrid();
+                        baseRenderer.material = validPlacementMaterial;
+                    }
+                    else
+                    {
+                        baseRenderer.material = invalidPlacementMaterial;
+                    }
                 }
+
                 BuildingMovementEvents.TriggerBuildingDragEnd();
             }
         }
@@ -71,15 +101,12 @@ namespace Unical.Demacs.EnchantedVillage
 
         private bool CanPlaceBuilding()
         {
-
             (int gridX, int gridY) = GetGridCoordinates();
-
             bool isInMap = buildGrid.IsPositionInMap(gridX, gridY, building.Rows, building.Columns);
             if (!isInMap)
             {
                 return false;
             }
-
             return !HasCollisions();
         }
 
@@ -119,7 +146,6 @@ namespace Unical.Demacs.EnchantedVillage
                             otherBuilding = placeholder.ParentBuilding;
                         }
 
- 
                         if (otherBuilding == building)
                             continue;
 
@@ -129,7 +155,7 @@ namespace Unical.Demacs.EnchantedVillage
                         if (Mathf.Abs(gridX + building.Columns / 2 - (otherBuilding.CurrentX + otherBuilding.Columns / 2)) < minDistanceX &&
                             Mathf.Abs(gridY + building.Rows / 2 - (otherBuilding.CurrentY + otherBuilding.Rows / 2)) < minDistanceY)
                         {
-                            return true; 
+                            return true;
                         }
                     }
                 }
@@ -176,6 +202,5 @@ namespace Unical.Demacs.EnchantedVillage
             else
                 building.Confirm(true);
         }
-
     }
 }
