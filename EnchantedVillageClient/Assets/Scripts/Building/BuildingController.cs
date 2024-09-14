@@ -1,4 +1,3 @@
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
@@ -6,7 +5,7 @@ namespace Unical.Demacs.EnchantedVillage
     public class BuildingController : MonoBehaviour
     {
         private bool isDragging = false;
-        private bool isMoving = false;  // Nuova variabile per sapere se si sta realmente muovendo
+        private bool isMoving = false;
         private Vector3 offset;
         private Building building;
         private BuildGrid buildGrid;
@@ -31,7 +30,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             initialMousePosition = GetMouseWorldPosition();
             isDragging = true;
-            isMoving = false;  // Resetta la variabile di movimento
+            isMoving = false;
             offset = transform.position - initialMousePosition;
             BuildingMovementEvents.TriggerBuildingDragStart();
         }
@@ -47,12 +46,11 @@ namespace Unical.Demacs.EnchantedVillage
                     mousePos.z + offset.z
                 );
 
-                // Se il mouse si è mosso oltre la soglia, consideriamo che sta trascinando
                 if (Vector3.Distance(initialMousePosition, GetMouseWorldPosition()) > dragThreshold)
                 {
-                    isMoving = true;  // L'utente sta trascinando
+                    isMoving = true;
                     transform.position = newPosition;
-                    UpdatePlacementVisualization();  // Cambia il materiale solo durante il trascinamento
+                    UpdatePlacementVisualization();
                 }
             }
         }
@@ -65,20 +63,30 @@ namespace Unical.Demacs.EnchantedVillage
 
                 if (!isMoving)
                 {
-                    //voglio collezionare risorse
-                    if(building.PrefabIndex==10) //colleziono elisir
+                    // Colleziona risorse
+                    ResourceCollector resourceCollector = GetComponent<ResourceCollector>();
+                    if (resourceCollector != null)
                     {
-                        Debug.Log("Colleziono elisir");
+                        if (building.PrefabIndex == 10) // Colleziono elisir
+                        {
+                            Debug.Log($"Colleziono elisir: {resourceCollector.Resources}");
+                            PlayerPrefsController.Instance.Elixir += resourceCollector.Resources;
+                            resourceCollector.Resources = 0;
+                        }
+                        else if (building.PrefabIndex == 12) // Colleziono oro
+                        {
+                            Debug.Log($"Colleziono oro: {resourceCollector.Resources}");
+                            PlayerPrefsController.Instance.Elixir += resourceCollector.Resources;
+                            resourceCollector.Resources = 0;
+                        }
                     }
-                    else if(building.PrefabIndex==12) //colleziono elisir
+                    else
                     {
-                        Debug.Log("Colleziono oro");
+                        Debug.LogWarning("ResourceCollector non trovato sul GameObject.");
                     }
-
                 }
                 else
                 {
-                    // Se ha spostato il mouse, gestiamo il rilascio del trascinamento
                     if (CanPlaceBuilding())
                     {
                         SnapToGrid();
@@ -200,7 +208,9 @@ namespace Unical.Demacs.EnchantedVillage
                 baseRenderer.material = invalidPlacementMaterial;
             }
             else
+            {
                 building.Confirm(true);
+            }
         }
     }
 }

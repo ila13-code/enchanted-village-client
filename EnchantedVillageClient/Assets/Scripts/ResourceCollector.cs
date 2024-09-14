@@ -5,36 +5,29 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class ResourceCollector : MonoBehaviour
     {
-        private static ResourceCollector instance = null;
         [SerializeField] private int type = 0; // 0 per elisir, 1 per oro
         [SerializeField] private GameObject particles;
+        private int resources = 50;
 
-        public static ResourceCollector Instance
+
+        public int Resources
         {
             get
             {
-                if (instance == null)
-                {
-                    instance = FindObjectOfType<ResourceCollector>();
-                    if (instance == null)
-                    {
-                        GameObject go = new GameObject("ResourceCollector");
-                        instance = go.AddComponent<ResourceCollector>();
-                        instance.Initialize();
-                    }
-                }
-                return instance;
+                return resources;
+            }
+            set
+            {
+                resources = value;
             }
         }
 
-        public int resources = 100;
-
-        private void Initialize()
+        private void Start()
         {
             StartCoroutine(IncreaseResources());
             if (particles != null)
             {
-                particles.SetActive(false); 
+                particles.SetActive(false);
             }
         }
 
@@ -43,16 +36,13 @@ namespace Unical.Demacs.EnchantedVillage
             while (true)
             {
                 yield return new WaitForSeconds(180);
-
                 IncreaseResources(50);
 
-                // Attiva le particelle
                 if (particles != null)
                 {
-                    particles.SetActive(true); 
+                    particles.SetActive(true);
                 }
-
-                yield return new WaitForSeconds(3); 
+                yield return new WaitForSeconds(10);
 
                 if (particles != null)
                 {
