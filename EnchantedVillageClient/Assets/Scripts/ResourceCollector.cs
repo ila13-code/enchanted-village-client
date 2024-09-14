@@ -42,12 +42,6 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     particles.SetActive(true);
                 }
-                yield return new WaitForSeconds(10);
-
-                if (particles != null)
-                {
-                    particles.SetActive(false);
-                }
             }
         }
 
