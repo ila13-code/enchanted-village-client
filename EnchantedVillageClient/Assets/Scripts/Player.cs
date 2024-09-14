@@ -109,6 +109,7 @@ namespace Unical.Demacs.EnchantedVillage
             return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0 ;
         }
 
+        //todo: recupera anche troopsData se indexprefab = 4
         private void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
@@ -133,7 +134,7 @@ namespace Unical.Demacs.EnchantedVillage
                     continue;
                 }
 
-                Debug.Log($"Caricamento edificio: PrefabIndex={data.getPrefabIndex()}, X={data.getX()}, Y={data.getY()}");
+                Debug.Log($"Caricamento edificio: {data.GetUniqueId()} PrefabIndex = {data.getPrefabIndex()}, X={data.getX()}, Y={data.getY()}");
 
                 if (data.getPrefabIndex() < 0 || data.getPrefabIndex() >= UIController.Instance.Buildings.Length)
                 {
@@ -151,6 +152,7 @@ namespace Unical.Demacs.EnchantedVillage
                 }
 
                 Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
+                building.Id = data.GetUniqueId();
                 
 
                 if (building == null)
@@ -161,7 +163,7 @@ namespace Unical.Demacs.EnchantedVillage
 
                 try
                 {
-                    building.Confirm(false);
+                    building.ConfirmLoadBuildings();
                 }
                 catch (NullReferenceException e)
                 {

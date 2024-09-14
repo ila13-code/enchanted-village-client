@@ -33,12 +33,19 @@ namespace Unical.Demacs.EnchantedVillage
         private int _currentY;
         private bool _isConfirmed;
         private bool _isMoving;
+        private String _id;
         private BuildGrid _buildGrid;
 
         public int Rows => _rows;
         public int Columns => _columns;
         public int CurrentX => _currentX;
         public int CurrentY => _currentY;
+
+        public String Id
+        {
+            get => _id;
+            set => _id = value;
+        }
 
         public string Name { get; set; } 
 
@@ -168,25 +175,26 @@ namespace Unical.Demacs.EnchantedVillage
                     list = new List<BuildingData>();
                 }
 
-                if (_prefabIndex < 0)
+                if (_prefabIndex < 0 && _prefabIndex>13)
                 {
                     Debug.LogError($"_prefabIndex non valido: {_prefabIndex}");
                     return;
                 }
 
                 
-                var existingBuilding = list.FirstOrDefault(b => b.getPrefabIndex() == _prefabIndex);
-
+                var existingBuilding = list.FirstOrDefault(b => b.GetUniqueId() == _id);
+         
                 if (existingBuilding != null)
                 {
-                    existingBuilding.setX(_currentX);
-                    existingBuilding.setY(_currentY);
+                    Debug.Log($"Edificio già esistente: {_prefabIndex} {existingBuilding.getX()} {existingBuilding.getY()}");
+                    list.Remove(existingBuilding);
+                    list.Add(new BuildingData(this.Id, _prefabIndex, _currentX, _currentY));
                     Debug.Log($"Aggiornato: {_prefabIndex} {_currentX} {_currentY}");
                 }
                 else if (create)
                 {
                     // Aggiungi un nuovo edificio solo se non esiste e create è true
-                    list.Add(new BuildingData(_prefabIndex, _currentX, _currentY));
+                    list.Add(new BuildingData(this.Id, _prefabIndex, _currentX, _currentY));
                     Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
                 }
 
@@ -198,6 +206,35 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.LogError($"NullReferenceException in Confirm per l'edificio {gameObject.name}: {e.Message}");
                 Debug.LogError($"StackTrace: {e.StackTrace}");
                 return;
+            }
+        }
+
+        public void ConfirmLoadBuildings()
+        {
+            _buildGrid = FindObjectOfType<BuildGrid>();
+            baseRenderer = GetComponentInChildren<Renderer>();
+            if (baseRenderer == null)
+            {
+                Debug.LogError($"baseRenderer è null per l'edificio {gameObject.name}");
+                return;
+            }
+            if (placedBuildingMaterial == null)
+            {
+                Debug.LogError($"placedBuildingMaterial è null per l'edificio {gameObject.name}");
+                return;
+            }
+            baseRenderer.material = placedBuildingMaterial;
+
+            _isConfirmed = true;
+            _isMoving = false;
+
+            if (_button == null)
+            {
+                Debug.LogError($"_button è null per l'edificio {gameObject.name}");
+            }
+            else
+            {
+                _button.SetActive(false);
             }
         }
 
@@ -226,7 +263,7 @@ namespace Unical.Demacs.EnchantedVillage
                 List<BuildingData> list = PlayerPrefsController.Instance.GetBuildings();
                 if (list != null)
                 {
-                    var buildingToRemove = list.FirstOrDefault(b => b.getPrefabIndex() == _prefabIndex);
+                    var buildingToRemove = list.FirstOrDefault(b => b.GetUniqueId() == _id);
                     if (buildingToRemove != null)
                     {
                         list.Remove(buildingToRemove);

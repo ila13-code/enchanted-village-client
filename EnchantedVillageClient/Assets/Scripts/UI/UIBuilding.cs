@@ -45,6 +45,7 @@ namespace Unical.Demacs.EnchantedVillage
                     
                     Vector3 position = Vector3.zero;
                     Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
+                    building.Id= UnityEditor.GUID.Generate().ToString();
                     building.UpdateGridPosition((int)position.x, (int)position.y);
                 }
                 else
