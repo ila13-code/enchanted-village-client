@@ -8,6 +8,7 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class TroopsPlacer : MonoBehaviour
     {
+        private TroopsPlacer instance; 
         [SerializeField] private Troops[] troops;
         private BuildGrid buildGrid;
         [SerializeField] private Transform troopsContainer;
@@ -31,7 +32,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             PlaceTroops(2);
         }
-    
+
         private void PlaceTroops(int troopsType)
         {
             List<BuildingData> trainingBases = GetTrainingBases();
@@ -40,51 +41,51 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.LogError("Nessun campo di addestramento trovato");
                 return;
             }
-
-            BuildingData trainingBase = trainingBases[0];
-            List<TroopsData> troopsData = trainingBase.getTroopsData();
-            if (troopsData == null)
+            for(int k = 0; k< trainingBases.Count; k++ )
             {
-                Debug.LogError("Lista di truppe null");
-                return;
+                BuildingData trainingBase = trainingBases[k];
+                Debug.Log($"Campo di addestramento {k}: {trainingBase.GetUniqueId()}");
+                string buildingId = trainingBase.GetUniqueId();
+
+                List<TroopsData> troopsData = trainingBase.getTroopsData();
+                if (troopsData == null)
+                {
+                    Debug.LogError($"Lista di truppe null per l'edificio {buildingId}");
+                    continue;
+                }
+
+                if (troopsData.Count >= 5)
+                {
+                    Debug.LogError($"Numero massimo di truppe raggiunto per l'edificio {buildingId}");
+                    continue;
+                }
+
+                // Inserimento della nuova truppa
+                TroopsData newTroop = new TroopsData(0, 0, 0, troopsType);
+                troopsData.Add(newTroop);
+                trainingBase.setTroopsData(troopsData);
+
+                Vector3 spawnPosition = new Vector3(trainingBase.getX(), 1f, trainingBase.getY());
+                Troops troopInstance = Instantiate(troops[troopsType], spawnPosition, Quaternion.identity, troopsContainer);
+                Debug.Log($"Truppa inserita nell'edificio {buildingId}. Totale truppe: {troopsData.Count}");
+                troopInstance.PlaceOnGrid(trainingBase.getX(), trainingBase.getY(), troopsData.Count);
+
+                // Aggiorna l'edificio nella lista completa degli edifici
+                List<BuildingData> allBuildings = PlayerPrefsController.Instance.GetBuildings();
+                int index = allBuildings.FindIndex(b => b.GetUniqueId() == buildingId);
+                if (index != -1)
+                {
+                    allBuildings[index] = trainingBase;
+                    PlayerPrefsController.Instance.SaveBuildings(allBuildings);
+                    break;
+                }
+                else
+                {
+                    Debug.LogError($"Impossibile trovare l'edificio con ID {buildingId} nella lista completa degli edifici");
+                }
             }
-
-            if(trainingBase.getTroopsCount() >= 5)
-            {
-                Debug.LogError("Numero massimo di truppe raggiunto");
-                return;
-            }
-
-            //altrimenti posso inserire la truppa
-            TroopsData newTroop = new TroopsData(0, 0, 0, troopsType);
-            troopsData.Add(newTroop);
-            trainingBase.setTroopsData(troopsData);
-            Vector3 spawnPosition = new Vector3(trainingBase.getX(), 0, trainingBase.getY());
-            //Vector3 spawnPosition = GetWorldPositionFromGrid(trainingBase.getX(), trainingBase.getY());
-                //new Vector3(trainingBase.getX(), 0, trainingBase.getY());
-            Troops troopInstance = Instantiate(troops[troopsType], spawnPosition, Quaternion.identity, troopsContainer);
-            troopInstance.PlaceOnGrid(trainingBase.getX(), trainingBase.getY());
-            PlayerPrefsController.Instance.SaveBuildings(PlayerPrefsController.Instance.GetBuildings());
-        }
-
-
-        private Vector3 GetWorldPositionFromGrid(int gridX, int gridY)
-        {
-            // Passo 1: Ottieni la posizione locale della cella nella griglia
-            float localX = (gridX * buildGrid.CellSize) + (buildGrid.CellSize / 2f);
-            float localZ = (gridY * buildGrid.CellSize) + (buildGrid.CellSize / 2f);
-
-            // Crea un nuovo Vector3 per la posizione locale, imponendo che la Y rimanga costante
-            Vector3 localGridPosition = new Vector3(localX, -0.1f, localZ);
-
-            // Passo 2: Converti la posizione locale nel sistema di coordinate del mondo, tenendo conto della rotazione e traslazione della griglia
-            Vector3 worldPosition = buildGrid.transform.TransformPoint(localGridPosition);
-
-            // Passo 3: Compensare la rotazione dell'edificio (-45 gradi sull'asse Y)
-            Quaternion buildingRotation = Quaternion.Euler(0, -45, 0);  // Rotazione inversa dell'edificio
-            worldPosition = buildingRotation * (worldPosition - buildGrid.transform.position) + buildGrid.transform.position;
-
-            return worldPosition;
+           
+            
         }
 
 

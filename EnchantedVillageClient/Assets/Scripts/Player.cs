@@ -9,12 +9,13 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class Player : MonoBehaviour
     {
-
         private static Player instance = null;
         private int level;
         private int experiencePoints;
         private Building[,] PlayerBuildings;
+        [SerializeField] private Troops[] troops;
         private Transform buildingsContainer;
+        private Transform troopsContainer; // New field for troops container
 
         public static Player Instance
         {
@@ -33,7 +34,6 @@ namespace Unical.Demacs.EnchantedVillage
                 return instance;
             }
         }
-      
 
         public Building[,] GetPlayerBuildings()
         {
@@ -46,6 +46,7 @@ namespace Unical.Demacs.EnchantedVillage
             if (map != null)
             {
                 buildingsContainer = map.transform.Find("Buildings").transform;
+                troopsContainer = map.transform.Find("Troops").transform; // Initialize troops container
             }
             else
             {
@@ -65,7 +66,6 @@ namespace Unical.Demacs.EnchantedVillage
                 PlayerPrefsController.Instance.Gold = 38904892;
                 LoadPlayerData();
             }
-         
         }
 
         private void NewGame()
@@ -77,7 +77,6 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerBuildings = new Building[45, 45];
             Vector3 position = Vector3.zero;
             Building building = Instantiate(UIController.Instance.Buildings[13], position, Quaternion.identity, buildingsContainer);
-            
         }
 
         public void AddExperience(int amount)
@@ -104,12 +103,12 @@ namespace Unical.Demacs.EnchantedVillage
             const int c = 10;
             return (int)(a * Mathf.Log(b * currentLevel + c));
         }
+
         private bool IsNewGame()
         {
-            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0 ;
+            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0;
         }
 
-        //todo: recupera anche troopsData se indexprefab = 4
         private void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
@@ -144,7 +143,7 @@ namespace Unical.Demacs.EnchantedVillage
 
                 Vector3 position = new Vector3(data.getX(), 0, data.getY());
                 Building buildingPrefab = UIController.Instance.Buildings[data.getPrefabIndex()];
-                
+
                 if (buildingPrefab == null)
                 {
                     Debug.LogError($"Prefab dell'edificio non trovato per l'indice {data.getPrefabIndex()}");
@@ -153,7 +152,6 @@ namespace Unical.Demacs.EnchantedVillage
 
                 Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
                 building.Id = data.GetUniqueId();
-                
 
                 if (building == null)
                 {
@@ -173,6 +171,12 @@ namespace Unical.Demacs.EnchantedVillage
                 }
 
                 building.PlaceOnGrid(data.getX(), data.getY());
+
+                // Caricamento delle truppe per il campo di addestramento
+                if (data.getPrefabIndex() == 4) // Indice del campo di addestramento
+                {
+                    LoadTroopsForTrainingBase(data, building);
+                }
 
                 // Controllo dei limiti della griglia
                 for (int i = 0; i < building.Rows && (data.getX() + i) < 45; i++)
@@ -197,6 +201,29 @@ namespace Unical.Demacs.EnchantedVillage
 
             Debug.Log("Caricamento degli edifici completato.");
         }
+
+        private void LoadTroopsForTrainingBase(BuildingData data, Building building)
+        {
+            List<TroopsData> troopsData = data.getTroopsData();
+            if (troopsData == null || troopsData.Count == 0)
+            {
+                Debug.Log($"Nessuna truppa da caricare per l'edificio {data.GetUniqueId()}");
+                return;
+            }
+
+            Debug.Log($"Caricamento truppe per l'edificio {data.GetUniqueId()}. Numero di truppe: {troopsData.Count}");
+
+            for (int i = 0; i < troopsData.Count; i++)
+            {
+                TroopsData troopData = troopsData[i];
+                Vector3 spawnPosition = new Vector3(data.getX(), 1f, data.getY());
+                Troops troopInstance = Instantiate(troops[troopData.getType()], spawnPosition, Quaternion.identity, troopsContainer);
+                troopInstance.PlaceOnGrid(data.getX(), data.getY(), i + 1);
+                Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione={i + 1}");
+            }
+            
+        }
+
         public void OnApplicationQuit()
         {
             PlayerPrefsController.Instance.SaveAllData(level, experiencePoints, PlayerPrefsController.Instance.Elixir, PlayerPrefsController.Instance.Gold, PlayerPrefsController.Instance.GetBuildings());

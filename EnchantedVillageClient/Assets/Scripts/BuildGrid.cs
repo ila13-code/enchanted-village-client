@@ -36,6 +36,14 @@ namespace Unical.Demacs.EnchantedVillage
             return transform.TransformPoint(localCenterPosition);
         }
 
+        public Vector3 GetCenterPosition1(int x, int y, int rows, int columns)
+        {
+            Vector3 localStartPosition = new Vector3(x * _cellSize, 0.5f, y * _cellSize);
+            Vector3 localCenterOffset = new Vector3(columns * _cellSize / 2f, 0.5f, rows * _cellSize / 2f);
+            Vector3 localCenterPosition = localStartPosition + localCenterOffset;
+            return transform.TransformPoint(localCenterPosition);
+        }
+
         public (int, int) WorldToGridPosition(Vector3 worldPosition)
         {
             Vector3 localPosition = transform.InverseTransformPoint(worldPosition);

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unical.Demacs.EnchantedVillage;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Troops : MonoBehaviour
 {
@@ -19,11 +20,25 @@ public class Troops : MonoBehaviour
         
     }
 
-    public void PlaceOnGrid(int x, int y)
+    public void PlaceOnGrid(int x, int y, int numberOfTroops)
     {
         _currentX = x;
         _currentY = y;
-        Vector3 position = _buildGrid.GetCenterPosition(x, y, _rows, _columns);
+        if(numberOfTroops>3)
+        {
+            switch(numberOfTroops)
+            {
+                case 4:
+                    numberOfTroops=1;
+                    break;
+                case 5:
+                    numberOfTroops = 2;
+                    break;
+            }    
+            y+= numberOfTroops;
+        }
+        Vector3 position = _buildGrid.GetCenterPosition1(x+numberOfTroops, y, _rows, _columns);
         transform.position = position;
+        Debug.Log("Troops placed at " + position.x + ", " + position.y);
     }
 }
