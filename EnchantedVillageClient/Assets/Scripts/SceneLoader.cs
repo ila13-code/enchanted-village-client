@@ -18,7 +18,7 @@ namespace Unical.Demacs.EnchantedVillage
         }
         public void Home()
         {
-            SceneManager.LoadSceneAsync(0);
+            SceneManager.LoadSceneAsync(1);
         }
     }
 }
