@@ -589,6 +589,37 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &255161436
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 255161437}
+  m_Layer: 0
+  m_Name: Troops
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &255161437
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 255161436}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0.38268343, z: -0, w: 0.92387956}
+  m_LocalPosition: {x: 0, y: -0.1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 581115977}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &331583889
 GameObject:
   m_ObjectHideFlags: 0
@@ -1387,7 +1418,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 255161437}
   m_Father: {fileID: 1288675191}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &586992264
@@ -4981,10 +5013,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8858f304c4a01a34c9384d3999e61c5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  troopsPrefabs:
-  - {fileID: 732424249969231316, guid: 8520acf11bd8f7e428e6f58191e4ee31, type: 3}
-  - {fileID: 6198892525328978908, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
-  - {fileID: 6198892525328978908, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
+  troops:
+  - {fileID: 3834469789636035021, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
+  - {fileID: 3872802482768600829, guid: 8520acf11bd8f7e428e6f58191e4ee31, type: 3}
+  - {fileID: 3834469789636035021, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
+  troopsContainer: {fileID: 255161437}
 --- !u!224 &5996683453084564700
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5081,7 +5114,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7303918992970656900}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5506047354182196335}
+        m_TargetAssemblyTypeName: Unical.Demacs.EnchantedVillage.TroopsPlacer, Assembly-CSharp
+        m_MethodName: PlaceViking
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!222 &6471532620358926893
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -5133,7 +5178,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2563840550464140020}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5506047354182196335}
+        m_TargetAssemblyTypeName: Unical.Demacs.EnchantedVillage.TroopsPlacer, Assembly-CSharp
+        m_MethodName: PlaceArcher
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &6878013485490911313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5245,7 +5302,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4612388592835744525}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5506047354182196335}
+        m_TargetAssemblyTypeName: Unical.Demacs.EnchantedVillage.TroopsPlacer, Assembly-CSharp
+        m_MethodName: PlaceSwordMan
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!224 &8725012973717889052
 RectTransform:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
@@ -42,6 +43,9 @@ namespace Unical.Demacs.EnchantedVillage
             int gridY = Mathf.FloorToInt(localPosition.z / _cellSize);
             return (gridX, gridY);
         }
+
+
+
 
         public bool IsPositionInMap(int gridX, int gridY, int buildingRows, int buildingColumns)
         {

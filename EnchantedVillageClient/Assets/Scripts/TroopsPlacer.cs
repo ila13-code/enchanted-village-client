@@ -8,14 +8,31 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class TroopsPlacer : MonoBehaviour
     {
-        [SerializeField] private GameObject[] troopsPrefabs;
+        [SerializeField] private Troops[] troops;
+        private BuildGrid buildGrid;
+        [SerializeField] private Transform troopsContainer;
 
         public void Start()
         {
-            
+            buildGrid = FindObjectOfType<BuildGrid>();
         }
 
-        public void PlaceTroops(int troopsType)
+        public void PlaceArcher()
+        {
+            PlaceTroops(0);
+        }
+
+        public void PlaceSwordMan()
+        {
+            PlaceTroops(1);
+        }
+
+        public void PlaceViking()
+        {
+            PlaceTroops(2);
+        }
+    
+        private void PlaceTroops(int troopsType)
         {
             List<BuildingData> trainingBases = GetTrainingBases();
             if (trainingBases.Count == 0)
@@ -43,8 +60,31 @@ namespace Unical.Demacs.EnchantedVillage
             troopsData.Add(newTroop);
             trainingBase.setTroopsData(troopsData);
             Vector3 spawnPosition = new Vector3(trainingBase.getX(), 0, trainingBase.getY());
-            GameObject troopInstance = Instantiate(troopsPrefabs[troopsType], spawnPosition, Quaternion.identity);
+            //Vector3 spawnPosition = GetWorldPositionFromGrid(trainingBase.getX(), trainingBase.getY());
+                //new Vector3(trainingBase.getX(), 0, trainingBase.getY());
+            Troops troopInstance = Instantiate(troops[troopsType], spawnPosition, Quaternion.identity, troopsContainer);
+            troopInstance.PlaceOnGrid(trainingBase.getX(), trainingBase.getY());
             PlayerPrefsController.Instance.SaveBuildings(PlayerPrefsController.Instance.GetBuildings());
+        }
+
+
+        private Vector3 GetWorldPositionFromGrid(int gridX, int gridY)
+        {
+            // Passo 1: Ottieni la posizione locale della cella nella griglia
+            float localX = (gridX * buildGrid.CellSize) + (buildGrid.CellSize / 2f);
+            float localZ = (gridY * buildGrid.CellSize) + (buildGrid.CellSize / 2f);
+
+            // Crea un nuovo Vector3 per la posizione locale, imponendo che la Y rimanga costante
+            Vector3 localGridPosition = new Vector3(localX, -0.1f, localZ);
+
+            // Passo 2: Converti la posizione locale nel sistema di coordinate del mondo, tenendo conto della rotazione e traslazione della griglia
+            Vector3 worldPosition = buildGrid.transform.TransformPoint(localGridPosition);
+
+            // Passo 3: Compensare la rotazione dell'edificio (-45 gradi sull'asse Y)
+            Quaternion buildingRotation = Quaternion.Euler(0, -45, 0);  // Rotazione inversa dell'edificio
+            worldPosition = buildingRotation * (worldPosition - buildGrid.transform.position) + buildGrid.transform.position;
+
+            return worldPosition;
         }
 
 
