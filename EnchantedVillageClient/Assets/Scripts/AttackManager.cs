@@ -48,14 +48,14 @@ namespace Unical.Demacs.EnchantedVillage
         {
             buildingRewards = new Dictionary<string, (int, int, int)>
             {
-                { "TownCenter", (30, 50, 100) },
-                { "Cannon", (5, 0, 0) },
-                { "GoldCollector", (12, 200, 0) },
-                { "GoldStorage", (20, 300, 0) },
-                { "ElixirCollector", (12, 0, 200) },
-                { "ElixirStorage", (20, 0, 300) },
-                { "Wall", (0, 0, 0) },
-                { "Flag", (10, 0, 0) }
+                { "towncenter", (30, 50, 100) },
+                { "cannon", (5, 0, 0) },
+                { "goldcollector", (12, 200, 0) },
+                { "goldstorage", (20, 300, 0) },
+                { "elixircollector", (12, 0, 200) },
+                { "elixirstorage", (20, 0, 300) },
+                { "wall", (0, 0, 0) },
+                { "flag", (10, 0, 0) }
             };
         }
 
