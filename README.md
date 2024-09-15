@@ -6,8 +6,8 @@ Benvenuti nel repository di **EnchantedVillage**, un affascinante gioco sviluppa
 
 Il repository contiene diverse risorse utili:
 
-- **BuildDesktop/**: Contiene la build per computer.
-- **BuildAndroid/**: Contiene la build per dispositivi Android.
+- **BuildDesktop**: Contiene la build per computer.
+- **BuildAndroid**: Contiene la build per dispositivi Android.
 - **GameDesignDocument.pdf**: Il documento di design del gioco, situato nella cartella principale del repository.
 
 ## Documentazione
