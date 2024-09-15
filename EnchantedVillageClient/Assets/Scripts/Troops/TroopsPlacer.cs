@@ -32,6 +32,8 @@ namespace Unical.Demacs.EnchantedVillage
         {
             PlaceTroops(2);
         }
+
+        // Inserisce una truppa in un campo di addestramento disponibile
         private void PlaceTroops(int troopsType)
         {
             List<BuildingData> trainingBases = GetTrainingBases();

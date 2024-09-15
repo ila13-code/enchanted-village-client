@@ -67,6 +67,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        //crea una nuova partita
         private void NewGame()
         {
             level = 1;
@@ -78,12 +79,14 @@ namespace Unical.Demacs.EnchantedVillage
             Building building = Instantiate(UIController.Instance.Buildings[13], position, Quaternion.identity, buildingsContainer);
         }
 
+        //aggiunge esperienza al giocatore
         public void AddExperience(int amount)
         {
             experiencePoints += amount;
             CheckLevelUp();
         }
 
+        //controlla se il giocatore ha abbastanza exp per passare al livello successivo
         private void CheckLevelUp()
         {
             while (experiencePoints >= ExperienceForNextLevel(level))
@@ -95,6 +98,7 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefsController.Instance.Exp = experiencePoints;
         }
 
+        //calcola l'esperienza necessaria per passare al livello successivo
         private int ExperienceForNextLevel(int currentLevel)
         {
             const int a = 100;
@@ -103,11 +107,13 @@ namespace Unical.Demacs.EnchantedVillage
             return (int)(a * Mathf.Log(b * currentLevel + c));
         }
 
+        //controlla se è una nuova partita
         private bool IsNewGame()
         {
             return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0;
         }
 
+        //recupera i dati del giocatore
         private void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
@@ -124,7 +130,7 @@ namespace Unical.Demacs.EnchantedVillage
 
             Debug.Log($"Numero di edifici da caricare: {list.Count}");
 
-            foreach (BuildingData data in list)
+            foreach (BuildingData data in list) // Caricamento degli edifici
             {
                 if (data == null)
                 {
@@ -141,7 +147,7 @@ namespace Unical.Demacs.EnchantedVillage
                 }
 
                 Vector3 position = new Vector3(data.getX(), 0, data.getY());
-                Building buildingPrefab = UIController.Instance.Buildings[data.getPrefabIndex()];
+                Building buildingPrefab = UIController.Instance.Buildings[data.getPrefabIndex()]; // Prefab dell'edificio
 
                 if (buildingPrefab == null)
                 {
@@ -149,11 +155,11 @@ namespace Unical.Demacs.EnchantedVillage
                     continue;
                 }
 
-                Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
-                building.Id = data.GetUniqueId();
-                if(building.PrefabIndex == 4) // Training base
+                Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer); // Istanza dell'edificio
+                building.Id = data.GetUniqueId(); // Imposta l'ID dell'edificio
+                if (building.PrefabIndex == 4) // Training base
                 {
-                    building.name = building.Id;
+                    building.name = building.Id; // Imposta il nome dell'edificio
                 }
 
                 if (building == null)
@@ -173,7 +179,7 @@ namespace Unical.Demacs.EnchantedVillage
                     continue;
                 }
 
-                building.PlaceOnGrid(data.getX(), data.getY());
+                building.PlaceOnGrid(data.getX(), data.getY()); // Posiziona l'edificio sulla griglia
 
                 // Caricamento delle truppe per il campo di addestramento
                 if (data.getPrefabIndex() == 4) // Indice del campo di addestramento
@@ -205,6 +211,7 @@ namespace Unical.Demacs.EnchantedVillage
             Debug.Log("Caricamento degli edifici completato.");
         }
 
+        //carica le truppe per il campo di addestramento specificato
         private void LoadTroopsForTrainingBase(BuildingData data, Building building)
         {
             List<TroopsData> troopsData = data.getTroopsData();
@@ -234,6 +241,7 @@ namespace Unical.Demacs.EnchantedVillage
             
         }
 
+        //salva i dati del giocatore
         public void OnApplicationQuit()
         {
             PlayerPrefsController.Instance.SaveAllData(level, experiencePoints, PlayerPrefsController.Instance.Elixir, PlayerPrefsController.Instance.Gold, PlayerPrefsController.Instance.GetBuildings());

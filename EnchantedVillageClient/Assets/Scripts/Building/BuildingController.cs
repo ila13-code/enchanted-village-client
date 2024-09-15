@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
 {
+    //classe che gestisce il movimento degli edifici
     public class BuildingController : MonoBehaviour
     {
         private bool isDragging = false;
@@ -19,6 +20,7 @@ namespace Unical.Demacs.EnchantedVillage
         private Vector3 initialMousePosition;
         private float dragThreshold = 0.1f;
 
+        
         private void Start()
         {
             building = GetComponent<Building>();
@@ -27,6 +29,7 @@ namespace Unical.Demacs.EnchantedVillage
             baseRenderer = GetComponentInChildren<Renderer>();
         }
 
+        //funzione che gestisce il click del mouse sull'edificio
         private void OnMouseDown()
         {
             initialMousePosition = GetMouseWorldPosition();
@@ -36,6 +39,9 @@ namespace Unical.Demacs.EnchantedVillage
             BuildingMovementEvents.TriggerBuildingDragStart();
         }
 
+        //funzione che gestisce il trascinamento dell'edificio
+        //se l'edificio viene trascinato, viene aggiornata la posizione
+        //distingue tra trascinamento e click (per la raccolta di risorse)
         private void OnMouseDrag()
         {
             if (isDragging)
@@ -56,6 +62,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        //funzione che gestisce il rilascio del mouse
         private void OnMouseUp()
         {
             if (isDragging)
@@ -94,29 +101,29 @@ namespace Unical.Demacs.EnchantedVillage
                         Debug.LogWarning("ResourceCollector non trovato sul GameObject.");
                     }
                 }
-                else
+                else //sposto l'edificio
                 {
-                    if (CanPlaceBuilding())
+                    if (CanPlaceBuilding()) // Se posso posizionare l'edificio
                     {
-                        SnapToGrid();
-                        baseRenderer.material = validPlacementMaterial;
+                        SnapToGrid(); // Posiziono l'edificio
+                        baseRenderer.material = validPlacementMaterial; // Cambio il materiale
                     }
                     else
                     {
-                        baseRenderer.material = invalidPlacementMaterial;
+                        baseRenderer.material = invalidPlacementMaterial; // Cambio il materiale se non posso posizionare l'edificio
                     }
                 }
 
-                BuildingMovementEvents.TriggerBuildingDragEnd();
+                BuildingMovementEvents.TriggerBuildingDragEnd(); // Trigger dell'evento di fine trascinamento
             }
         }
 
-        private void UpdatePlacementVisualization()
+        private void UpdatePlacementVisualization() // Aggiorna la visualizzazione del posizionamento
         {
             baseRenderer.material = CanPlaceBuilding() ? validPlacementMaterial : invalidPlacementMaterial;
         }
 
-        private bool CanPlaceBuilding()
+        private bool CanPlaceBuilding() // Verifica se posso posizionare l'edificio
         {
             (int gridX, int gridY) = GetGridCoordinates();
             bool isInMap = buildGrid.IsPositionInMap(gridX, gridY, building.Rows, building.Columns);
@@ -127,7 +134,7 @@ namespace Unical.Demacs.EnchantedVillage
             return !HasCollisions();
         }
 
-        private (int, int) GetGridCoordinates()
+        private (int, int) GetGridCoordinates() // Ottiene le coordinate della griglia a partire dalla posizione dell'edificio
         {
             Vector3 localBuildingPosition = buildGrid.transform.InverseTransformPoint(transform.position);
             int gridX = Mathf.FloorToInt(localBuildingPosition.x / buildGrid.CellSize);
@@ -135,7 +142,7 @@ namespace Unical.Demacs.EnchantedVillage
             return (gridX, gridY);
         }
 
-        private bool HasCollisions()
+        private bool HasCollisions() // Verifica se ci sono collisioni
         {
             if (Player.Instance == null || Player.Instance.GetPlayerBuildings() == null || buildGrid == null)
             {
@@ -181,7 +188,7 @@ namespace Unical.Demacs.EnchantedVillage
             return false;
         }
 
-        private void SnapToGrid()
+        private void SnapToGrid() // Posiziona l'edificio sulla griglia
         {
             (int gridX, int gridY) = GetGridCoordinates();
 
@@ -194,7 +201,7 @@ namespace Unical.Demacs.EnchantedVillage
             building.UpdateGridPosition(gridX, gridY);
         }
 
-        private Vector3 GetMouseWorldPosition()
+        private Vector3 GetMouseWorldPosition() 
         {
             Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
@@ -207,7 +214,7 @@ namespace Unical.Demacs.EnchantedVillage
             return Vector3.zero;
         }
 
-        public void Confirm()
+        public void Confirm() // Conferma il posizionamento dell'edificio
         {
             Debug.Log("Confirm method called");
 

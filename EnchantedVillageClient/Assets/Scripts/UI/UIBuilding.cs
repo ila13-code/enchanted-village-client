@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace Unical.Demacs.EnchantedVillage
                     PlayerPrefsController.Instance.Exp += ShopItem.GetExperiencePoints(_prefabIndex);
                     Vector3 position = Vector3.zero;
                     Building building = Instantiate(UIController.Instance.Buildings[_prefabIndex], position, Quaternion.identity, buildingsContainer);
-                    building.Id= UnityEditor.GUID.Generate().ToString();
+                    building.Id= Guid.NewGuid().ToString();
                     building.UpdateGridPosition((int)position.x, (int)position.y);
                 }
                 else

@@ -166,7 +166,7 @@ namespace Unical.Demacs.EnchantedVillage
             if (EventSystem.current.IsPointerOverGameObject() || _isBuildingMoving)
                 return;
 
-            if (_zooming)
+            if (_zooming) //se sto zoomando
             {
                 if (!Input.touchSupported)
                 {
@@ -194,7 +194,7 @@ namespace Unical.Demacs.EnchantedVillage
                     }
                 }
             }
-            else if (_moving)
+            else if (_moving) //se sto muovendo la mappa
             {
                 Vector2 move = _inputs.MainMap.MoveDelta.ReadValue<Vector2>();
                 if (move != Vector2.zero)
@@ -206,7 +206,7 @@ namespace Unical.Demacs.EnchantedVillage
                 }
             }
 
-            AdjustBounds();
+            AdjustBounds(); //non esco dai bordi
 
             if (_camera.orthographicSize != _zoom)
             {
@@ -222,6 +222,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        //metodo che converte la posizione dello schermo in una posizione nel mondo
         private Vector3 CameraPositionToWorldPosition(Vector2 screenPosition)
         {
             float h = _camera.orthographicSize * 2f;
@@ -232,6 +233,7 @@ namespace Unical.Demacs.EnchantedVillage
             return anchor + (_camera.transform.right.normalized * screenPosition.x / Screen.width * w) + (_camera.transform.up.normalized * screenPosition.y / Screen.height * h);
         }
 
+        //metodo che converte la posizione della camera in una posizione sulla mappa
         private Vector3 CameraPositionToMapPosition(Vector2 screenPosition)
         {
             Vector3 point = CameraPositionToWorldPosition(screenPosition);
@@ -240,6 +242,7 @@ namespace Unical.Demacs.EnchantedVillage
             return point + _camera.transform.forward.normalized * x;
         }
 
+        //metodo che serve per far si che la camera non esca dai bordi della mappa
         private void AdjustBounds()
         {
             if (_zoom < _zoomMin)
@@ -278,6 +281,7 @@ namespace Unical.Demacs.EnchantedVillage
                 _root.position += Vector3.forward * Mathf.Abs((_center.z - _down) - dl.z);
         }
 
+        //metodo che calcola la grandezza del piano ortografico
         private float GetPlaneOrthographicSize()
         {
             float h = _zoom * 2f;

@@ -54,6 +54,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        // Funzione che posiziona l'edificio sulla griglia
         public void PlaceOnGrid(int x, int y)
         {
             _currentX = x;
@@ -62,6 +63,7 @@ namespace Unical.Demacs.EnchantedVillage
             transform.position = position;
         }
 
+        //todo: integrare col pulsante di rotazione
         public void Rotate()
         {
             transform.Rotate(Vector3.up, 90);
@@ -71,7 +73,7 @@ namespace Unical.Demacs.EnchantedVillage
             PlaceOnGrid(_currentX, _currentY);
         }
 
-
+        // Funzione che aggiorna la posizione dell'edificio sulla griglia
         public void UpdateGridPosition(int x, int y)
         {
             if (_isConfirmed)
@@ -123,7 +125,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-
+        // Funzione che conferma la posizione dell'edificio sulla griglia e salva le modifiche nel PlayerPrefs
         public void Confirm(Boolean create)
         {
             try
@@ -241,6 +243,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        // Funzione che rimuove l'edificio dalla griglia e dai dati salvati
         public void Cancel()
         {
             if (_currentX >= 0 && _currentY >= 0)

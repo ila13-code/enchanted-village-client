@@ -5,6 +5,7 @@ using System;
 
 namespace Unical.Demacs.EnchantedVillage
 {
+    // Classe che gestisce il salvataggio e il caricamento dei dati del giocatore
     public class PlayerPrefsController : MonoBehaviour
     {
         private static PlayerPrefsController _instance;
@@ -93,6 +94,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        // Recupera la lista di edifici salvata
         public List<BuildingData> GetBuildings()
         {
             string json = PlayerPrefs.GetString(BuildingsKey, "[]");
@@ -107,12 +109,14 @@ namespace Unical.Demacs.EnchantedVillage
             return buildings;
         }
 
+        // Salva la lista di edifici
         public void SaveBuildings(List<BuildingData> buildings)
         {
             string json = JsonConvert.SerializeObject(buildings);
             PlayerPrefs.SetString(BuildingsKey, json);
         }
 
+        // Salva tutti i dati del giocatore
         public void SaveAllData(int level, int exp, int elixir, int gold, List<BuildingData> buildings)
         {
             Level = level;
@@ -132,12 +136,14 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefs.Save();
         }
 
+        // Cancella tutti i dati salvati
         public void ClearAllData()
         {
             PlayerPrefs.DeleteAll();
             PlayerPrefs.Save();
         }
 
+        // Calcola l'esperienza necessaria per raggiungere il livello successivo
         public int ExperienceForNextLevel(int level)
         {
             const int a = 100;
@@ -147,6 +153,7 @@ namespace Unical.Demacs.EnchantedVillage
             return (int)(a * Mathf.Log(b * level + c));
         }
 
+        // Inizializza i valori di default per un nuovo gioco
         public void InitializeNewGame()
         {
             Level = 1;
@@ -166,6 +173,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        // Distrugge l'istanza quando l'applicazione viene chiusa
         private void OnApplicationQuit()
         {
             DestroyInstance();

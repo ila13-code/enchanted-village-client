@@ -6,6 +6,7 @@ using System.Xml;
 using UnityEngine;
 namespace Unical.Demacs.EnchantedVillage
 {
+    //classe che gestisce i dati degli edifici e permette di serializzarli in JSON 
     [System.Serializable]
     public class BuildingData
     {

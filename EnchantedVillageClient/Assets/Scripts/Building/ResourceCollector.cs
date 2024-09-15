@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
 {
+    //classe che gestisce la raccolta di risorse
+    //ogni 3 minuti aumenta le risorse di 50 e attiva le particelle
+    //usa una coroutine per aumentare le risorse
     public class ResourceCollector : MonoBehaviour
     {
         [SerializeField] private int type = 0; // 0 per elisir, 1 per oro
@@ -31,6 +34,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+        //coroutine che aumenta le risorse ogni 3 minuti
         private IEnumerator IncreaseResources()
         {
             while (true)

@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Unical.Demacs.EnchantedVillage
 {
+    //classe che rappresenta la griglia di gioco
     public class BuildGrid : MonoBehaviour
     {
         private int _nRows = 45;
@@ -13,6 +14,7 @@ namespace Unical.Demacs.EnchantedVillage
         public int Rows => _nRows;
         public int Columns => _nCols;
 
+        //metodo per ottenere il punto più vicino sulla griglia data una posizione
         public Vector3 GetNearestPointOnGrid(Vector3 position)
         {
             Vector3 localPosition = transform.InverseTransformPoint(position);
@@ -28,6 +30,8 @@ namespace Unical.Demacs.EnchantedVillage
             return transform.TransformPoint(result);
         }
 
+
+        //metodo che restituisce la posizione del centro della cella della griglia in base alle coordinate x e y
         public Vector3 GetCenterPosition(int x, int y, int rows, int columns)
         {
             Vector3 localStartPosition = new Vector3(x * _cellSize, 0, y * _cellSize);
@@ -36,6 +40,7 @@ namespace Unical.Demacs.EnchantedVillage
             return transform.TransformPoint(localCenterPosition);
         }
 
+        //metodo che restituisce la posizione del centro della cella della griglia in base alle coordinate x e y per le truppe
         public Vector3 GetCenterPosition1(int x, int y, int rows, int columns)
         {
             Vector3 localStartPosition = new Vector3(x * _cellSize, 0.5f, y * _cellSize);
@@ -44,6 +49,7 @@ namespace Unical.Demacs.EnchantedVillage
             return transform.TransformPoint(localCenterPosition);
         }
 
+        //metodo che restituisce le coordinate x e y della cella della griglia in base alla posizione nel mondo
         public (int, int) WorldToGridPosition(Vector3 worldPosition)
         {
             Vector3 localPosition = transform.InverseTransformPoint(worldPosition);
@@ -54,7 +60,7 @@ namespace Unical.Demacs.EnchantedVillage
 
 
 
-
+        //metodo che dice se una posizione è all'interno della griglia
         public bool IsPositionInMap(int gridX, int gridY, int buildingRows, int buildingColumns)
         {
             
@@ -66,6 +72,8 @@ namespace Unical.Demacs.EnchantedVillage
             return isInsideHorizontalBounds && isInsideVerticalBounds;
         }
 
+
+        
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
