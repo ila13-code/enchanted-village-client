@@ -18,6 +18,9 @@ namespace Unical.Demacs.EnchantedVillage
         }
         public void Home()
         {
+            PlayerPrefsController.Instance.Elixir+= AttackManager.Instance.Elixir;
+            PlayerPrefsController.Instance.Gold += AttackManager.Instance.Gold;
+            PlayerPrefsController.Instance.Exp += AttackManager.Instance.Exp;
             SceneManager.LoadSceneAsync(1);
         }
     }

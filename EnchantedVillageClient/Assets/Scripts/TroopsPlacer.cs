@@ -76,6 +76,7 @@ namespace Unical.Demacs.EnchantedVillage
 
                 // Aggiungi l'edificio aggiornato alla lista
                 updatedBuildings.Add(trainingBase);
+                break;
             }
 
             // Aggiorna gli edifici nella lista completa e salva
