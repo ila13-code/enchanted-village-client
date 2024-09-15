@@ -3,42 +3,44 @@ using System.Collections.Generic;
 using Unical.Demacs.EnchantedVillage;
 using UnityEngine;
 using UnityEngine.UIElements;
-
-public class Troops : MonoBehaviour
+namespace Unical.Demacs.EnchantedVillage
 {
-    private int _rows = 1;
-    private int _columns = 1;
-    private int _currentX;
-    private int _currentY;
-    public int CurrentX => _currentX;
-    public int CurrentY => _currentY;
-    private BuildGrid _buildGrid;
-
-    private void Awake()
+    public class Troops : MonoBehaviour
     {
-        _buildGrid = FindObjectOfType<BuildGrid>();
-        
-    }
+        private int _rows = 1;
+        private int _columns = 1;
+        private int _currentX;
+        private int _currentY;
+        public int CurrentX => _currentX;
+        public int CurrentY => _currentY;
+        private BuildGrid _buildGrid;
 
-    public void PlaceOnGrid(int x, int y, int numberOfTroops)
-    {
-        _currentX = x;
-        _currentY = y;
-        if(numberOfTroops>3)
+        private void Awake()
         {
-            switch(numberOfTroops)
-            {
-                case 4:
-                    numberOfTroops=1;
-                    break;
-                case 5:
-                    numberOfTroops = 2;
-                    break;
-            }    
-            y+= numberOfTroops;
+            _buildGrid = FindObjectOfType<BuildGrid>();
+
         }
-        Vector3 position = _buildGrid.GetCenterPosition1(x+numberOfTroops, y, _rows, _columns);
-        transform.position = position;
-        Debug.Log("Troops placed at " + position.x + ", " + position.y);
+
+        public void PlaceOnGrid(int x, int y, int numberOfTroops)
+        {
+            _currentX = x;
+            _currentY = y;
+            if (numberOfTroops > 3)
+            {
+                switch (numberOfTroops)
+                {
+                    case 4:
+                        numberOfTroops = 1;
+                        break;
+                    case 5:
+                        numberOfTroops = 2;
+                        break;
+                }
+                y += numberOfTroops;
+            }
+            Vector3 position = _buildGrid.GetCenterPosition1(x + numberOfTroops, y, _rows, _columns);
+            transform.position = position;
+            Debug.Log("Troops placed at " + position.x + ", " + position.y);
+        }
     }
 }
