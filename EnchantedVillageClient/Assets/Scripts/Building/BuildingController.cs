@@ -14,6 +14,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         [SerializeField] private Material validPlacementMaterial;
         [SerializeField] private Material invalidPlacementMaterial;
+        [SerializeField] private GameObject particles;
 
         private Vector3 initialMousePosition;
         private float dragThreshold = 0.1f;
@@ -72,12 +73,20 @@ namespace Unical.Demacs.EnchantedVillage
                             Debug.Log($"Colleziono elisir: {resourceCollector.Resources}");
                             PlayerPrefsController.Instance.Elixir += resourceCollector.Resources;
                             resourceCollector.Resources = 0;
+                            if (particles != null)
+                            {
+                                particles.SetActive(false);
+                            }
                         }
                         else if (building.PrefabIndex == 12) // Colleziono oro
                         {
                             Debug.Log($"Colleziono oro: {resourceCollector.Resources}");
                             PlayerPrefsController.Instance.Elixir += resourceCollector.Resources;
                             resourceCollector.Resources = 0;
+                            if (particles != null)
+                            {
+                                particles.SetActive(false);
+                            }
                         }
                     }
                     else
