@@ -30,32 +30,22 @@ public class ArcherController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (ArcherManager.Instance.canMoveArchers)  
         {
-            MoveToMousePosition();
-        }
+            if (currentTarget == null)
+            {
+                FindNearestBuilding();
+            }
+            else
+            {
+                MoveTowardsTarget();
+            }
 
-        if (currentTarget == null)
-        {
-            FindNearestBuilding();
+            CheckForAttack();
         }
-        else
-        {
-            MoveTowardsTarget();
-        }
-
-        CheckForAttack();
     }
 
-    void MoveToMousePosition()
-    {
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector3 nearestGridPoint = _buildGrid.GetNearestPointOnGrid(mouseWorldPos);
-        (int gridX, int gridY) = _buildGrid.WorldToGridPosition(nearestGridPoint);
-        MoveToGridPosition(gridX, gridY);
-    }
-
-    void MoveToGridPosition(int x, int y)
+    public void MoveToGridPosition(int x, int y)
     {
         if (_buildGrid.IsPositionInMap(x, y, 1, 1))
         {
@@ -120,6 +110,9 @@ public class ArcherController : MonoBehaviour
     void SetMovementAnimation(Vector3 direction)
     {
         float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
+
+        animator.speed = 0.5f; 
+
         if (angle > 45 && angle <= 135)
             animator.SetTrigger("MoveUp");
         else if (angle > -135 && angle <= -45)
@@ -129,6 +122,7 @@ public class ArcherController : MonoBehaviour
         else
             animator.SetTrigger("MoveLeft");
     }
+
 
     void CheckForAttack()
     {
@@ -159,7 +153,6 @@ public class ArcherController : MonoBehaviour
         CurrentAttackTarget = null;
         FindNearestBuilding();
     }
-   
 
     void OnDrawGizmosSelected()
     {
