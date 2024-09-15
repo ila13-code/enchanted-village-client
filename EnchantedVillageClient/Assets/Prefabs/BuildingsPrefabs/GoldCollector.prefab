@@ -277,7 +277,6 @@ GameObject:
   - component: {fileID: 2752299662842068385}
   - component: {fileID: 7600901856453726661}
   - component: {fileID: 5037398441004631666}
-  - component: {fileID: 8934257377871718013}
   - component: {fileID: 781067034293159280}
   m_Layer: 0
   m_Name: GoldCollector
@@ -336,6 +335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validPlacementMaterial: {fileID: 2100000, guid: 405f72ef26a6a594ebb58d9312098200, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: 13980c02f31750441b5e7ee56b04bdc0, type: 2}
+  particles: {fileID: 5247351939182494718}
 --- !u!65 &5037398441004631666
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -357,21 +357,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8934257377871718013
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3691641752519195514}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 726c4675ee7680e49a7b8a268dde426a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  type: 0
-  particles: {fileID: 0}
-  resources: 100
 --- !u!114 &781067034293159280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -386,7 +371,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   particles: {fileID: 5247351939182494718}
-  resources: 50
 --- !u!1 &4716246210078359604
 GameObject:
   m_ObjectHideFlags: 0

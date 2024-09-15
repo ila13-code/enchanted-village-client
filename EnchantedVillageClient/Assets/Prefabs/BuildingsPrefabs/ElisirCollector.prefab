@@ -335,6 +335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validPlacementMaterial: {fileID: 2100000, guid: 405f72ef26a6a594ebb58d9312098200, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: 13980c02f31750441b5e7ee56b04bdc0, type: 2}
+  particles: {fileID: 5317399362556590503}
 --- !u!65 &5037398441004631666
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -370,7 +371,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   particles: {fileID: 5317399362556590503}
-  resources: 50
 --- !u!1 &4716246210078359604
 GameObject:
   m_ObjectHideFlags: 0

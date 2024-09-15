@@ -39,6 +39,7 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 Debug.LogError("Nessun campo di addestramento trovato");
                 return;
+                //todo: mostrare un messaggio all'utente
             }
 
             List<BuildingData> updatedBuildings = new List<BuildingData>();
@@ -74,12 +75,12 @@ namespace Unical.Demacs.EnchantedVillage
                 Debug.Log($"Truppa inserita nell'edificio {buildingId}. Totale truppe: {troopsData.Count}");
                 troopInstance.PlaceOnGrid(trainingBase.getX(), trainingBase.getY(), troopsData.Count);
 
-                // Aggiungi l'edificio aggiornato alla lista
+                // Aggiungo l'edificio aggiornato alla lista
                 updatedBuildings.Add(trainingBase);
                 break;
             }
 
-            // Aggiorna gli edifici nella lista completa e salva
+            // Aggiorno gli edifici nella lista completa e salvo
             List<BuildingData> allBuildings = PlayerPrefsController.Instance.GetBuildings();
             foreach (var updatedBuilding in updatedBuildings)
             {

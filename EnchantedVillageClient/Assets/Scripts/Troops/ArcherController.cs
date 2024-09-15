@@ -18,6 +18,8 @@ public class ArcherController : MonoBehaviour
     private BuildGrid _buildGrid;
     private GameObject currentTarget;
     public GameObject CurrentAttackTarget { get; private set; }
+    private bool isMoving = false;
+    private string currentMoveDirection = "";
 
     private void Awake()
     {
@@ -30,7 +32,7 @@ public class ArcherController : MonoBehaviour
 
     void Update()
     {
-        if (ArcherManager.Instance.canMoveArchers)  
+        if (ArcherManager.Instance.canMoveArchers)
         {
             if (currentTarget == null)
             {
@@ -60,16 +62,7 @@ public class ArcherController : MonoBehaviour
         }
     }
 
-    IEnumerator MoveToPosition(Vector3 targetPosition)
-    {
-        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            SetMovementAnimation(targetPosition - transform.position);
-            yield return null;
-        }
-        transform.position = targetPosition;
-    }
+
 
     void FindNearestBuilding()
     {
@@ -107,27 +100,79 @@ public class ArcherController : MonoBehaviour
         }
     }
 
+    IEnumerator MoveToPosition(Vector3 targetPosition)
+    {
+        isMoving = true;
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        {
+            Vector3 direction = (targetPosition - transform.position).normalized;
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            SetMovementAnimation(direction);
+            yield return null;
+        }
+        transform.position = targetPosition;
+        StopMoving();
+    }
+
     void SetMovementAnimation(Vector3 direction)
+    {
+        string newDirection = GetDirectionString(direction);
+
+        Debug.Log($"Setting movement animation: {newDirection}"); // Debug log
+
+        if (newDirection != currentMoveDirection || !isMoving)
+        {
+            // Resetta il trigger precedente se c'era
+            if (!string.IsNullOrEmpty(currentMoveDirection))
+            {
+                animator.ResetTrigger(currentMoveDirection);
+            }
+
+            // Imposta il nuovo trigger
+            animator.SetTrigger(newDirection);
+            Debug.Log($"Trigger set: {newDirection}"); // Debug log
+            currentMoveDirection = newDirection;
+            isMoving = true;
+        }
+
+        animator.speed = 1f;
+    }
+
+    string GetDirectionString(Vector3 direction)
     {
         float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
 
-        animator.speed = 0.5f; 
-
-        if (angle > 45 && angle <= 135)
-            animator.SetTrigger("MoveUp");
-        else if (angle > -135 && angle <= -45)
-            animator.SetTrigger("MoveDown");
-        else if (angle > -45 && angle <= 45)
-            animator.SetTrigger("MoveRight");
+        if (angle > 67.5f && angle <= 112.5f)
+            return "MoveUp";
+        else if (angle > 22.5f && angle <= 67.5f)
+            return "MoveRightUp";
+        else if (angle > -22.5f && angle <= 22.5f)
+            return "MoveRight";
+        else if (angle > -67.5f && angle <= -22.5f)
+            return "MoveRightDown";
+        else if (angle > -112.5f && angle <= -67.5f)
+            return "MoveDown";
         else
-            animator.SetTrigger("MoveLeft");
+            return "MoveRight"; // Per le direzioni rimanenti, usiamo MoveRight come default
     }
 
+    void StopMoving()
+    {
+        if (!string.IsNullOrEmpty(currentMoveDirection))
+        {
+            animator.ResetTrigger(currentMoveDirection);
+        }
+        animator.SetTrigger("StopMoving");
+        Debug.Log("Stop moving triggered"); // Debug log
+        currentMoveDirection = "";
+        isMoving = false;
+    }
 
     void CheckForAttack()
     {
         if (currentTarget != null && Vector3.Distance(transform.position, currentTarget.transform.position) <= attackRange)
         {
+            StopMoving(); // Assicuriamoci di fermare il movimento prima di attaccare
             animator.SetTrigger("Attack");
             CurrentAttackTarget = currentTarget;
             if (CurrentAttackTarget != null)
