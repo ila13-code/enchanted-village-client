@@ -118,19 +118,17 @@ public class ArcherController : MonoBehaviour
     {
         string newDirection = GetDirectionString(direction);
 
-        Debug.Log($"Setting movement animation: {newDirection}"); // Debug log
+        Debug.Log($"Setting movement animation: {newDirection}");
 
         if (newDirection != currentMoveDirection || !isMoving)
         {
-            // Resetta il trigger precedente se c'era
             if (!string.IsNullOrEmpty(currentMoveDirection))
             {
                 animator.ResetTrigger(currentMoveDirection);
             }
 
-            // Imposta il nuovo trigger
             animator.SetTrigger(newDirection);
-            Debug.Log($"Trigger set: {newDirection}"); // Debug log
+            Debug.Log($"Trigger set: {newDirection}");
             currentMoveDirection = newDirection;
             isMoving = true;
         }
@@ -142,6 +140,8 @@ public class ArcherController : MonoBehaviour
     {
         float angle = Mathf.Atan2(direction.z, direction.x) * Mathf.Rad2Deg;
 
+
+        //todo: fixare i valori per le direzioni
         if (angle > 67.5f && angle <= 112.5f)
             return "MoveUp";
         else if (angle > 22.5f && angle <= 67.5f)
@@ -153,7 +153,7 @@ public class ArcherController : MonoBehaviour
         else if (angle > -112.5f && angle <= -67.5f)
             return "MoveDown";
         else
-            return "MoveRight"; // Per le direzioni rimanenti, usiamo MoveRight come default
+            return "MoveRight"; 
     }
 
     void StopMoving()
@@ -172,7 +172,7 @@ public class ArcherController : MonoBehaviour
     {
         if (currentTarget != null && Vector3.Distance(transform.position, currentTarget.transform.position) <= attackRange)
         {
-            StopMoving(); // Assicuriamoci di fermare il movimento prima di attaccare
+            StopMoving(); 
             animator.SetTrigger("Attack");
             CurrentAttackTarget = currentTarget;
             if (CurrentAttackTarget != null)

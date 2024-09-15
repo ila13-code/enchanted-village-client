@@ -63,7 +63,6 @@ namespace Unical.Demacs.EnchantedVillage
             }
             else
             {
-                PlayerPrefsController.Instance.Gold = 38904892;
                 LoadPlayerData();
             }
         }
