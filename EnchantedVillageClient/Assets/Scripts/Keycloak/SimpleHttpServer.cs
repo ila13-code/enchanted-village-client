@@ -11,7 +11,7 @@ public class SimpleHttpServer : MonoBehaviour
     {
         listener = new HttpListener();
         // Usa un endpoint separato per il tuo server di callback
-        listener.Prefixes.Add("http://192.168.187.111:8081/login-callback/");
+        listener.Prefixes.Add("http://localhost:8081/login-callback/");
         listener.Start();
         Debug.Log("Listening...");
         StartListening();

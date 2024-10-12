@@ -22,15 +22,82 @@ namespace Unical.Demacs.EnchantedVillage
         private const string KEYCLOAK_URL = "http://192.168.187.111:8080";
         private const string KEYCLOAK_REALM = "enchanted-village";
         private const string KEYCLOAK_CLIENT_ID = "enchanted-village";
-        private const string KEYCLOAK_CLIENT_SECRET = ".";
-        private const string KEYCLOAK_REDIRECT_URI_LOGIN = "http://192.168.187.111:8081/login-callback";
+        private const string KEYCLOAK_CLIENT_SECRET = "TsiWKKGums7TFstrBbbbI8o0MobPZolb";
+        private const string KEYCLOAK_REDIRECT_URI_LOGIN = "http://localhost:8081/login-callback";
         private const string KEYCLOAK_REDIRECT_URI_LOGOUT = "http://192.168.187.111:8080/logout";
 
+        private WebViewObject webViewObject;
+
+        private void Start()
+        {
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                InitializeWebView();
+            }
+        }
+
+        private void InitializeWebView()
+        {
+            webViewObject = (new GameObject("WebViewObject")).AddComponent<WebViewObject>();
+            webViewObject.Init(
+                cb: (msg) =>
+                {
+                    Debug.Log(string.Format("CallFromJS[{0}]", msg));
+                },
+                err: (msg) =>
+                {
+                    Debug.Log(string.Format("CallOnError[{0}]", msg));
+                },
+                started: (msg) =>
+                {
+                    Debug.Log(string.Format("CallOnStarted[{0}]", msg));
+                },
+                hooked: (msg) =>
+                {
+                    Debug.Log(string.Format("CallOnHooked[{0}]", msg));
+                },
+                ld: (msg) =>
+                {
+                    Debug.Log(string.Format("CallOnLoaded[{0}]", msg));
+                    // Use the 'msg' parameter which contains the loaded URL
+                    if (msg.StartsWith(KEYCLOAK_REDIRECT_URI_LOGIN))
+                    {
+                        HandleAuthorizationResponse(msg);
+                        webViewObject.SetVisibility(false);
+                    }
+                });
+            webViewObject.AddCustomHeader("X-Unity-SHM", "1");
+            webViewObject.EvaluateJS(@"
+                window.addEventListener('load', function() {
+                    window.unity.call('url:' + window.location.href);
+                });
+                (function() {
+                    var originalPushState = history.pushState;
+                    var originalReplaceState = history.replaceState;
+                    history.pushState = function() {
+                        originalPushState.apply(history, arguments);
+                        window.unity.call('url:' + window.location.href);
+                    };
+                    history.replaceState = function() {
+                        originalReplaceState.apply(history, arguments);
+                        window.unity.call('url:' + window.location.href);
+                    };
+                })();
+            ");
+        }
 
         public void Login()
         {
             string authorizationUrl = GenerateAuthorizationURL();
-            OpenBrowser(authorizationUrl);
+            if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                webViewObject.LoadURL(authorizationUrl);
+                webViewObject.SetVisibility(true);
+            }
+            else
+            {
+                OpenBrowser(authorizationUrl);
+            }
         }
 
         public void Logout()
@@ -75,14 +142,9 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void OpenBrowser(string url)
         {
-            // Apri l'URL nel browser predefinito del sistema
             try
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true // Necessario per aprire l'URL nel browser
-                });
+                Application.OpenURL(url);
             }
             catch (Exception ex)
             {
