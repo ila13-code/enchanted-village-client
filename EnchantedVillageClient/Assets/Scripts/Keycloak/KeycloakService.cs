@@ -7,6 +7,9 @@ using System.Text;
 using UnityEngine.Networking;
 using System.Collections.Generic;
 using Debug = UnityEngine.Debug;
+using Newtonsoft.Json;
+using Unity.VisualScripting;
+using Newtonsoft.Json.Linq;
 
 namespace Unical.Demacs.EnchantedVillage
 {
@@ -19,12 +22,12 @@ namespace Unical.Demacs.EnchantedVillage
         private const string REFRESH_TOKEN = "refreshToken";
         private const string ID_TOKEN = "idToken";
 
-        private const string KEYCLOAK_URL = "http://192.168.187.111:8080";
+        private const string KEYCLOAK_URL = "http://localhost:8080";
         private const string KEYCLOAK_REALM = "enchanted-village";
         private const string KEYCLOAK_CLIENT_ID = "enchanted-village";
         private const string KEYCLOAK_CLIENT_SECRET = "TsiWKKGums7TFstrBbbbI8o0MobPZolb";
         private const string KEYCLOAK_REDIRECT_URI_LOGIN = "http://localhost:8081/login-callback";
-        private const string KEYCLOAK_REDIRECT_URI_LOGOUT = "http://192.168.187.111:8080/logout";
+        private const string KEYCLOAK_REDIRECT_URI_LOGOUT = "http://localhost:8080/logout";
 
         private WebViewObject webViewObject;
 
@@ -136,7 +139,7 @@ namespace Unical.Demacs.EnchantedVillage
                 url += $"&id_token_hint={idToken}";
             }
 
-            ClearTokens();
+            //ClearTokens();
             return url;
         }
 
@@ -195,12 +198,12 @@ namespace Unical.Demacs.EnchantedVillage
                     SaveAccessToken(tokenResponse.access_token);
                     SaveRefreshToken(tokenResponse.refresh_token);
                     SaveIdToken(tokenResponse.id_token);
-
+                    Debug.Log(tokenResponse.access_token);
                     string email = GetEmailFromToken(tokenResponse.access_token);
                     PlayerPrefs.SetString("userEmail", email);
                     PlayerPrefs.SetString("isLogged", "true");
-
-                    Debug.Log(tokenResponse.access_token);
+                    Debug.Log(email);
+                    
                     Debug.Log("Login completato con successo!");
                     //todo : aggiungere il caricamento della scena successiva
                 }
@@ -256,29 +259,106 @@ namespace Unical.Demacs.EnchantedVillage
         private void SaveCodeVerifier(string codeVerifier) => PlayerPrefs.SetString(CODE_VERIFIER_KEY, codeVerifier);
         private string GetCodeVerifier() => PlayerPrefs.GetString(CODE_VERIFIER_KEY);
 
-        private void ClearTokens()
-        {
-            PlayerPrefs.DeleteKey(ACCESS_TOKEN);
-            PlayerPrefs.DeleteKey(REFRESH_TOKEN);
-            PlayerPrefs.DeleteKey(ID_TOKEN);
-            PlayerPrefs.DeleteKey(STATE);
-            PlayerPrefs.DeleteKey(CODE_VERIFIER_KEY);
-            PlayerPrefs.DeleteKey("userEmail");
-            PlayerPrefs.DeleteKey("isLogged");
-            PlayerPrefs.DeleteKey("role");
-        }
-
         private string GetEmailFromToken(string token)
         {
-            var parts = token.Split('.');
-            var payload = parts[1];
-            var payloadJson = Encoding.UTF8.GetString(Convert.FromBase64String(payload));
-            var payloadData = JsonUtility.FromJson<Dictionary<string, object>>(payloadJson);
-
-            if (payloadData.TryGetValue("email", out object email))
+            // Controllo se il token è valido
+            if (string.IsNullOrEmpty(token) || !token.Contains('.'))
             {
-                return email as string;
+                Debug.Log("Token non valido: " + token);
+                return null;
             }
+
+            // Estrazione del payload dal token
+            var parts = token.Split('.');
+            if (parts.Length != 3)
+            {
+                Debug.Log("Token JWT non valido, numero di parti: " + parts.Length);
+                return null; // Non è un token JWT valido
+            }
+
+            var payload = parts[1];
+            Debug.Log("Payload estratto: " + payload);
+
+            // Aggiungere padding se necessario
+            switch (payload.Length % 4)
+            {
+                case 2:
+                    payload += "==";
+                    Debug.Log("Aggiunto padding: " + payload);
+                    break;
+                case 3:
+                    payload += "=";
+                    Debug.Log("Aggiunto padding: " + payload);
+                    break;
+            }
+
+            try
+            {
+                // Decodifica del payload
+                var decodedPayload = Encoding.UTF8.GetString(Convert.FromBase64String(payload));
+                Debug.Log("Payload decodificato: " + decodedPayload);
+
+                // Deserializzazione del payload usando Newtonsoft.Json
+                var jsonPayload = JsonConvert.DeserializeObject<JObject>(decodedPayload);
+                Debug.Log("Payload JSON deserializzato: " + jsonPayload.ToString());
+
+                // Estrazione del ruolo
+                if (jsonPayload.TryGetValue("resource_access", out JToken resourceAccess))
+                {
+                    Debug.Log("resource_access trovato.");
+                    if (resourceAccess["enchanted-village"] != null)
+                    {
+                        var enchantedVillage = resourceAccess["enchanted-village"];
+                        Debug.Log("Ruolo trovato in 'enchanted-village'.");
+
+                        var roles = enchantedVillage["roles"];
+                        if (roles.HasValues)
+                        {
+                            var role = roles[0].ToString();
+                            Debug.Log("Ruolo estratto: " + role);
+
+                            // Salva il ruolo nella local storage
+                            //localStorageService.SetItem("role", role);
+                        }
+                        else
+                        {
+                            Debug.Log("Nessun ruolo trovato.");
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("'enchanted-village' non trovato in resource_access.");
+                    }
+                }
+                else
+                {
+                    Debug.Log("resource_access non trovato nel payload.");
+                }
+
+                // Restituisce l'email
+                if (jsonPayload.TryGetValue("email", out JToken email))
+                {
+                    Debug.Log("Email estratta: " + email.ToString());
+                    return email.ToString();
+                }
+                else
+                {
+                    Debug.Log("Email non trovata nel payload.");
+                }
+            }
+            catch (FormatException ex)
+            {
+                Debug.LogError("Errore di formato durante la decodifica Base64: " + ex.Message);
+            }
+            catch (JsonException ex)
+            {
+                Debug.LogError("Errore durante la deserializzazione JSON: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Errore imprevisto: " + ex.Message);
+            }
+
             return null;
         }
 
