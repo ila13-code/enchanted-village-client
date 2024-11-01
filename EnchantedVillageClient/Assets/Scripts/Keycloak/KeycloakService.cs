@@ -91,6 +91,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Login()
         {
+
             string authorizationUrl = GenerateAuthorizationURL();
             if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
             {
