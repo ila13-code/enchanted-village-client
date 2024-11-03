@@ -187,30 +187,31 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 yield return www.SendWebRequest();
 
-                if (www.result != UnityWebRequest.Result.Success)
+                if (www.result == UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError($"Error getting access token: {www.error}");
-                }
-                else
-                {
-                    string responseText = www.downloadHandler.text;
-                    TokenResponse tokenResponse = JsonUtility.FromJson<TokenResponse>(responseText);
+                    try
+                    {
+                        string responseText = www.downloadHandler.text;
+                        TokenResponse tokenResponse = JsonUtility.FromJson<TokenResponse>(responseText);
 
-                    SaveAccessToken(tokenResponse.access_token);
-                    SaveRefreshToken(tokenResponse.refresh_token);
-                    SaveIdToken(tokenResponse.id_token);
-                    Debug.Log(tokenResponse.access_token);
-                    string email = GetEmailFromToken(tokenResponse.access_token);
-                    PlayerPrefs.SetString("userEmail", email);
-                    PlayerPrefs.SetString("isLogged", "true");
-                    Debug.Log(email);
-                    
-                    Debug.Log("Login completato con successo!");
-                    //todo : aggiungere il caricamento della scena successiva
+                            SaveAccessToken(tokenResponse.access_token);
+                            SaveRefreshToken(tokenResponse.refresh_token);
+                            SaveIdToken(tokenResponse.id_token);
+
+                            string email = GetEmailFromToken(tokenResponse.access_token);
+                            PlayerPrefs.SetString("userEmail", email);
+                            PlayerPrefs.SetString("isLogged", "true");
+                            Debug.Log("Login completato con successo!");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Errore nel parsing del token: {ex.Message}");
+                    }
                 }
             }
         }
 
+      
         private string GenerateCodeVerifier()
         {
             byte[] bytes = new byte[32];
@@ -388,6 +389,86 @@ namespace Unical.Demacs.EnchantedVillage
         {
             return PlayerPrefs.HasKey("isLogged");
         }
+
+        public IEnumerator RefreshToken(Action onSuccess = null, Action<string> onError = null)
+        {
+            string refreshToken = GetRefreshToken();
+
+            if (string.IsNullOrEmpty(refreshToken))
+            {
+                string error = "No refresh token available";
+                Debug.LogError(error);
+                onError?.Invoke(error);
+                Login();
+                yield break;
+            }
+
+            WWWForm form = new WWWForm();
+            form.AddField("client_id", KEYCLOAK_CLIENT_ID);
+            form.AddField("client_secret", KEYCLOAK_CLIENT_SECRET);
+            form.AddField("grant_type", "refresh_token");
+            form.AddField("refresh_token", refreshToken);
+
+            string tokenUrl = $"{KEYCLOAK_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token";
+            using (UnityWebRequest www = UnityWebRequest.Post(tokenUrl, form))
+            {
+                yield return www.SendWebRequest();
+
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    try
+                    {
+                        string responseText = www.downloadHandler.text;
+                        TokenResponse tokenResponse = JsonUtility.FromJson<TokenResponse>(responseText);
+
+                        SaveAccessToken(tokenResponse.access_token);
+                        SaveRefreshToken(tokenResponse.refresh_token);
+                        SaveIdToken(tokenResponse.id_token);
+
+                        string email = GetEmailFromToken(tokenResponse.access_token);
+                        PlayerPrefs.SetString("userEmail", email);
+                        Debug.Log(tokenResponse.access_token);
+                        Debug.Log("Token refreshed successfully");
+                        onSuccess?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        string error = $"Error parsing refresh token response: {ex.Message}";
+                        Debug.LogError(error);
+                        onError?.Invoke(error);
+                        Login();
+                    }
+                }
+                else
+                {
+                    string error = $"Token refresh failed: {www.error}";
+                    Debug.LogError(error);
+                    onError?.Invoke(error);
+
+                    // Se il refresh fallisce, probabilmente il token è invalido
+                    // quindi meglio reindirizzare al login
+                    Login();
+                }
+            }
+        }
+
+        // Metodo helper per verificare se è necessario un refresh
+        public bool NeedsTokenRefresh()
+        {
+            string accessToken = GetAccessToken();
+            if (string.IsNullOrEmpty(accessToken))
+                return true;
+
+            try
+            {
+                return IsTokenExpired(accessToken);
+            }
+            catch (Exception)
+            {
+                return true;
+            }
+        }
+
     }
 
     // Classe per il parsing della risposta del token

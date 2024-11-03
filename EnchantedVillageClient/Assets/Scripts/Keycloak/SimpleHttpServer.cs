@@ -77,6 +77,6 @@ public class SimpleHttpServer : MonoBehaviour
     {
         Uri uri = new Uri(url);
         var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        return !string.IsNullOrEmpty(queryParams["code"]) && !string.IsNullOrEmpty(queryParams["state"]);
+        return !string.IsNullOrEmpty(queryParams["code"]) && !string.IsNullOrEmpty(queryParams["state"]); 
     }
 }

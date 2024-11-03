@@ -1,9 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 using static Unical.Demacs.EnchantedVillage.Building;
+using System;
 
 namespace Unical.Demacs.EnchantedVillage
 {
@@ -15,7 +14,8 @@ namespace Unical.Demacs.EnchantedVillage
         private Building[,] PlayerBuildings;
         [SerializeField] private Troops[] troops;
         private Transform buildingsContainer;
-       private Transform troopsContainer; 
+        private Transform troopsContainer;
+        private bool isDataLoaded = false;
 
         public static Player Instance
         {
@@ -26,7 +26,6 @@ namespace Unical.Demacs.EnchantedVillage
                     instance = FindObjectOfType<Player>();
                     if (instance == null)
                     {
-                        instance = new Player();
                         GameObject go = new GameObject("Player");
                         instance = go.AddComponent<Player>();
                     }
@@ -42,11 +41,30 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Awake()
         {
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+                InitializeContainers();
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        private void Start()
+        {
+            LoadGame();
+        }
+
+        private void InitializeContainers()
+        {
             GameObject map = GameObject.Find("Map");
             if (map != null)
             {
                 buildingsContainer = map.transform.Find("Buildings").transform;
-                troopsContainer = map.transform.Find("Troops").transform; // Initialize troops container
+                troopsContainer = map.transform.Find("Troops").transform;
             }
             else
             {
@@ -54,91 +72,209 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        private void Start()
+        private void LoadGame()
         {
-            //PlayerPrefsController.Instance.ClearAllData();
-            if (this.IsNewGame())
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
             {
-                NewGame();
+                Debug.Log("Authenticated. Loading game from server...");
+                StartCoroutine(LoadOrCreateServerGame());
             }
             else
             {
-                LoadPlayerData();
+                if (IsNewGame())
+                {
+                    Debug.Log("New game. Creating new game...");
+                    InitializeNewGame();
+                }
+                else
+                {
+                    Debug.Log("Loading game from local data...");
+                    LoadPlayerData();
+                }
             }
         }
 
-        //crea una nuova partita
-        private void NewGame()
+        private IEnumerator LoadOrCreateServerGame()
+        {
+            bool operationComplete = false;
+
+            yield return StartCoroutine(ApiService.Instance.GetGameInformation(
+                onSuccess: (gameInfo) =>
+                {
+                    if (gameInfo != null)
+                    {
+                        Debug.Log("Loading game from server data...");
+                        LoadGameFromServerData(gameInfo);
+                        operationComplete = true;
+                    }
+                    else
+                    {
+                        Debug.Log("No server data found. Creating new game...");
+                        StartCoroutine(CreateNewServerGameAsync((success) => {
+                            operationComplete = true;
+                        }));
+                    }
+                },
+                onError: (error) =>
+                {
+                    Debug.LogError($"Error loading game data: {error}");
+                    if (error.Contains("404"))
+                    {
+                        StartCoroutine(CreateNewServerGameAsync((success) => {
+                            operationComplete = true;
+                        }));
+                    }
+                    else
+                    {
+                        // Fallback to local data
+                        if (IsNewGame())
+                        {
+                            InitializeNewGame();
+                        }
+                        else
+                        {
+                            LoadPlayerData();
+                        }
+                        operationComplete = true;
+                    }
+                }
+            ));
+
+            // Wait for all operations to complete
+            while (!operationComplete)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        private IEnumerator CreateNewServerGameAsync(Action<bool> onComplete)
+        {
+            // Prepare initial game data without creating objects
+            var gameInfo = new GameInformation
+            {
+                level = 1,
+                experiencePoints = 0,
+                elixir = 300,
+                gold = 300,
+                buildings = new List<BuildingData>
+                {
+                    new BuildingData(
+                        System.Guid.NewGuid().ToString(),
+                        13, // indice del prefab iniziale
+                        0,  // posizione x
+                        0   // posizione y
+                    )
+                }
+            };
+
+            bool serverOperationComplete = false;
+            bool serverOperationSuccess = false;
+            GameInformation serverResponse = null;
+
+            yield return StartCoroutine(ApiService.Instance.CreateGameInformation(
+                gameInfo,
+                onSuccess: (response) => {
+                    serverOperationComplete = true;
+                    serverOperationSuccess = true;
+                    serverResponse = response;
+                    Debug.Log("New game created on server successfully");
+                },
+                onError: (error) => {
+                    serverOperationComplete = true;
+                    serverOperationSuccess = false;
+                    Debug.LogError($"Error creating new game on server: {error}");
+                }
+            ));
+
+            while (!serverOperationComplete)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            if (serverOperationSuccess && serverResponse != null)
+            {
+                LoadGameFromServerData(serverResponse);
+            }
+            else
+            {
+                Debug.LogError("Failed to create game on server, initializing locally");
+                InitializeNewGame();
+            }
+
+            onComplete?.Invoke(serverOperationSuccess);
+        }
+
+        private void InitializeNewGame()
         {
             level = 1;
             experiencePoints = 0;
             PlayerPrefsController.Instance.Elixir = 300;
             PlayerPrefsController.Instance.Gold = 300;
             PlayerBuildings = new Building[45, 45];
+
+            // Create initial building
             Vector3 position = Vector3.zero;
             Building building = Instantiate(UIController.Instance.Buildings[13], position, Quaternion.identity, buildingsContainer);
+            building.Id = System.Guid.NewGuid().ToString();
+            building.PlaceOnGrid(0, 0);
+            PlayerBuildings[0, 0] = building;
+
+            isDataLoaded = true;
+            SaveGame();
         }
 
-        //aggiunge esperienza al giocatore
-        public void AddExperience(int amount)
-        {
-            experiencePoints += amount;
-            CheckLevelUp();
-        }
-
-        //controlla se il giocatore ha abbastanza exp per passare al livello successivo
-        private void CheckLevelUp()
-        {
-            while (experiencePoints >= ExperienceForNextLevel(level))
-            {
-                experiencePoints -= ExperienceForNextLevel(level);
-                level++;
-            }
-            PlayerPrefsController.Instance.Level = level;
-            PlayerPrefsController.Instance.Exp = experiencePoints;
-        }
-
-        //calcola l'esperienza necessaria per passare al livello successivo
-        private int ExperienceForNextLevel(int currentLevel)
-        {
-            const int a = 100;
-            const int b = 2;
-            const int c = 10;
-            return (int)(a * Mathf.Log(b * currentLevel + c));
-        }
-
-        //controlla se è una nuova partita
         private bool IsNewGame()
         {
-            return PlayerPrefsController.Instance.Elixir == 0 && PlayerPrefsController.Instance.Gold == 0;
+            return PlayerPrefsController.Instance.Elixir == 0 &&
+                   PlayerPrefsController.Instance.Gold == 0;
         }
 
-        //recupera i dati del giocatore
         private void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
             experiencePoints = PlayerPrefsController.Instance.Exp;
-            List<BuildingData> list = PlayerPrefsController.Instance.GetBuildings();
+            List<BuildingData> buildingsList = PlayerPrefsController.Instance.GetBuildings();
 
             PlayerBuildings = new Building[45, 45];
 
-            if (list == null || list.Count == 0)
+            if (buildingsList == null || buildingsList.Count == 0)
             {
                 Debug.LogWarning("Nessun edificio da caricare. Inizializzazione di una griglia vuota.");
                 return;
             }
 
-            Debug.Log($"Numero di edifici da caricare: {list.Count}");
+            LoadBuildingsFromData(buildingsList);
+            isDataLoaded = true;
+        }
 
-            foreach (BuildingData data in list) // Caricamento degli edifici
+        private void LoadGameFromServerData(GameInformation gameInfo)
+        {
+            level = gameInfo.level;
+            experiencePoints = gameInfo.experiencePoints;
+            PlayerPrefsController.Instance.Elixir = gameInfo.elixir;
+            PlayerPrefsController.Instance.Gold = gameInfo.gold;
+            PlayerBuildings = new Building[45, 45];
+            LoadBuildingsFromData(gameInfo.buildings);
+            isDataLoaded = true;
+        }
+
+        private void LoadBuildingsFromData(IList<BuildingData> buildings)
+        {
+            if (buildings == null)
+            {
+                Debug.LogError("Lista edifici null");
+                return;
+            }
+
+            Debug.Log($"Numero di edifici da caricare: {buildings.Count}");
+
+            foreach (BuildingData data in buildings)
             {
                 if (data == null)
                 {
                     Debug.LogError("BuildingData null trovato nella lista.");
                     continue;
                 }
-
-                Debug.Log($"Caricamento edificio: {data.GetUniqueId()} PrefabIndex = {data.getPrefabIndex()}, X={data.getX()}, Y={data.getY()}");
 
                 if (data.getPrefabIndex() < 0 || data.getPrefabIndex() >= UIController.Instance.Buildings.Length)
                 {
@@ -147,7 +283,7 @@ namespace Unical.Demacs.EnchantedVillage
                 }
 
                 Vector3 position = new Vector3(data.getX(), 0, data.getY());
-                Building buildingPrefab = UIController.Instance.Buildings[data.getPrefabIndex()]; // Prefab dell'edificio
+                Building buildingPrefab = UIController.Instance.Buildings[data.getPrefabIndex()];
 
                 if (buildingPrefab == null)
                 {
@@ -155,39 +291,29 @@ namespace Unical.Demacs.EnchantedVillage
                     continue;
                 }
 
-                Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer); // Istanza dell'edificio
-                building.Id = data.GetUniqueId(); // Imposta l'ID dell'edificio
+                Building building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
+                building.Id = data.GetUniqueId();
+
                 if (building.PrefabIndex == 4) // Training base
                 {
-                    building.name = building.Id; // Imposta il nome dell'edificio
-                }
-
-                if (building == null)
-                {
-                    Debug.LogError($"Impossibile istanziare l'edificio con indice {data.getPrefabIndex()}");
-                    continue;
+                    building.name = building.Id;
+                    LoadTroopsForTrainingBase(data, building);
                 }
 
                 try
                 {
                     building.ConfirmLoadBuildings();
                 }
-                catch (NullReferenceException e)
+                catch (Exception e)
                 {
-                    Debug.LogError($"NullReferenceException durante la conferma dell'edificio: {e.Message}");
+                    Debug.LogError($"Errore durante la conferma dell'edificio: {e.Message}");
                     Debug.LogError($"StackTrace: {e.StackTrace}");
                     continue;
                 }
 
-                building.PlaceOnGrid(data.getX(), data.getY()); // Posiziona l'edificio sulla griglia
+                building.PlaceOnGrid(data.getX(), data.getY());
 
-                // Caricamento delle truppe per il campo di addestramento
-                if (data.getPrefabIndex() == 4) // Indice del campo di addestramento
-                {
-                    LoadTroopsForTrainingBase(data, building);
-                }
-
-                // Controllo dei limiti della griglia
+                // Aggiorna la griglia con l'edificio e i suoi placeholder
                 for (int i = 0; i < building.Rows && (data.getX() + i) < 45; i++)
                 {
                     for (int j = 0; j < building.Columns && (data.getY() + j) < 45; j++)
@@ -204,14 +330,11 @@ namespace Unical.Demacs.EnchantedVillage
                         }
                     }
                 }
-
-                Debug.Log($"Edificio caricato con successo: PrefabIndex={data.getPrefabIndex()}, X={data.getX()}, Y={data.getY()}");
             }
 
             Debug.Log("Caricamento degli edifici completato.");
         }
 
-        //carica le truppe per il campo di addestramento specificato
         private void LoadTroopsForTrainingBase(BuildingData data, Building building)
         {
             List<TroopsData> troopsData = data.getTroopsData();
@@ -221,30 +344,144 @@ namespace Unical.Demacs.EnchantedVillage
                 return;
             }
 
-            Debug.Log($"Caricamento truppe per l'edificio {data.GetUniqueId()}. Numero di truppe: {troopsData.Count}");
-
-            for (int i = 0; i < troopsData.Count; i++)
+            Transform troopsContainer = building.transform.Find("TroopsContainer");
+            if (troopsContainer == null)
             {
-                TroopsData troopData = troopsData[i];
-                Vector3 spawnPosition = new Vector3(data.getX(), 1f, data.getY());
-                Transform troopsContainer = building.transform.Find("TroopsContainer");
-                if (troopsContainer == null)
-                {
-                    GameObject container = new GameObject("TroopsContainer");
-                    container.transform.SetParent(building.transform);
-                    troopsContainer = container.transform;
-                }
-                Troops troopInstance = Instantiate(troops[troopData.getType()], spawnPosition, Quaternion.identity, troopsContainer);
-                troopInstance.PlaceOnGrid(data.getX(), data.getY(), i + 1);
-                Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione={i + 1}");
+                GameObject container = new GameObject("TroopsContainer");
+                container.transform.SetParent(building.transform);
+                troopsContainer = container.transform;
             }
-            
+
+            foreach (TroopsData troopData in troopsData)
+            {
+                if (troopData.getType() >= 0 && troopData.getType() < troops.Length)
+                {
+                    Vector3 spawnPosition = new Vector3(troopData.getX(), troopData.getY(), troopData.getZ());
+                    Troops troopInstance = Instantiate(troops[troopData.getType()], spawnPosition, Quaternion.identity, troopsContainer);
+                    Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione={spawnPosition}");
+                }
+                else
+                {
+                    Debug.LogError($"Indice truppa non valido: {troopData.getType()}");
+                }
+            }
         }
 
-        //salva i dati del giocatore
-        public void OnApplicationQuit()
+        private List<BuildingData> GetCurrentBuildingsData()
         {
-            PlayerPrefsController.Instance.SaveAllData(level, experiencePoints, PlayerPrefsController.Instance.Elixir, PlayerPrefsController.Instance.Gold, PlayerPrefsController.Instance.GetBuildings());
+            var buildingsData = new List<BuildingData>();
+            if (PlayerBuildings != null)
+            {
+                for (int x = 0; x < PlayerBuildings.GetLength(0); x++)
+                {
+                    for (int y = 0; y < PlayerBuildings.GetLength(1); y++)
+                    {
+                        var building = PlayerBuildings[x, y];
+                        if (building != null && !(building is BuildingPlaceholder))
+                        {
+                            var buildingData = new BuildingData(
+                                building.Id,
+                                building.PrefabIndex,
+                                x,
+                                y
+                            );
+
+                            if (building.PrefabIndex == 4) // Training base
+                            {
+                                buildingData.setTroopsData(GetTroopsDataForBuilding(building));
+                            }
+
+                            buildingsData.Add(buildingData);
+                        }
+                    }
+                }
+            }
+            return buildingsData;
+        }
+
+        private List<TroopsData> GetTroopsDataForBuilding(Building building)
+        {
+            var troopsData = new List<TroopsData>();
+            var troopsContainer = building.transform.Find("TroopsContainer");
+            if (troopsContainer != null)
+            {
+                foreach (Transform troop in troopsContainer)
+                {
+                    if (troop.TryGetComponent<Troops>(out var troopComponent))
+                    {
+                        troopsData.Add(new TroopsData(
+                            (int)troop.position.x,
+                            (int)troop.position.y,
+                            (int)troop.position.z,
+                            Array.IndexOf(troops, troopComponent.GetComponent<Troops>())
+                        ));
+                    }
+                }
+            }
+            return troopsData;
+        }
+
+        public void AddExperience(int amount)
+        {
+            experiencePoints += amount;
+            CheckLevelUp();
+            SaveGame();
+        }
+
+        private void CheckLevelUp()
+        {
+            while (experiencePoints >= ExperienceForNextLevel(level))
+            {
+                experiencePoints -= ExperienceForNextLevel(level);
+                level++;
+            }
+            PlayerPrefsController.Instance.Level = level;
+            PlayerPrefsController.Instance.Exp = experiencePoints;
+        }
+
+        private int ExperienceForNextLevel(int currentLevel)
+        {
+            const int baseExp = 100;
+            const int multiplier = 2;
+            const int offset = 10;
+            return (int)(baseExp * Mathf.Log(multiplier * currentLevel + offset));
+        }
+
+        public void SaveGame()
+        {
+            if (!isDataLoaded) return;
+
+            SaveLocalGame();
+
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
+            {
+                StartCoroutine(GameSyncManager.Instance.SyncGameData());
+            }
+        }
+
+        private void SaveLocalGame()
+        {
+            var buildingsData = GetCurrentBuildingsData();
+            PlayerPrefsController.Instance.SaveAllData(
+                level,
+                experiencePoints,
+                PlayerPrefsController.Instance.Elixir,
+                PlayerPrefsController.Instance.Gold,
+                buildingsData
+            );
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (pause)
+            {
+                SaveGame();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveGame();
         }
     }
 }
