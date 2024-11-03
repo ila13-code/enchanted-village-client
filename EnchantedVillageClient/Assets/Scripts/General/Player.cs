@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Collections;
 using static Unical.Demacs.EnchantedVillage.Building;
 using System;
+using UnityEditor.Build;
+using UnityEngine.SceneManagement;
+using UnityEditor.Build.Reporting;
 
 namespace Unical.Demacs.EnchantedVillage
 {
@@ -34,6 +37,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
+
         public Building[,] GetPlayerBuildings()
         {
             return PlayerBuildings;
@@ -58,6 +62,8 @@ namespace Unical.Demacs.EnchantedVillage
             LoadGame();
         }
 
+
+
         private void InitializeContainers()
         {
             GameObject map = GameObject.Find("Map");
@@ -72,7 +78,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        private void LoadGame()
+        public void LoadGame()
         {
             if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
             {
@@ -229,7 +235,7 @@ namespace Unical.Demacs.EnchantedVillage
                    PlayerPrefsController.Instance.Gold == 0;
         }
 
-        private void LoadPlayerData()
+        public void LoadPlayerData()
         {
             level = PlayerPrefsController.Instance.Level;
             experiencePoints = PlayerPrefsController.Instance.Exp;
@@ -254,6 +260,7 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefsController.Instance.Elixir = gameInfo.elixir;
             PlayerPrefsController.Instance.Gold = gameInfo.gold;
             PlayerBuildings = new Building[45, 45];
+
             LoadBuildingsFromData(gameInfo.buildings);
             isDataLoaded = true;
         }
@@ -483,5 +490,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             SaveGame();
         }
+
+
     }
 }

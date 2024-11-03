@@ -14,6 +14,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Battle()
         {
+            Player.Instance.SaveGame();
             SceneManager.LoadSceneAsync(2);
         }
         public void Home()
@@ -21,6 +22,8 @@ namespace Unical.Demacs.EnchantedVillage
             PlayerPrefsController.Instance.Elixir+= AttackManager.Instance.Elixir;
             PlayerPrefsController.Instance.Gold += AttackManager.Instance.Gold;
             PlayerPrefsController.Instance.Exp += AttackManager.Instance.Exp;
+            Player.Instance.SaveGame();
+            Player.Instance.LoadGame();
             SceneManager.LoadSceneAsync(1);
         }
     }
