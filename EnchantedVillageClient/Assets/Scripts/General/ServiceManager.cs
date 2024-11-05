@@ -8,6 +8,7 @@ namespace Unical.Demacs.EnchantedVillage
         public KeycloakService KeycloakService { get; private set; }
         public ApiService ApiService { get; private set; }
         public GameSyncManager GameSyncManager { get; private set; }
+        public SceneTransitionService SceneTransitionService { get; private set; }
 
         private void Awake()
         {
@@ -48,6 +49,12 @@ namespace Unical.Demacs.EnchantedVillage
             GameObject syncObject = new GameObject("GameSyncManager");
             syncObject.transform.SetParent(transform);
             GameSyncManager = syncObject.AddComponent<GameSyncManager>();
+
+            // SceneTransitionService
+            GameObject sceneTransitionObject = new GameObject("SceneTransitionService");
+            sceneTransitionObject.transform.SetParent(transform);
+            SceneTransitionService = sceneTransitionObject.AddComponent<SceneTransitionService>();
+
 
             Debug.Log("All services initialized");
         }

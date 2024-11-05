@@ -37,21 +37,28 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        public IEnumerator SyncGameData()
+        public IEnumerator SyncGameData(Action onComplete = null, Action<string> onError = null)
         {
-            if (isSyncing) yield break;
+            if (isSyncing)
+            {
+                onComplete?.Invoke();
+                yield break;
+            }
 
             isSyncing = true;
 
+            if (!ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? true)
+            {
+                onError?.Invoke("Non autenticato");
+                isSyncing = false;
+                yield break;
+            }
+
+            GameInformation localData = null;
+
             try
             {
-                if (!ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? true)
-                {
-                    Debug.Log("Not authenticated, skipping sync");
-                    yield break;
-                }
-
-                var localData = new GameInformation
+                localData = new GameInformation
                 {
                     level = PlayerPrefsController.Instance.Level,
                     experiencePoints = PlayerPrefsController.Instance.Exp,
@@ -59,38 +66,52 @@ namespace Unical.Demacs.EnchantedVillage
                     gold = PlayerPrefsController.Instance.Gold,
                     buildings = PlayerPrefsController.Instance.GetBuildings()
                 };
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Errore nella preparazione dei dati locali: {e}");
+                onError?.Invoke(e.Message);
+                isSyncing = false;
+                yield break;
+            }
 
-                bool syncComplete = false;
-                string syncError = null;
+            bool syncComplete = false;
+            string syncError = null;
 
-                yield return StartCoroutine(ApiService.Instance.UpdateGameInformation(
-                    localData,
-                    onSuccess: (serverData) =>
+            yield return StartCoroutine(ApiService.Instance.UpdateGameInformation(
+                localData,
+                onSuccess: (serverData) =>
+                {
+                    try
                     {
                         MergeGameData(serverData);
                         lastSyncTime = Time.time;
                         syncComplete = true;
-                    },
-                    onError: (error) =>
-                    {
-                        syncError = error;
-                        Debug.LogWarning($"Sync failed: {error}. Continuing with local data.");
                     }
-                ));
+                    catch (Exception e)
+                    {
+                        syncError = e.Message;
+                        Debug.LogError($"Errore nel merge dei dati: {e}");
+                    }
+                },
+                onError: (error) =>
+                {
+                    syncError = error;
+                    Debug.LogWarning($"Sync failed: {error}");
+                }
+            ));
 
-                if (syncComplete)
-                {
-                    Debug.Log("Game sync completed successfully");
-                }
-                else if (syncError != null)
-                {
-                    Debug.LogWarning($"Game sync failed: {syncError}");
-                }
-            }
-            finally
+            if (syncComplete)
             {
-                isSyncing = false;
+                Debug.Log("Sincronizzazione completata con successo");
+                onComplete?.Invoke();
             }
+            else if (syncError != null)
+            {
+                onError?.Invoke(syncError);
+            }
+
+            isSyncing = false;
         }
 
         private void MergeGameData(GameInformation serverData)

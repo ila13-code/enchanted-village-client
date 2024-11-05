@@ -19,6 +19,7 @@ namespace Unical.Demacs.EnchantedVillage
         private Transform buildingsContainer;
         private Transform troopsContainer;
         private bool isDataLoaded = false;
+        private bool useLocalData = false;
 
         public static Player Instance
         {
@@ -80,23 +81,123 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void LoadGame()
         {
-            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false && !useLocalData)
             {
-                Debug.Log("Authenticated. Loading game from server...");
-                StartCoroutine(LoadOrCreateServerGame());
+                Debug.Log("Tentativo di caricamento dal server...");
+                StartCoroutine(LoadOrCreateServerGameWithFallback());
             }
             else
             {
-                if (IsNewGame())
+                Debug.Log("Usando dati locali...");
+                LoadLocalGame();
+            }
+        }
+
+
+        private IEnumerator LoadOrCreateServerGameWithFallback()
+        {
+            bool operationComplete = false;
+            bool serverError = false;
+
+            yield return StartCoroutine(ApiService.Instance.GetGameInformation(
+                onSuccess: (gameInfo) =>
                 {
-                    Debug.Log("New game. Creating new game...");
-                    InitializeNewGame();
-                }
-                else
+                    if (gameInfo != null)
+                    {
+                        try
+                        {
+                            Debug.Log("Caricamento dati dal server...");
+                            LoadGameFromServerData(gameInfo);
+                            operationComplete = true;
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"Errore nel caricamento dei dati dal server: {e}");
+                            serverError = true;
+                        }
+                    }
+                    else
+                    {
+                        Debug.Log("Nessun dato trovato sul server. Creazione nuovo gioco...");
+                        StartCoroutine(CreateNewServerGameAsync((success) => {
+                            if (!success)
+                            {
+                                serverError = true;
+                            }
+                            operationComplete = true;
+                        }));
+                    }
+                },
+                onError: (error) =>
                 {
-                    Debug.Log("Loading game from local data...");
-                    LoadPlayerData();
+                    Debug.LogError($"Errore nel caricamento dei dati: {error}");
+                    serverError = true;
+                    operationComplete = true;
                 }
+            ));
+
+            while (!operationComplete)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            if (serverError)
+            {
+                Debug.Log("Fallback ai dati locali dopo errore server");
+                useLocalData = true;  // Usa i dati locali per il resto della sessione
+                LoadLocalGame();
+            }
+        }
+
+        private void LoadLocalGame()
+        {
+            if (IsNewGame())
+            {
+                Debug.Log("Creazione nuovo gioco locale...");
+                InitializeNewGame();
+            }
+            else
+            {
+                Debug.Log("Caricamento dati locali esistenti...");
+                LoadPlayerData();
+            }
+        }
+
+        public void SaveGame()
+        {
+            if (!isDataLoaded) return;
+
+            SaveLocalGame();  // Salva sempre localmente per sicurezza
+
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false && !useLocalData)
+            {
+                StartCoroutine(SaveGameWithFallback());
+            }
+        }
+
+        private IEnumerator SaveGameWithFallback()
+        {
+            bool syncComplete = false;
+            bool syncError = false;
+
+            yield return StartCoroutine(GameSyncManager.Instance.SyncGameData(
+                () => syncComplete = true,
+                (error) => {
+                    Debug.LogError($"Errore durante il salvataggio sul server: {error}");
+                    syncError = true;
+                    syncComplete = true;
+                }
+            ));
+
+            while (!syncComplete)
+            {
+                yield return new WaitForSeconds(0.1f);
+            }
+
+            if (syncError)
+            {
+                Debug.Log("Fallback al salvataggio locale dopo errore server");
+                useLocalData = true;  // Usa i dati locali per il resto della sessione
             }
         }
 
@@ -167,8 +268,8 @@ namespace Unical.Demacs.EnchantedVillage
                     new BuildingData(
                         System.Guid.NewGuid().ToString(),
                         13, // indice del prefab iniziale
-                        0,  // posizione x
-                        0   // posizione y
+                        22,  // posizione x
+                        20   // posizione y
                     )
                 }
             };
@@ -454,19 +555,9 @@ namespace Unical.Demacs.EnchantedVillage
             return (int)(baseExp * Mathf.Log(multiplier * currentLevel + offset));
         }
 
-        public void SaveGame()
-        {
-            if (!isDataLoaded) return;
 
-            SaveLocalGame();
 
-            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
-            {
-                StartCoroutine(GameSyncManager.Instance.SyncGameData());
-            }
-        }
-
-        private void SaveLocalGame()
+        public void SaveLocalGame()
         {
             var buildingsData = GetCurrentBuildingsData();
             PlayerPrefsController.Instance.SaveAllData(

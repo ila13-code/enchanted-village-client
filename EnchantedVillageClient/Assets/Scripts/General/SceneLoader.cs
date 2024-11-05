@@ -1,7 +1,5 @@
 namespace Unical.Demacs.EnchantedVillage
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using UnityEngine;
     using UnityEngine.SceneManagement;
 
@@ -14,17 +12,19 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Battle()
         {
-            Player.Instance.SaveGame();
-            SceneManager.LoadSceneAsync(2);
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(2, () => {
+                Player.Instance.SaveLocalGame();
+            });
         }
+
         public void Home()
         {
-            PlayerPrefsController.Instance.Elixir+= AttackManager.Instance.Elixir;
-            PlayerPrefsController.Instance.Gold += AttackManager.Instance.Gold;
-            PlayerPrefsController.Instance.Exp += AttackManager.Instance.Exp;
-            Player.Instance.SaveGame();
-            Player.Instance.LoadGame();
-            SceneManager.LoadSceneAsync(1);
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+                PlayerPrefsController.Instance.Elixir += AttackManager.Instance.Elixir;
+                PlayerPrefsController.Instance.Gold += AttackManager.Instance.Gold;
+                PlayerPrefsController.Instance.Exp += AttackManager.Instance.Exp;
+                Player.Instance.SaveLocalGame();
+            });
         }
     }
 }
