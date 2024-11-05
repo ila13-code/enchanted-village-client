@@ -12,7 +12,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Battle()
         {
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(2, () => {
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(3, () => {
                 Player.Instance.SaveLocalGame();
             });
         }

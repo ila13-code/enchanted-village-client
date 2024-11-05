@@ -49,7 +49,7 @@ namespace Unical.Demacs.EnchantedVillage
             if (instance == null)
             {
                 instance = this;
-                DontDestroyOnLoad(gameObject);
+
                 InitializeContainers();
             }
             else

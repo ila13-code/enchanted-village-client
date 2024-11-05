@@ -196,6 +196,33 @@ public class ApiService : MonoBehaviour
             onError
         ));
     }
+
+
+    public IEnumerator GetGameInformationByEmail(string userEmail, Action<GameInformation> onSuccess, Action<string> onError)
+    {
+        string endpoint = $"game-information/getGameInformation?email={Uri.EscapeDataString(userEmail)}";
+        Debug.Log($"Getting game information for email: {userEmail}");
+
+        yield return StartCoroutine(SendRequest<GameInformation>(
+            endpoint,
+            "GET",
+            null,
+            (gameInfo) => {
+                // Explicitly handle null case as "no data found"
+                if (gameInfo == null)
+                {
+                    Debug.Log("No game information found on server (404)");
+                    onSuccess?.Invoke(null);
+                }
+                else
+                {
+                    onSuccess?.Invoke(gameInfo);
+                }
+            },
+            onError
+        ));
+    }
+
     public IEnumerator CreateGameInformation(GameInformation gameInfo, Action<GameInformation> onSuccess, Action<string> onError)
     {
         string userEmail = PlayerPrefs.GetString("userEmail");

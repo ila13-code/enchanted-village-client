@@ -18,6 +18,7 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private Slider _elisirSlider;
         [SerializeField] private Slider _goldSlider;
         [SerializeField] private Building[] _buildings;
+        [SerializeField] private BattleBuilding[] _enemyBuildings;
         [SerializeField] public GameObject _elements = null;
         [SerializeField] public BuildGrid _buildGrid = null;
         [SerializeField] public GameObject _dialogs = null;
@@ -105,5 +106,11 @@ namespace Unical.Demacs.EnchantedVillage
         {
             get { return _buildings; }
         }
+
+        public BattleBuilding[] EnemyBuildings
+        {
+            get { return _enemyBuildings; }
+        }
+            
     }
 }
