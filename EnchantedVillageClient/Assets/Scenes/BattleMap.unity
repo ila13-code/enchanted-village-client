@@ -4644,7 +4644,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1288675191}
   m_Layer: 0
-  m_Name: Map
+  m_Name: MapEnemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5887,6 +5887,21 @@ MonoBehaviour:
   - {fileID: 2752299662842068385, guid: 956a0383e892f9f45bbc2c3a53373244, type: 3}
   - {fileID: 2752299662842068385, guid: e2b902b89329a744cbe2965fb0e96218, type: 3}
   - {fileID: 2752299662842068385, guid: 99781bf2c706bf247be9b6e3f53eb6c2, type: 3}
+  _enemyBuildings:
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
+  - {fileID: 4009099797049057182, guid: 2903be067cbfe814d85924c6ec3838e7, type: 3}
   _elements: {fileID: 2131757227}
   _buildGrid: {fileID: 1529929957}
   _dialogs: {fileID: 1704434749}

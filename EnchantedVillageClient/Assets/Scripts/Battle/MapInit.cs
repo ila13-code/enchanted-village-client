@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Unical.Demacs.EnchantedVillage.BattleBuilding;
 
 namespace Unical.Demacs.EnchantedVillage
 {
@@ -40,7 +41,7 @@ namespace Unical.Demacs.EnchantedVillage
             if (instance == null)
             {
                 instance = this;
-                DontDestroyOnLoad(gameObject);
+ 
                 InitializeContainers();
             }
             else
@@ -59,14 +60,14 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void InitializeContainers()
         {
-            GameObject enemyMap = GameObject.Find("Map");
+            GameObject enemyMap = GameObject.Find("MapEnemy");
             if (enemyMap != null)
             {
                 buildingsContainer = enemyMap.transform.Find("Buildings").transform;
             }
             else
             {
-                Debug.LogError("Map non trovato nella scena.");
+                Debug.LogError("MapEnemy non trovato nella scena.");
             }
         }
 
@@ -166,9 +167,9 @@ namespace Unical.Demacs.EnchantedVillage
                         }
                         else
                         {
-                            var placeholder = building.gameObject.AddComponent<BuildingPlaceholder>();  
+                            var placeholder = building.gameObject.AddComponent<BuildingEnemyPlaceholder>();  
                             placeholder.ParentBuilding = building;
-                            EnemyBuildings[data.getX() + i, data.getY() + j] = placeholder;  
+                            EnemyBuildings[data.getX() + i, data.getY() + j] = placeholder; 
                         }
                     }
                 }

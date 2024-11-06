@@ -200,26 +200,38 @@ public class ApiService : MonoBehaviour
 
     public IEnumerator GetGameInformationByEmail(string userEmail, Action<GameInformation> onSuccess, Action<string> onError)
     {
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            Debug.LogError("[GetGameInformationByEmail] Email is null or empty");
+            onError?.Invoke("Email cannot be null or empty");
+            yield break;
+        }
+
+        Debug.Log($"[GetGameInformationByEmail] Starting request for email: {userEmail}");
         string endpoint = $"game-information/getGameInformation?email={Uri.EscapeDataString(userEmail)}";
-        Debug.Log($"Getting game information for email: {userEmail}");
+        Debug.Log($"[GetGameInformationByEmail] Full endpoint: {endpoint}");
 
         yield return StartCoroutine(SendRequest<GameInformation>(
             endpoint,
             "GET",
             null,
             (gameInfo) => {
-                // Explicitly handle null case as "no data found"
+                Debug.Log($"[GetGameInformationByEmail] Response received. GameInfo is null? {gameInfo == null}");
                 if (gameInfo == null)
                 {
-                    Debug.Log("No game information found on server (404)");
+                    Debug.Log("[GetGameInformationByEmail] No game information found on server (404)");
                     onSuccess?.Invoke(null);
                 }
                 else
                 {
+                    Debug.Log($"[GetGameInformationByEmail] Game info received: Level={gameInfo.level}, Buildings count={gameInfo.buildings?.Count ?? 0}");
                     onSuccess?.Invoke(gameInfo);
                 }
             },
-            onError
+            (error) => {
+                Debug.LogError($"[GetGameInformationByEmail] Error received: {error}");
+                onError?.Invoke(error);
+            }
         ));
     }
 
