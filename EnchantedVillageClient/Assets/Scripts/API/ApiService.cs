@@ -262,4 +262,32 @@ public class ApiService : MonoBehaviour
         Debug.Log($"Updating game information for email: {userEmail}");
         yield return StartCoroutine(SendRequest<GameInformation>(endpoint, "PATCH", gameInfo, onSuccess, onError));
     }
+
+    public IEnumerator ExistsByEmail(string email, Action<bool> onSuccess, Action<string> onError)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            Debug.LogError("[ExistsByEmail] Email parameter is null or empty");
+            onError?.Invoke("Email cannot be null or empty");
+            yield break;
+        }
+
+        string endpoint = $"user/existsByEmail/{Uri.EscapeDataString(email)}";
+        Debug.Log($"[ExistsByEmail] Checking existence for email: {email}");
+
+        yield return StartCoroutine(SendRequest<bool>(
+            endpoint,
+            "GET",
+            null,
+            (exists) => {
+                Debug.Log($"[ExistsByEmail] User existence check result for {email}: {exists}");
+                onSuccess?.Invoke(exists);
+            },
+            (error) => {
+                Debug.LogError($"[ExistsByEmail] Error checking user existence: {error}");
+                onError?.Invoke(error);
+            }
+        ));
+    }
+
 }

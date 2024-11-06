@@ -10,6 +10,7 @@ namespace Unical.Demacs.EnchantedVillage
         public GameSyncManager GameSyncManager { get; private set; }
         public SceneTransitionService SceneTransitionService { get; private set; }
 
+
         private void Awake()
         {
             if (Instance == null)

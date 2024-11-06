@@ -12,7 +12,7 @@ namespace Unical.Demacs.EnchantedVillage
         private BattleBuilding[,] EnemyBuildings;
         private Transform buildingsContainer;
         private bool isDataLoaded = false;
-        private const string DEFAULT_ENEMY_EMAIL = "ilaria.frandina@gmail.com";
+        private string ENEMY_EMAIL = "admin@admin.com";
 
         public static BattleMap Instance
         {
@@ -41,7 +41,7 @@ namespace Unical.Demacs.EnchantedVillage
             if (instance == null)
             {
                 instance = this;
- 
+                ENEMY_EMAIL = PlayerPrefs.GetString("battleFriendEmail", ENEMY_EMAIL);
                 InitializeContainers();
             }
             else
@@ -85,7 +85,7 @@ namespace Unical.Demacs.EnchantedVillage
             bool operationComplete = false;
 
             yield return StartCoroutine(ApiService.Instance.GetGameInformationByEmail(
-                DEFAULT_ENEMY_EMAIL,
+                ENEMY_EMAIL,
                 onSuccess: (gameInfo) =>
                 {
                     if (gameInfo != null)
