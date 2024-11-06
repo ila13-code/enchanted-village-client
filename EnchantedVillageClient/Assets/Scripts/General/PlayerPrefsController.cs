@@ -28,6 +28,7 @@ namespace Unical.Demacs.EnchantedVillage
         private const string ElixirKey = "PlayerElixir";
         private const string GoldKey = "PlayerGold";
         private const string BuildingsKey = "PlayerBuildings";
+        private const string enemyEmail = "enemyEmail";
 
         public event Action<int> OnLevelChanged;
         public event Action<int> OnExpChanged;
@@ -91,6 +92,16 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 PlayerPrefs.SetInt(GoldKey, value);
                 OnGoldChanged?.Invoke(value);
+            }
+        }
+
+
+        public string EnemyEmail
+        {
+            get { return PlayerPrefs.GetString(enemyEmail, ""); }
+            set
+            {
+                PlayerPrefs.SetString(enemyEmail, value);
             }
         }
 
