@@ -35,6 +35,8 @@ namespace Unical.Demacs.EnchantedVillage
         public event Action<int> OnElixirChanged;
         public event Action<int> OnGoldChanged;
 
+        private List<BuildingData> cachedBuildings;
+
         public int Level
         {
             get { return PlayerPrefs.GetInt(LevelKey, 1); }
@@ -108,23 +110,97 @@ namespace Unical.Demacs.EnchantedVillage
         // Recupera la lista di edifici salvata
         public List<BuildingData> GetBuildings()
         {
-            string json = PlayerPrefs.GetString(BuildingsKey, "[]");
-            var buildings = JsonConvert.DeserializeObject<List<BuildingData>>(json);
-
-            if (buildings == null || buildings.Count == 0)
+            // Se abbiamo una cache valida, la usiamo
+            if (cachedBuildings != null)
             {
-                Debug.LogWarning("Nessun edificio recuperato dai PlayerPrefs.");
-                return new List<BuildingData>();
+                return new List<BuildingData>(cachedBuildings);
             }
 
-            return buildings;
+            try
+            {
+                string json = PlayerPrefs.GetString(BuildingsKey, "[]");
+                Debug.Log($"Raw JSON from PlayerPrefs: {json}");
+
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    ObjectCreationHandling = ObjectCreationHandling.Replace,
+                    TypeNameHandling = TypeNameHandling.None,
+                    Formatting = Formatting.Indented
+                };
+
+                cachedBuildings = JsonConvert.DeserializeObject<List<BuildingData>>(json, settings);
+
+                if (cachedBuildings == null)
+                {
+                    Debug.LogWarning("Deserializzazione ha restituito null, creando nuova lista");
+                    cachedBuildings = new List<BuildingData>();
+                }
+
+                // Assicuriamoci che tutti gli edifici abbiano una lista di truppe valida
+                foreach (var building in cachedBuildings)
+                {
+                    if (building.getTroopsData() == null)
+                    {
+                        building.setTroopsData(new List<TroopsData>());
+                    }
+                }
+
+                Debug.Log($"Deserialized buildings: {JsonConvert.SerializeObject(cachedBuildings, settings)}");
+                return new List<BuildingData>(cachedBuildings);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Errore durante il recupero degli edifici: {e}");
+                cachedBuildings = new List<BuildingData>();
+                return new List<BuildingData>();
+            }
         }
 
-        // Salva la lista di edifici
+        // Metodo modificato per il salvataggio degli edifici
         public void SaveBuildings(List<BuildingData> buildings)
         {
-            string json = JsonConvert.SerializeObject(buildings);
-            PlayerPrefs.SetString(BuildingsKey, json);
+            try
+            {
+                Debug.Log($"Saving buildings count: {buildings?.Count}");
+
+                if (buildings == null)
+                {
+                    Debug.LogError("Attempting to save null buildings list");
+                    return;
+                }
+
+                var settings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    Formatting = Formatting.Indented,
+                    TypeNameHandling = TypeNameHandling.None
+                };
+
+                // Assicuriamoci che tutti gli edifici abbiano una lista di truppe valida
+                foreach (var building in buildings)
+                {
+                    if (building.getTroopsData() == null)
+                    {
+                        building.setTroopsData(new List<TroopsData>());
+                    }
+                }
+
+                string json = JsonConvert.SerializeObject(buildings, settings);
+                Debug.Log($"Saving JSON: {json}");
+
+                PlayerPrefs.SetString(BuildingsKey, json);
+                PlayerPrefs.Save();
+
+                // Aggiorna la cache
+                cachedBuildings = new List<BuildingData>(buildings);
+
+                Debug.Log("Buildings saved successfully");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError($"Error saving buildings: {e}");
+            }
         }
 
         // Salva tutti i dati del giocatore

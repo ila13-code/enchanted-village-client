@@ -443,6 +443,9 @@ namespace Unical.Demacs.EnchantedVillage
             Debug.Log("Caricamento degli edifici completato.");
         }
 
+
+
+
         private void LoadTroopsForTrainingBase(BuildingData data, Building building)
         {
             List<TroopsData> troopsData = data.getTroopsData();
@@ -452,82 +455,27 @@ namespace Unical.Demacs.EnchantedVillage
                 return;
             }
 
-            Transform troopsContainer = building.transform.Find("TroopsContainer");
-            if (troopsContainer == null)
-            {
-                GameObject container = new GameObject("TroopsContainer");
-                container.transform.SetParent(building.transform);
-                troopsContainer = container.transform;
-            }
+            Debug.Log($"Caricamento truppe per l'edificio {data.GetUniqueId()}. Numero di truppe: {troopsData.Count}");
 
-            foreach (TroopsData troopData in troopsData)
+            for (int i = 0; i < troopsData.Count; i++)
             {
-                if (troopData.getType() >= 0 && troopData.getType() < troops.Length)
-                {
-                    Vector3 spawnPosition = new Vector3(troopData.getX(), troopData.getY(), troopData.getZ());
-                    Troops troopInstance = Instantiate(troops[troopData.getType()], spawnPosition, Quaternion.identity, troopsContainer);
-                    Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione={spawnPosition}");
-                }
-                else
-                {
-                    Debug.LogError($"Indice truppa non valido: {troopData.getType()}");
-                }
+                TroopsData troopData = troopsData[i];
+
+                Vector3 localPosition = new Vector3(troopData.getX(), troopData.getY(), troopData.getZ());
+
+                Troops troopInstance = Instantiate(
+                    troops[troopData.getType()],
+                    localPosition,
+                    Quaternion.identity,
+                    building.transform
+                );
+
+                troopInstance.transform.localPosition = localPosition;
+
+                Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione locale={localPosition}");
             }
         }
 
-        private List<BuildingData> GetCurrentBuildingsData()
-        {
-            var buildingsData = new List<BuildingData>();
-            if (PlayerBuildings != null)
-            {
-                for (int x = 0; x < PlayerBuildings.GetLength(0); x++)
-                {
-                    for (int y = 0; y < PlayerBuildings.GetLength(1); y++)
-                    {
-                        var building = PlayerBuildings[x, y];
-                        if (building != null && !(building is BuildingPlaceholder))
-                        {
-                            var buildingData = new BuildingData(
-                                building.Id,
-                                building.PrefabIndex,
-                                x,
-                                y
-                            );
-
-                            if (building.PrefabIndex == 4) // Training base
-                            {
-                                buildingData.setTroopsData(GetTroopsDataForBuilding(building));
-                            }
-
-                            buildingsData.Add(buildingData);
-                        }
-                    }
-                }
-            }
-            return buildingsData;
-        }
-
-        private List<TroopsData> GetTroopsDataForBuilding(Building building)
-        {
-            var troopsData = new List<TroopsData>();
-            var troopsContainer = building.transform.Find("TroopsContainer");
-            if (troopsContainer != null)
-            {
-                foreach (Transform troop in troopsContainer)
-                {
-                    if (troop.TryGetComponent<Troops>(out var troopComponent))
-                    {
-                        troopsData.Add(new TroopsData(
-                            (int)troop.position.x,
-                            (int)troop.position.y,
-                            (int)troop.position.z,
-                            Array.IndexOf(troops, troopComponent.GetComponent<Troops>())
-                        ));
-                    }
-                }
-            }
-            return troopsData;
-        }
 
         public void AddExperience(int amount)
         {
@@ -559,13 +507,12 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void SaveLocalGame()
         {
-            var buildingsData = GetCurrentBuildingsData();
             PlayerPrefsController.Instance.SaveAllData(
                 level,
                 experiencePoints,
                 PlayerPrefsController.Instance.Elixir,
                 PlayerPrefsController.Instance.Gold,
-                buildingsData
+                PlayerPrefsController.Instance.GetBuildings()
             );
         }
 

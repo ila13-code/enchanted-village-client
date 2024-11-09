@@ -2,6 +2,8 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace Unical.Demacs.EnchantedVillage
 {
@@ -46,6 +48,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
 
             isSyncing = true;
+            Debug.Log("=== INIZIO SINCRONIZZAZIONE ===");
 
             if (!ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? true)
             {
@@ -58,14 +61,19 @@ namespace Unical.Demacs.EnchantedVillage
 
             try
             {
+                var buildings = PlayerPrefsController.Instance.GetBuildings();
+                Debug.Log($"Buildings locali prima della sync: {JsonConvert.SerializeObject(buildings, Formatting.Indented)}");
+
                 localData = new GameInformation
                 {
                     level = PlayerPrefsController.Instance.Level,
                     experiencePoints = PlayerPrefsController.Instance.Exp,
                     elixir = PlayerPrefsController.Instance.Elixir,
                     gold = PlayerPrefsController.Instance.Gold,
-                    buildings = PlayerPrefsController.Instance.GetBuildings()
+                    buildings = buildings.Select(b => b.Clone()).ToList()
                 };
+
+                Debug.Log($"Dati locali preparati per l'invio: {JsonConvert.SerializeObject(localData, Formatting.Indented)}");
             }
             catch (Exception e)
             {
@@ -84,9 +92,14 @@ namespace Unical.Demacs.EnchantedVillage
                 {
                     try
                     {
+                        Debug.Log($"Dati ricevuti dal server: {JsonConvert.SerializeObject(serverData, Formatting.Indented)}");
                         MergeGameData(serverData);
                         lastSyncTime = Time.time;
                         syncComplete = true;
+
+                        // Verifica finale
+                        var finalBuildings = PlayerPrefsController.Instance.GetBuildings();
+                        Debug.Log($"Buildings dopo il merge: {JsonConvert.SerializeObject(finalBuildings, Formatting.Indented)}");
                     }
                     catch (Exception e)
                     {
@@ -111,6 +124,7 @@ namespace Unical.Demacs.EnchantedVillage
                 onError?.Invoke(syncError);
             }
 
+            Debug.Log("=== FINE SINCRONIZZAZIONE ===");
             isSyncing = false;
         }
 
@@ -137,6 +151,7 @@ namespace Unical.Demacs.EnchantedVillage
             var mergedBuildings = new List<BuildingData>();
             var buildingMap = new Dictionary<string, BuildingData>();
 
+            // Prima aggiungiamo tutti gli edifici locali
             if (localBuildings != null)
             {
                 foreach (var building in localBuildings)
@@ -145,27 +160,68 @@ namespace Unical.Demacs.EnchantedVillage
                 }
             }
 
+            // Poi confrontiamo con i dati del server
             if (serverBuildings != null)
             {
                 foreach (var serverBuilding in serverBuildings)
                 {
-                    if (buildingMap.TryGetValue(serverBuilding.GetUniqueId(), out var localBuilding))
+                    string buildingId = serverBuilding.GetUniqueId();
+
+                    if (buildingMap.TryGetValue(buildingId, out var localBuilding))
                     {
+                        // Campo di addestramento (prefabIndex == 4)
                         if (serverBuilding.getPrefabIndex() == 4 && localBuilding.getPrefabIndex() == 4)
                         {
-                            if ((serverBuilding.getTroopsData()?.Count ?? 0) > (localBuilding.getTroopsData()?.Count ?? 0))
+                            var localTroops = localBuilding.getTroopsData() ?? new List<TroopsData>();
+                            var serverTroops = serverBuilding.getTroopsData() ?? new List<TroopsData>();
+
+                            // Merge delle truppe mantenendo sia quelle locali che quelle del server
+                            var mergedTroops = new List<TroopsData>();
+
+                            // Aggiungi tutte le truppe locali
+                            mergedTroops.AddRange(localTroops);
+
+                            // Aggiungi le truppe del server che non sono già presenti localmente
+                            foreach (var serverTroop in serverTroops)
                             {
-                                buildingMap[serverBuilding.GetUniqueId()] = serverBuilding;
+                                bool troopExists = mergedTroops.Any(localTroop =>
+                                    localTroop._x == serverTroop._x &&
+                                    localTroop._y == serverTroop._y &&
+                                    localTroop._z == serverTroop._z &&
+                                    localTroop._type == serverTroop._type);
+
+                                if (!troopExists)
+                                {
+                                    mergedTroops.Add(serverTroop);
+                                }
                             }
+
+                            // Limita il numero massimo di truppe a 5
+                            if (mergedTroops.Count > 5)
+                            {
+                                mergedTroops = mergedTroops.Take(5).ToList();
+                            }
+
+                            // Crea un nuovo BuildingData con le truppe unite
+                            var mergedBuilding = new BuildingData(
+                                localBuilding.GetUniqueId(),
+                                localBuilding.getPrefabIndex(),
+                                localBuilding.getX(),
+                                localBuilding.getY());
+                            mergedBuilding.setTroopsData(mergedTroops);
+
+                            buildingMap[buildingId] = mergedBuilding;
                         }
                         else
                         {
-                            buildingMap[serverBuilding.GetUniqueId()] = serverBuilding;
+                            // Per altri tipi di edifici, mantieni il comportamento esistente
+                            buildingMap[buildingId] = serverBuilding;
                         }
                     }
                     else
                     {
-                        buildingMap[serverBuilding.GetUniqueId()] = serverBuilding;
+                        // Se l'edificio non esiste localmente, aggiungi quello del server
+                        buildingMap[buildingId] = serverBuilding;
                     }
                 }
             }
@@ -173,5 +229,6 @@ namespace Unical.Demacs.EnchantedVillage
             mergedBuildings.AddRange(buildingMap.Values);
             return mergedBuildings;
         }
+
     }
 }

@@ -7,58 +7,60 @@ namespace Unical.Demacs.EnchantedVillage
 {
     public class TroopsData
     {
-        [JsonProperty]
-        private int _x;
-        [JsonProperty]
-        private int _y;
-        [JsonProperty]
-        private int _z;
-        [JsonProperty]
-        private int type;
+        [JsonProperty("_x")]
+        public float _x { get; set; }
+        [JsonProperty("_y")]
+        public float _y { get; set; }
+        [JsonProperty("_z")]
+        public float _z { get; set; }
+        [JsonProperty("_type")]
+        public int _type { get; set; }
 
-        public TroopsData(int x, int y, int z, int type)
+        public TroopsData(float x, float y, float z, int type)
         {
             _x = x;
             _y = y;
             _z = z;
-            this.type = type;
+            _type = type;
         }
 
-        public TroopsData()
+        public TroopsData Clone()
         {
+            return new TroopsData(_x, _y, _z, _type);
         }
+    
 
-        public int getX()
+        public float getX()
         {
             return _x;
         }
-        public int getY()
+        public float getY()
         {
             return _y;
         }
-        public int getZ()
+        public float getZ()
         {
             return _z;
         }
         public int getType()
         {
-            return type;
+            return _type;
         }
-        public void setX(int x)
+        public void setX(float x)
         {
             this._x = x;
         }
-        public void setY(int y)
+        public void setY(float y)
         {
             this._y = y;
         }
-        public void setZ(int z)
+        public void setZ(float z)
         {
             this._z = z;
         }
         public void setType(int type)
         {
-            this.type = type;
+            this._type = type;
         }
     }
 }

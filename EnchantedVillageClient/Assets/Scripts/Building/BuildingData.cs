@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using UnityEngine;
 namespace Unical.Demacs.EnchantedVillage
@@ -10,33 +11,66 @@ namespace Unical.Demacs.EnchantedVillage
     [System.Serializable]
     public class BuildingData
     {
-        [JsonProperty]
+        // Attributi esistenti
+        [JsonProperty("_uniqueId")]
         private string _uniqueId;
-        [JsonProperty]
+        [JsonProperty("_prefabIndex")]
         private int _prefabIndex;
-        [JsonProperty]
+        [JsonProperty("_x")]
         private int _x;
-        [JsonProperty]
+        [JsonProperty("_y")]
         private int _y;
-        [JsonProperty]
+        [JsonProperty("_troopsData")]
         private List<TroopsData> _troopsData;
 
-        public BuildingData(String id, int prefabIndex, int x, int y)
+        // Costruttore esistente
+        public BuildingData(string uniqueId, int prefabIndex, int x, int y)
         {
-            _uniqueId = id;
+            _uniqueId = uniqueId;
             _prefabIndex = prefabIndex;
             _x = x;
             _y = y;
-            if (prefabIndex == 4) //sto salvando un campo di truppe
-            {
-                _troopsData = new List<TroopsData>();
-            }
-            else
-            {
-                _troopsData = null;
-            }
+            _troopsData = new List<TroopsData>();
         }
-        public string GetUniqueId()
+
+        // Override di Equals e GetHashCode per confrontare correttamente gli edifici
+        public override bool Equals(object obj)
+        {
+            if (obj is BuildingData other)
+            {
+                return _uniqueId == other._uniqueId;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return _uniqueId.GetHashCode();
+        }
+
+        // Metodi getter/setter modificati
+        public List<TroopsData> getTroopsData()
+        {
+            return _troopsData ?? new List<TroopsData>();
+        }
+
+        public void setTroopsData(List<TroopsData> troops)
+        {
+            _troopsData = troops ?? new List<TroopsData>();
+        }
+
+        // Metodo per clonare l'edificio con le sue truppe
+        public BuildingData Clone()
+        {
+            var clone = new BuildingData(_uniqueId, _prefabIndex, _x, _y);
+            if (_troopsData != null)
+            {
+                clone._troopsData = _troopsData.Select(t => t.Clone()).ToList();
+            }
+            return clone;
+        }
+    
+    public string GetUniqueId()
         {
             return _uniqueId;
         }
@@ -54,20 +88,13 @@ namespace Unical.Demacs.EnchantedVillage
             return _y;
         }
 
-        public List<TroopsData> getTroopsData()
-        {
-            return _troopsData;
-        }
 
         public int getTroopsCount()
         {
             return _troopsData.Count;
         }
 
-        public void setTroopsData(List<TroopsData> troopsData)
-        {
-            _troopsData = troopsData;
-        }
+
 
         public void setPrefabIndex(int prefabIndex)
         {
