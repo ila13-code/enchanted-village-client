@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using Unical.Demacs.EnchantedVillage;
+using static Unical.Demacs.EnchantedVillage.BattleBuilding;
 
 public class ArcherController : MonoBehaviour
 {
@@ -28,6 +29,13 @@ public class ArcherController : MonoBehaviour
     private int minGridY = 0;
     private int maxGridY;
 
+
+    private float buildingScanInterval = 0.5f;
+    private float lastScanTime = 0f;
+    private bool isInitialized = false;
+    private Vector3 startingPosition;
+    private Coroutine scanCoroutine;
+
     // Animation States
     private enum AnimationState
     {
@@ -41,6 +49,43 @@ public class ArcherController : MonoBehaviour
     }
 
     private const string ANIM_STATE_PARAM = "State";
+
+    private void Start()
+    {
+        startingPosition = transform.position;
+        StartCoroutine(WaitForBuildingsAndInitialize());
+    }
+
+    IEnumerator WaitForBuildingsAndInitialize()
+    {
+        // Aspetta che BattleMap sia pronto
+        while (BattleMap.Instance == null || !BattleMap.Instance.isDataLoaded)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        isInitialized = true;
+        FindNearestBuilding();
+    }
+
+    void Update()
+    {
+        if (!isInitialized) return;
+
+        if (ArcherManager.Instance != null && ArcherManager.Instance.canMoveArchers)
+        {
+            if (currentTarget == null)
+            {
+                FindNearestBuilding();
+            }
+            else if (!isMoving)
+            {
+                MoveTowardsTarget();
+            }
+
+            CheckForAttack();
+        }
+    }
 
     private void Awake()
     {
@@ -66,22 +111,7 @@ public class ArcherController : MonoBehaviour
         SetAnimationState(AnimationState.Idle);
     }
 
-    void Update()
-    {
-        if (ArcherManager.Instance != null && ArcherManager.Instance.canMoveArchers)
-        {
-            if (currentTarget == null)
-            {
-                FindNearestBuilding();
-            }
-            else if (!isMoving)
-            {
-                MoveTowardsTarget();
-            }
 
-            CheckForAttack();
-        }
-    }
 
     void UpdateAnimationBasedOnGridMovement(int targetX, int targetY)
     {
@@ -299,39 +329,76 @@ public class ArcherController : MonoBehaviour
 
     void FindNearestBuilding()
     {
-        Collider2D[] buildingColliders = Physics2D.OverlapCircleAll(transform.position, detectionRange, buildingLayer);
+        if (!isInitialized || Time.time - lastScanTime < buildingScanInterval) return;
+        lastScanTime = Time.time;
+
         float closestDistance = float.MaxValue;
         GameObject closestBuilding = null;
 
-        foreach (Collider2D collider in buildingColliders)
+        // Prendi la griglia degli edifici da BattleMap
+        var enemyBuildings = BattleMap.Instance.GetEnemyBuildings();
+        if (enemyBuildings == null) return;
+
+        // Calcola l'area di ricerca basata sulla posizione corrente dell'arciere
+        int searchRadius = Mathf.CeilToInt(detectionRange);
+        int startX = Mathf.Max(0, _currentX - searchRadius);
+        int endX = Mathf.Min(maxGridX, _currentX + searchRadius);
+        int startY = Mathf.Max(0, _currentY - searchRadius);
+        int endY = Mathf.Min(maxGridY, _currentY + searchRadius);
+
+        // Cerca nell'area definita
+        for (int x = startX; x <= endX; x++)
         {
-            if (collider == null || collider.gameObject == null) continue;
-
-            var enemyBuilding = collider.GetComponent<EnemyBuildingsController>();
-            if (enemyBuilding == null || !enemyBuilding.IsAlive()) continue;
-
-            Vector3 buildingPos = collider.transform.position;
-            Vector3 nearestPoint = _buildGrid.GetNearestPointOnGrid(buildingPos);
-            (int buildingX, int buildingY) = _buildGrid.WorldToGridPosition(nearestPoint);
-
-            if (IsValidGridPosition(buildingX, buildingY))
+            for (int y = startY; y <= endY; y++)
             {
+                var buildingInCell = enemyBuildings[x, y];
+                if (buildingInCell == null || buildingInCell is BuildingEnemyPlaceholder) continue;
+
+                // Ignora placeholder e prendi solo l'edificio principale
+                if (buildingInCell.gameObject == null) continue;
+
+                Vector3 buildingPos = buildingInCell.transform.position;
                 float distance = Vector3.Distance(transform.position, buildingPos);
-                if (distance < closestDistance)
+
+                if (distance <= detectionRange && distance < closestDistance)
                 {
-                    closestDistance = distance;
-                    closestBuilding = collider.gameObject;
+                    var enemyBuildingController = buildingInCell.GetComponent<EnemyBuildingsController>();
+                    if (enemyBuildingController != null && enemyBuildingController.IsAlive())
+                    {
+                        closestDistance = distance;
+                        closestBuilding = buildingInCell.gameObject;
+                    }
                 }
             }
         }
 
-        if (closestBuilding != null)
+        // Se troviamo un edificio e non è il nostro target attuale
+        if (closestBuilding != null && closestBuilding != currentTarget)
         {
             currentTarget = closestBuilding;
-            MoveTowardsTarget();
+            if (!isMoving)
+            {
+                MoveTowardsTarget();
+            }
+        }
+        else if (closestBuilding == null && !isMoving)
+        {
+            // Se non troviamo edifici e non ci stiamo muovendo, torna alla posizione iniziale
+            ReturnToStartPosition();
         }
     }
 
+    void ReturnToStartPosition()
+    {
+        if (!isMoving)
+        {
+            (int startX, int startY) = _buildGrid.WorldToGridPosition(startingPosition);
+            if (_currentX != startX || _currentY != startY)
+            {
+                MoveToGridPosition(startX, startY);
+            }
+        }
+    }
     void SetAnimationState(AnimationState state)
         {
             if (animator == null) return;
@@ -351,5 +418,12 @@ public class ArcherController : MonoBehaviour
         Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
+    }
+    private void OnDestroy()
+    {
+        if (scanCoroutine != null)
+        {
+            StopCoroutine(scanCoroutine);
+        }
     }
 }

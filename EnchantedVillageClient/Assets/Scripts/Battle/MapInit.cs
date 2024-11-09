@@ -11,7 +11,7 @@ namespace Unical.Demacs.EnchantedVillage
         private static BattleMap instance = null;
         private BattleBuilding[,] EnemyBuildings;
         private Transform buildingsContainer;
-        private bool isDataLoaded = false;
+        public bool isDataLoaded = false;
         private string ENEMY_EMAIL = "admin@admin.com";
 
         public static BattleMap Instance
