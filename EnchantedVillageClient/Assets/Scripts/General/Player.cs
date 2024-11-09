@@ -445,8 +445,7 @@ namespace Unical.Demacs.EnchantedVillage
 
 
 
-
-        private void LoadTroopsForTrainingBase(BuildingData data, Building building)
+        public void LoadTroopsForTrainingBase(BuildingData data, Building building)
         {
             List<TroopsData> troopsData = data.getTroopsData();
             if (troopsData == null || troopsData.Count == 0)

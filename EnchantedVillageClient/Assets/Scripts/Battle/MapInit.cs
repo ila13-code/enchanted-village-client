@@ -13,6 +13,7 @@ namespace Unical.Demacs.EnchantedVillage
         private Transform buildingsContainer;
         public bool isDataLoaded = false;
         private string ENEMY_EMAIL = "admin@admin.com";
+        [SerializeField] private Troops[] troops;
 
         public static BattleMap Instance
         {
@@ -148,8 +149,9 @@ namespace Unical.Demacs.EnchantedVillage
                 BattleBuilding building = Instantiate(buildingPrefab, position, Quaternion.identity, buildingsContainer);
                 building.Id = data.GetUniqueId();
 
-                if (building.PrefabIndex == 4) // Training base
+                if (data.getPrefabIndex()==4) // Training base
                 {
+                    Debug.Log("Caricamento truppe per campo di addestramento nemico...");
                     building.name = building.Id;
                     LoadTroopsForTrainingBase(data, building);
                 }
@@ -178,23 +180,36 @@ namespace Unical.Demacs.EnchantedVillage
             Debug.Log("Caricamento degli edifici nemici completato.");
         }
 
-        private void LoadTroopsForTrainingBase(BuildingData data, BattleBuilding building)  
+
+        public void LoadTroopsForTrainingBase(BuildingData data, BattleBuilding building)
         {
             List<TroopsData> troopsData = data.getTroopsData();
             if (troopsData == null || troopsData.Count == 0)
             {
+                Debug.Log($"Nessuna truppa da caricare per l'edificio {data.GetUniqueId()}");
                 return;
             }
 
-            Transform troopsContainer = building.transform.Find("TroopsContainer");
-            if (troopsContainer == null)
-            {
-                GameObject container = new GameObject("TroopsContainer");
-                container.transform.SetParent(building.transform);
-                troopsContainer = container.transform;
-            }
+            Debug.Log($"Caricamento truppe per l'edificio {data.GetUniqueId()}. Numero di truppe: {troopsData.Count}");
 
-            // TODO: Implementare la logica per le truppe nemiche
+            for (int i = 0; i < troopsData.Count; i++)
+            {
+                TroopsData troopData = troopsData[i];
+
+                Vector3 localPosition = new Vector3(troopData.getX(), troopData.getY(), troopData.getZ());
+
+                Troops troopInstance = Instantiate(
+                    troops[troopData.getType()],
+                    localPosition,
+                    Quaternion.identity,
+                    building.transform
+                );
+
+                troopInstance.transform.localPosition = localPosition;
+
+                Debug.Log($"Truppa caricata: Tipo={troopData.getType()}, Posizione locale={localPosition}");
+            }
         }
+
     }
 }

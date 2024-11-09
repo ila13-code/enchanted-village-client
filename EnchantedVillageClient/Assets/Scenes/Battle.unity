@@ -1255,6 +1255,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDataLoaded: 0
+  troops:
+  - {fileID: 3872802482768600829, guid: 8520acf11bd8f7e428e6f58191e4ee31, type: 3}
+  - {fileID: 3834469789636035021, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
+  - {fileID: 110004391040891006, guid: c723ab04905273e48900de0a28d9a4c0, type: 3}
 --- !u!1 &741388980
 GameObject:
   m_ObjectHideFlags: 0
