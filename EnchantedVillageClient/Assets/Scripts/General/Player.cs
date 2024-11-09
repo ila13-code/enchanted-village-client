@@ -75,7 +75,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
             else
             {
-                Debug.LogError("Map non trovato nella scena.");
+                Debug.Log("Map non trovato nella scena.");
             }
         }
 
@@ -112,7 +112,7 @@ namespace Unical.Demacs.EnchantedVillage
                         }
                         catch (Exception e)
                         {
-                            Debug.LogError($"Errore nel caricamento dei dati dal server: {e}");
+                            Debug.Log($"Errore nel caricamento dei dati dal server: {e}");
                             serverError = true;
                         }
                     }
@@ -130,7 +130,7 @@ namespace Unical.Demacs.EnchantedVillage
                 },
                 onError: (error) =>
                 {
-                    Debug.LogError($"Errore nel caricamento dei dati: {error}");
+                    Debug.Log($"Errore nel caricamento dei dati: {error}");
                     serverError = true;
                     operationComplete = true;
                 }
@@ -183,7 +183,7 @@ namespace Unical.Demacs.EnchantedVillage
             yield return StartCoroutine(GameSyncManager.Instance.SyncGameData(
                 () => syncComplete = true,
                 (error) => {
-                    Debug.LogError($"Errore durante il salvataggio sul server: {error}");
+                    Debug.Log($"Errore durante il salvataggio sul server: {error}");
                     syncError = true;
                     syncComplete = true;
                 }
@@ -224,7 +224,7 @@ namespace Unical.Demacs.EnchantedVillage
                 },
                 onError: (error) =>
                 {
-                    Debug.LogError($"Error loading game data: {error}");
+                    Debug.Log($"Error loading game data: {error}");
                     if (error.Contains("404"))
                     {
                         StartCoroutine(CreateNewServerGameAsync((success) => {
@@ -289,7 +289,7 @@ namespace Unical.Demacs.EnchantedVillage
                 onError: (error) => {
                     serverOperationComplete = true;
                     serverOperationSuccess = false;
-                    Debug.LogError($"Error creating new game on server: {error}");
+                    Debug.Log($"Error creating new game on server: {error}");
                 }
             ));
 
@@ -304,7 +304,7 @@ namespace Unical.Demacs.EnchantedVillage
             }
             else
             {
-                Debug.LogError("Failed to create game on server, initializing locally");
+                Debug.Log("Failed to create game on server, initializing locally");
                 InitializeNewGame();
             }
 
@@ -370,7 +370,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             if (buildings == null)
             {
-                Debug.LogError("Lista edifici null");
+                Debug.Log("Lista edifici null");
                 return;
             }
 
@@ -380,13 +380,13 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 if (data == null)
                 {
-                    Debug.LogError("BuildingData null trovato nella lista.");
+                    Debug.Log("BuildingData null trovato nella lista.");
                     continue;
                 }
 
                 if (data.getPrefabIndex() < 0 || data.getPrefabIndex() >= UIController.Instance.Buildings.Length)
                 {
-                    Debug.LogError($"Indice del prefab non valido: {data.getPrefabIndex()}");
+                    Debug.Log($"Indice del prefab non valido: {data.getPrefabIndex()}");
                     continue;
                 }
 
@@ -395,7 +395,7 @@ namespace Unical.Demacs.EnchantedVillage
 
                 if (buildingPrefab == null)
                 {
-                    Debug.LogError($"Prefab dell'edificio non trovato per l'indice {data.getPrefabIndex()}");
+                    Debug.Log($"Prefab dell'edificio non trovato per l'indice {data.getPrefabIndex()}");
                     continue;
                 }
 
@@ -413,8 +413,8 @@ namespace Unical.Demacs.EnchantedVillage
                     building.ConfirmLoadBuildings();
                 }
                 catch (Exception e)
-                {
-                    Debug.LogError($"Errore durante la conferma dell'edificio: {e.Message}");
+                {   
+                    Debug.Log($"Errore durante la conferma dell'edificio: {e.Message}");
                     Debug.LogError($"StackTrace: {e.StackTrace}");
                     continue;
                 }

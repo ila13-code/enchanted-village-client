@@ -128,8 +128,8 @@ public class ApiService : MonoBehaviour
             else
             {
                 string errorMessage = $"Request to {endpoint} failed: {request.error}";
-                Debug.LogError(errorMessage);
-                Debug.LogError($"Response: {request.downloadHandler.text}");
+                Debug.Log(errorMessage);
+                Debug.Log($"Response: {request.downloadHandler.text}");
                 onError?.Invoke(errorMessage);
             }
         }
