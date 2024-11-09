@@ -1454,6 +1454,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9055ca56b713cf4d8b1cf988e2cfde5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isDataLoaded: 0
 --- !u!1 &741388980
 GameObject:
   m_ObjectHideFlags: 0
@@ -2797,6 +2798,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   canMoveArchers: 0
+  archerPrefab: {fileID: 1118821302}
+  archersContainer: {fileID: 1601379702}
+  maxArchers: 10
+  archersPerSpawn: 3
 --- !u!1 &1704434749
 GameObject:
   m_ObjectHideFlags: 0

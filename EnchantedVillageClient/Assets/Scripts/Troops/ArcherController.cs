@@ -421,9 +421,13 @@ public class ArcherController : MonoBehaviour
     }
     private void OnDestroy()
     {
-        if (scanCoroutine != null)
+        // Ferma tutte le coroutine
+        StopAllCoroutines();
+
+        // Rimuovi questo archer dal manager
+        if (ArcherManager.Instance != null)
         {
-            StopCoroutine(scanCoroutine);
+            ArcherManager.Instance.RemoveArcher(this);
         }
     }
 }
