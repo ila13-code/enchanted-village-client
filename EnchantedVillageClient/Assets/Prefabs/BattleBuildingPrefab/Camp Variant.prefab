@@ -16,6 +16,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Camp Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3691641752519195514, guid: eb779e150887bde4a8308e2e723f5dda, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5309891302998177599, guid: eb779e150887bde4a8308e2e723f5dda, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -160,3 +164,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  destroyedMaterial: {fileID: 2100000, guid: 55cf046d9cde64f41ac1e6cc47322589, type: 2}
+  damagedAlpha: 0.3

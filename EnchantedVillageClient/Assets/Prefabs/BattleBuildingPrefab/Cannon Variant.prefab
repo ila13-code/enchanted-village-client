@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cannon Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 3691641752519195514, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 5309891302998177599, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -151,4 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6dc087e639c6093479eaba06dc8b20e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 2000
+  destroyedMaterial: {fileID: 2100000, guid: 55cf046d9cde64f41ac1e6cc47322589, type: 2}
+  damagedAlpha: 0.3
