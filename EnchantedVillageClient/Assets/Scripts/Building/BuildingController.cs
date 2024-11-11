@@ -20,7 +20,8 @@ namespace Unical.Demacs.EnchantedVillage
         private Vector3 initialMousePosition;
         private float dragThreshold = 0.1f;
 
-        
+
+
         private void Start()
         {
             building = GetComponent<Building>();
@@ -55,6 +56,11 @@ namespace Unical.Demacs.EnchantedVillage
 
                 if (Vector3.Distance(initialMousePosition, GetMouseWorldPosition()) > dragThreshold)
                 {
+                    if (isMoving == false)
+                    {
+                        ServicesManager.Instance.AudioManager.PlaceBuilding();
+                        ServicesManager.Instance.AudioManager.SetMusicVolume(0.7f);
+                    }
                     isMoving = true;
                     transform.position = newPosition;
                     UpdatePlacementVisualization();
@@ -82,6 +88,8 @@ namespace Unical.Demacs.EnchantedVillage
                             resourceCollector.Resources = 0;
                             if (particles != null)
                             {
+                                ServicesManager.Instance.AudioManager.CollectResource();
+                                ServicesManager.Instance.AudioManager.SetMusicVolume(0.7f);
                                 particles.SetActive(false);
                             }
                         }
@@ -92,6 +100,8 @@ namespace Unical.Demacs.EnchantedVillage
                             resourceCollector.Resources = 0;
                             if (particles != null)
                             {
+                                ServicesManager.Instance.AudioManager.CollectResource();
+                                ServicesManager.Instance.AudioManager.SetMusicVolume(0.7f);
                                 particles.SetActive(false);
                             }
                         }
@@ -225,6 +235,8 @@ namespace Unical.Demacs.EnchantedVillage
             }
             else
             {
+                ServicesManager.Instance.AudioManager.PlaceBuilding();
+                ServicesManager.Instance.AudioManager.SetMusicVolume(0.7f);
                 building.Confirm(true);
             }
         }

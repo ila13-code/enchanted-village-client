@@ -2885,6 +2885,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e19bae2d4d25d34f8495a851d57361f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  backgroundMusic: {fileID: 8300000, guid: e8752003dd2923a4a9547f02888f087c, type: 3}
+  collectResources: {fileID: 8300000, guid: 1c5e10782f6268642b876e90b9d368a5, type: 3}
+  placeBuilding: {fileID: 8300000, guid: cfc3de5ba3ffe6d4e8941cd45d0904da, type: 3}
 --- !u!4 &1008157179
 Transform:
   m_ObjectHideFlags: 0
@@ -5819,6 +5822,42 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 4216548216795192282}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 440996864}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2131757227}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &2065399647385346202
 GameObject:
   m_ObjectHideFlags: 0
@@ -6350,7 +6389,6 @@ MonoBehaviour:
   - {fileID: 3872802482768600829, guid: 8520acf11bd8f7e428e6f58191e4ee31, type: 3}
   - {fileID: 3834469789636035021, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
   - {fileID: 3834469789636035021, guid: 79fde26592827d24a8e02e8971920bd5, type: 3}
-  troopsContainer: {fileID: 255161437}
 --- !u!114 &5853991451301824132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7041,6 +7079,30 @@ MonoBehaviour:
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 440996864}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 2131757227}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!224 &8725012973717889052
 RectTransform:

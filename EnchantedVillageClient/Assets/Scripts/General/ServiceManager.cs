@@ -9,8 +9,11 @@ namespace Unical.Demacs.EnchantedVillage
         public ApiService ApiService { get; private set; }
         public GameSyncManager GameSyncManager { get; private set; }
         public SceneTransitionService SceneTransitionService { get; private set; }
+        public AudioManager AudioManager { get; private set; }  
 
-
+        [SerializeField] private AudioClip backgroundMusic;
+        [SerializeField] public AudioClip collectResources;
+        [SerializeField] public AudioClip placeBuilding;
         private void Awake()
         {
             if (Instance == null)
@@ -56,8 +59,18 @@ namespace Unical.Demacs.EnchantedVillage
             sceneTransitionObject.transform.SetParent(transform);
             SceneTransitionService = sceneTransitionObject.AddComponent<SceneTransitionService>();
 
+            // AudioManager
+            GameObject audioObject = new GameObject("AudioManager");
+            audioObject.transform.SetParent(transform);
+            AudioManager = audioObject.AddComponent<AudioManager>();
+
+            if (backgroundMusic != null)
+            {
+                AudioManager.PlayBackgroundMusic(backgroundMusic);
+            }
 
             Debug.Log("All services initialized");
         }
     }
 }
+
