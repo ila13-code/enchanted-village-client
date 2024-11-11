@@ -315,12 +315,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placedBuildingMaterial: {fileID: 2100000, guid: 579909d19ba6c2f48907615196f1dbd5, type: 2}
-  _rows: 3
-  _columns: 3
-  levels:
-  - level: 1
-    icon: {fileID: 21300000, guid: e7efde9a4cd82f0478dfef022ccb1469, type: 3}
-    mesh: {fileID: 4716246210078359604}
+  _rows: 2
+  _columns: 2
   _button: {fileID: 4718427487519531417}
   _prefabIndex: 4
 --- !u!114 &7600901856453726661
@@ -337,6 +333,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   validPlacementMaterial: {fileID: 2100000, guid: 405f72ef26a6a594ebb58d9312098200, type: 2}
   invalidPlacementMaterial: {fileID: 2100000, guid: 13980c02f31750441b5e7ee56b04bdc0, type: 2}
+  particles: {fileID: 0}
 --- !u!61 &2866036052715911596
 BoxCollider2D:
   m_ObjectHideFlags: 0

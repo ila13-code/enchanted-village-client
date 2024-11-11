@@ -317,8 +317,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placedBuildingMaterial: {fileID: 2100000, guid: 579909d19ba6c2f48907615196f1dbd5, type: 2}
-  _rows: 3
-  _columns: 3
+  _rows: 2
+  _columns: 2
   _button: {fileID: 4718427487519531417}
   _prefabIndex: 10
 --- !u!114 &7600901856453726661
