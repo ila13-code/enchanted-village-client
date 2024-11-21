@@ -158,3 +158,5 @@ MonoBehaviour:
   maxHealth: 2000
   destroyedMaterial: {fileID: 2100000, guid: 55cf046d9cde64f41ac1e6cc47322589, type: 2}
   damagedAlpha: 0.3
+  healthBarPrefab: {fileID: 6655190132160058334, guid: 1e49f7691bab30a42a6947101a23e346, type: 3}
+  healthBarHeight: 4
