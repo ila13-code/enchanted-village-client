@@ -107,16 +107,15 @@ public class ArcherController : MonoBehaviour
 
     void FindSuitableAttackPosition(GameObject target, out int targetX, out int targetY)
     {
-        // Ottieni la posizione del building sulla griglia
+
         Vector3 targetPos = target.transform.position;
         (int buildingX, int buildingY) = _buildGrid.WorldToGridPosition(targetPos);
 
-        // Ottieni le dimensioni del building
+
         var battleBuilding = target.GetComponent<BattleBuilding>();
         int buildingRows = battleBuilding != null ? battleBuilding.Rows : 1;
         int buildingCols = battleBuilding != null ? battleBuilding.Columns : 1;
 
-        // Posizioni possibili intorno all'edificio (in ordine di preferenza)
         Vector2Int[] possibleOffsets = new Vector2Int[]
         {
             new Vector2Int(-1, 0),  // Sinistra
@@ -126,7 +125,7 @@ public class ArcherController : MonoBehaviour
             new Vector2Int(-1, -1), // Diagonale in basso a sinistra
             new Vector2Int(1, -1),  // Diagonale in basso a destra
             new Vector2Int(-1, 1),  // Diagonale in alto a sinistra
-            new Vector2Int(1, 1)    // Diagonale in alto a destra
+            new Vector2Int(1, 1)    
         };
 
         // Prova tutte le posizioni intorno all'edificio
