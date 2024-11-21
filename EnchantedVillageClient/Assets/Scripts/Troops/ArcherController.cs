@@ -7,8 +7,8 @@ public class ArcherController : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public LayerMask buildingLayer;
-    public float attackRange = 0.5f;
-    public float detectionRange = 10f;
+    public float attackRange = 5f; 
+    public float detectionRange = 20f;
     public Animator animator;
 
     private int _currentX;
@@ -23,12 +23,10 @@ public class ArcherController : MonoBehaviour
 
     private const float GRID_POSITION_BUFFER = 0.1f;
 
-    // Limiti della griglia
     private int minGridX = 0;
     private int maxGridX;
     private int minGridY = 0;
     private int maxGridY;
-
 
     private float buildingScanInterval = 0.5f;
     private float lastScanTime = 0f;
@@ -36,7 +34,6 @@ public class ArcherController : MonoBehaviour
     private Vector3 startingPosition;
     private Coroutine scanCoroutine;
 
-    // Animation States
     private enum AnimationState
     {
         Idle = 0,
@@ -58,7 +55,6 @@ public class ArcherController : MonoBehaviour
 
     IEnumerator WaitForBuildingsAndInitialize()
     {
-        // Aspetta che BattleMap sia pronto
         while (BattleMap.Instance == null || !BattleMap.Instance.isDataLoaded)
         {
             yield return new WaitForSeconds(0.5f);
@@ -66,6 +62,28 @@ public class ArcherController : MonoBehaviour
 
         isInitialized = true;
         FindNearestBuilding();
+    }
+
+    private void Awake()
+    {
+        _buildGrid = FindObjectOfType<BuildGrid>();
+        if (_buildGrid == null)
+        {
+            Debug.LogError("BuildGrid not found in the scene.");
+            return;
+        }
+
+        maxGridX = _buildGrid.Columns - 1;
+        maxGridY = _buildGrid.Rows - 1;
+
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+
+        Vector3 startPos = transform.position;
+        (_currentX, _currentY) = _buildGrid.WorldToGridPosition(startPos);
+        SetAnimationState(AnimationState.Idle);
     }
 
     void Update()
@@ -87,83 +105,174 @@ public class ArcherController : MonoBehaviour
         }
     }
 
-    private void Awake()
+    void FindSuitableAttackPosition(GameObject target, out int targetX, out int targetY)
     {
-        _buildGrid = FindObjectOfType<BuildGrid>();
-        if (_buildGrid == null)
+        // Ottieni la posizione del building sulla griglia
+        Vector3 targetPos = target.transform.position;
+        (int buildingX, int buildingY) = _buildGrid.WorldToGridPosition(targetPos);
+
+        // Ottieni le dimensioni del building
+        var battleBuilding = target.GetComponent<BattleBuilding>();
+        int buildingRows = battleBuilding != null ? battleBuilding.Rows : 1;
+        int buildingCols = battleBuilding != null ? battleBuilding.Columns : 1;
+
+        // Posizioni possibili intorno all'edificio (in ordine di preferenza)
+        Vector2Int[] possibleOffsets = new Vector2Int[]
         {
-            Debug.LogError("BuildGrid not found in the scene. Please add a BuildGrid component.");
-            return;
+            new Vector2Int(-1, 0),  // Sinistra
+            new Vector2Int(1, 0),   // Destra
+            new Vector2Int(0, -1),  // Sotto
+            new Vector2Int(0, 1),   // Sopra
+            new Vector2Int(-1, -1), // Diagonale in basso a sinistra
+            new Vector2Int(1, -1),  // Diagonale in basso a destra
+            new Vector2Int(-1, 1),  // Diagonale in alto a sinistra
+            new Vector2Int(1, 1)    // Diagonale in alto a destra
+        };
+
+        // Prova tutte le posizioni intorno all'edificio
+        foreach (var offset in possibleOffsets)
+        {
+            // Controlla tutte le celle intorno all'edificio
+            for (int row = 0; row < buildingRows; row++)
+            {
+                for (int col = 0; col < buildingCols; col++)
+                {
+                    int checkX = buildingX + col + offset.x;
+                    int checkY = buildingY + row + offset.y;
+
+                    if (IsValidGridPosition(checkX, checkY) && !IsPositionOccupied(checkX, checkY))
+                    {
+                        targetX = checkX;
+                        targetY = checkY;
+                        return;
+                    }
+                }
+            }
         }
 
-        // Inizializza i limiti della griglia usando le proprietà corrette
-        maxGridX = _buildGrid.Columns - 1;
-        maxGridY = _buildGrid.Rows - 1;
-
-        if (animator == null)
-        {
-            animator = GetComponent<Animator>();
-        }
-
-        // Initialize starting position
-        Vector3 startPos = transform.position;
-        (_currentX, _currentY) = _buildGrid.WorldToGridPosition(startPos);
-        SetAnimationState(AnimationState.Idle);
+        // Se non troviamo una posizione valida, usa la posizione corrente
+        targetX = _currentX;
+        targetY = _currentY;
     }
 
+    bool IsPositionOccupied(int x, int y)
+    {
+        // Controlla se la posizione è occupata da un edificio
+        var buildings = BattleMap.Instance.GetEnemyBuildings();
+        if (buildings != null && buildings[x, y] != null)
+        {
+            return true;
+        }
 
+        // Qui potresti aggiungere altri controlli per altri tipi di ostacoli
+        return false;
+    }
+
+    void MoveTowardsTarget()
+    {
+        if (currentTarget != null && !isMoving)
+        {
+            FindSuitableAttackPosition(currentTarget, out int targetGridX, out int targetGridY);
+
+            if (_currentX != targetGridX || _currentY != targetGridY)
+            {
+                MoveToGridPosition(targetGridX, targetGridY);
+            }
+        }
+    }
+
+    void UpdateAnimationBasedOnTarget()
+    {
+        if (currentTarget == null) return;
+
+        // Calcola la direzione verso il target
+        Vector3 directionToTarget = (currentTarget.transform.position - transform.position).normalized;
+        float angle = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
+
+        // Normalizza l'angolo tra 0 e 360 gradi
+        if (angle < 0) angle += 360;
+
+        // Determina l'animazione basata sull'angolo
+        AnimationState newState = AnimationState.Idle;
+
+        if (angle >= 315 || angle < 45) // Destra
+        {
+            newState = AnimationState.WalkRight;
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+        else if (angle >= 45 && angle < 135) // Su
+        {
+            newState = AnimationState.WalkUp;
+        }
+        else if (angle >= 135 && angle < 225) // Sinistra
+        {
+            newState = AnimationState.WalkRight;
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+        else if (angle >= 225 && angle < 315) // Giù
+        {
+            newState = AnimationState.WalkDown;
+        }
+
+        SetAnimationState(newState);
+    }
 
     void UpdateAnimationBasedOnGridMovement(int targetX, int targetY)
     {
+        if (currentTarget != null)
+        {
+            UpdateAnimationBasedOnTarget();
+            return;
+        }
+
         int dx = targetX - _currentX;
         int dy = targetY - _currentY;
 
         AnimationState newState = AnimationState.Idle;
 
-        // Movimento orizzontale
-        if (dx > 0) // Destra
+        if (dx > 0)
         {
-            if (dy > 0) // Diagonale su-destra
+            if (dy > 0)
             {
                 newState = AnimationState.WalkRightUp;
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
-            else if (dy < 0) // Diagonale giù-destra
+            else if (dy < 0)
             {
                 newState = AnimationState.WalkRightDown;
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
-            else // Destra pura
+            else
             {
                 newState = AnimationState.WalkRight;
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
         }
-        else if (dx < 0) // Sinistra
+        else if (dx < 0)
         {
-            if (dy > 0) // Diagonale su-sinistra
+            if (dy > 0)
             {
                 newState = AnimationState.WalkRightUp;
                 transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
-            else if (dy < 0) // Diagonale giù-sinistra
+            else if (dy < 0)
             {
                 newState = AnimationState.WalkRightDown;
                 transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
-            else // Sinistra pura
+            else
             {
                 newState = AnimationState.WalkRight;
                 transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
             }
         }
-        else // Movimento verticale puro
+        else
         {
-            if (dy > 0) // Su
+            if (dy > 0)
             {
                 newState = AnimationState.WalkUp;
             }
-            else if (dy < 0) // Giù
+            else if (dy < 0)
             {
                 newState = AnimationState.WalkDown;
             }
@@ -202,7 +311,7 @@ public class ArcherController : MonoBehaviour
                         int newX = targetX + offsetX;
                         int newY = targetY + offsetY;
 
-                        if (IsValidGridPosition(newX, newY))
+                        if (IsValidGridPosition(newX, newY) && !IsPositionOccupied(newX, newY))
                         {
                             MoveToGridPosition(newX, newY);
                             return;
@@ -217,25 +326,6 @@ public class ArcherController : MonoBehaviour
             if (IsValidGridPosition(nearestX, nearestY) && (nearestX != _currentX || nearestY != _currentY))
             {
                 MoveToGridPosition(nearestX, nearestY);
-            }
-            else
-            {
-                Debug.LogWarning($"No valid position found near grid position ({targetX}, {targetY}). Current pos: ({_currentX}, {_currentY})");
-            }
-        }
-    }
-
-    void MoveTowardsTarget()
-    {
-        if (currentTarget != null && !isMoving)
-        {
-            Vector3 targetPos = currentTarget.transform.position;
-            Vector3 nearestPoint = _buildGrid.GetNearestPointOnGrid(targetPos);
-            (int targetGridX, int targetGridY) = _buildGrid.WorldToGridPosition(nearestPoint);
-
-            if (_currentX != targetGridX || _currentY != targetGridY)
-            {
-                MoveToGridPosition(targetGridX, targetGridY);
             }
         }
     }
@@ -262,11 +352,33 @@ public class ArcherController : MonoBehaviour
         StopMoving();
     }
 
+    void CheckForAttack()
+    {
+        if (!isMoving && currentTarget != null)
+        {
+            var enemyBuilding = currentTarget.GetComponent<EnemyBuildingsController>();
+            if (enemyBuilding == null || !enemyBuilding.IsAlive())
+            {
+                currentTarget = null;
+                return;
+            }
+
+            float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+            if (distance <= attackRange)
+            {
+                StopMoving();
+                UpdateAnimationBasedOnTarget(); // Aggiorna l'orientamento prima dell'attacco
+                SetAnimationState(AnimationState.Attack);
+                CurrentAttackTarget = currentTarget;
+                StartCoroutine(PerformAttack());
+            }
+        }
+    }
+
     IEnumerator PerformAttack()
     {
         yield return new WaitForSeconds(0.1f);
 
-        // Verifica se il target esiste e non è stato distrutto
         if (CurrentAttackTarget != null && CurrentAttackTarget.gameObject != null)
         {
             var enemyBuilding = CurrentAttackTarget.GetComponent<EnemyBuildingsController>();
@@ -274,7 +386,6 @@ public class ArcherController : MonoBehaviour
             {
                 yield return new WaitForSeconds(0.5f);
 
-                // Verifica nuovamente prima di infliggere danno
                 if (CurrentAttackTarget != null &&
                     CurrentAttackTarget.gameObject != null &&
                     enemyBuilding != null &&
@@ -284,46 +395,19 @@ public class ArcherController : MonoBehaviour
                     enemyBuilding.TakeDamage(1);
                 }
 
-                // Aspetta che l'animazione di attacco finisca
                 yield return new WaitForSeconds(0.4f);
             }
         }
 
-        // Reset dello stato
         SetAnimationState(AnimationState.Idle);
         currentTarget = null;
         CurrentAttackTarget = null;
 
-        // Piccolo delay prima di cercare un nuovo target
         yield return new WaitForSeconds(0.2f);
 
-        // Controlla se l'archer esiste ancora prima di cercare un nuovo target
         if (this != null && gameObject != null)
         {
             FindNearestBuilding();
-        }
-    }
-
-    void CheckForAttack()
-    {
-        if (!isMoving && currentTarget != null)
-        {
-            // Verifica se il target è ancora valido
-            var enemyBuilding = currentTarget.GetComponent<EnemyBuildingsController>();
-            if (enemyBuilding == null || !enemyBuilding.IsAlive())
-            {
-                currentTarget = null;
-                return;
-            }
-
-            // Verifica la distanza solo se il target è valido
-            if (Vector3.Distance(transform.position, currentTarget.transform.position) <= attackRange)
-            {
-                StopMoving();
-                SetAnimationState(AnimationState.Attack);
-                CurrentAttackTarget = currentTarget;
-                StartCoroutine(PerformAttack());
-            }
         }
     }
 
@@ -335,18 +419,15 @@ public class ArcherController : MonoBehaviour
         float closestDistance = float.MaxValue;
         GameObject closestBuilding = null;
 
-        // Prendi la griglia degli edifici da BattleMap
         var enemyBuildings = BattleMap.Instance.GetEnemyBuildings();
         if (enemyBuildings == null) return;
 
-        // Calcola l'area di ricerca basata sulla posizione corrente dell'arciere
         int searchRadius = Mathf.CeilToInt(detectionRange);
         int startX = Mathf.Max(0, _currentX - searchRadius);
         int endX = Mathf.Min(maxGridX, _currentX + searchRadius);
         int startY = Mathf.Max(0, _currentY - searchRadius);
         int endY = Mathf.Min(maxGridY, _currentY + searchRadius);
 
-        // Cerca nell'area definita
         for (int x = startX; x <= endX; x++)
         {
             for (int y = startY; y <= endY; y++)
@@ -354,7 +435,6 @@ public class ArcherController : MonoBehaviour
                 var buildingInCell = enemyBuildings[x, y];
                 if (buildingInCell == null || buildingInCell is BuildingEnemyPlaceholder) continue;
 
-                // Ignora placeholder e prendi solo l'edificio principale
                 if (buildingInCell.gameObject == null) continue;
 
                 Vector3 buildingPos = buildingInCell.transform.position;
@@ -372,7 +452,6 @@ public class ArcherController : MonoBehaviour
             }
         }
 
-        // Se troviamo un edificio e non è il nostro target attuale
         if (closestBuilding != null && closestBuilding != currentTarget)
         {
             currentTarget = closestBuilding;
@@ -383,7 +462,6 @@ public class ArcherController : MonoBehaviour
         }
         else if (closestBuilding == null && !isMoving)
         {
-            // Se non troviamo edifici e non ci stiamo muovendo, torna alla posizione iniziale
             ReturnToStartPosition();
         }
     }
@@ -399,19 +477,26 @@ public class ArcherController : MonoBehaviour
             }
         }
     }
+
     void SetAnimationState(AnimationState state)
-        {
-            if (animator == null) return;
-            animator.SetInteger(ANIM_STATE_PARAM, (int)state);
-        }
+    {
+        if (animator == null) return;
+        animator.SetInteger(ANIM_STATE_PARAM, (int)state);
+    }
 
     void StopMoving()
     {
         isMoving = false;
-        SetAnimationState(AnimationState.Idle);
+        if (currentTarget != null)
+        {
+            UpdateAnimationBasedOnTarget();
+        }
+        else
+        {
+            SetAnimationState(AnimationState.Idle);
+        }
     }
 
-    
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
@@ -419,12 +504,10 @@ public class ArcherController : MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }
+
     private void OnDestroy()
     {
-        // Ferma tutte le coroutine
         StopAllCoroutines();
-
-        // Rimuovi questo archer dal manager
         if (ArcherManager.Instance != null)
         {
             ArcherManager.Instance.RemoveArcher(this);
