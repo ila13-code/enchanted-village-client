@@ -1,9 +1,10 @@
-namespace Unical.Demacs.EnchantedVillage
-{
-    using TMPro;
-    using UnityEngine;
-    using UnityEngine.SceneManagement;
 
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;  
+    namespace Unical.Demacs.EnchantedVillage
+{
     public class SceneLoader : MonoBehaviour
     {
         public void PlayGame()
@@ -53,20 +54,35 @@ namespace Unical.Demacs.EnchantedVillage
             });
         }
 
-        public void Home()
-            {
-                ApiService.Instance.HandleBattleSubmission(
-                    onSuccess: () => {
-                        Debug.Log("cazzo");
-                    },
-                    onError: (error) => {
-                        ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
-                            NotificationService.Instance.ShowNotification($"Error sending battle information: {error}");
-                        });
-                    }
-                );
-            }
+       public void Home()
+{
+    Debug.Log("[Home] Starting battle submission");
+    
+    // Nascondi eventuali dialog attivi prima di cambiare scena
+    NotificationService.Instance.HideAllDialogs();
+    
+    ApiService.Instance.HandleBattleSubmission(
+        onSuccess: () => {
+            Debug.Log("[Home] Battle submission successful");
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+                Player.Instance.SaveGame();
+            });
+        },
+        onError: (error) => {
+            Debug.LogError($"[Home] Battle submission error: {error}");
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+                // Aspetta un frame per assicurarsi che la scena sia caricata
+                StartCoroutine(ShowErrorNextFrame(error));
+            });
+        }
+    );
+}
 
+private IEnumerator ShowErrorNextFrame(string error)
+{
+    yield return new WaitForEndOfFrame();
+    NotificationService.Instance.ShowNotification($"Error sending battle information: {error}");
+}
 
         public void GoHome()
         {
