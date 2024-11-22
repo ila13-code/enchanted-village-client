@@ -54,48 +54,19 @@ namespace Unical.Demacs.EnchantedVillage
         }
 
         public void Home()
-        {
-            BattleInformation battleInformation = new BattleInformation(
-                PlayerPrefs.GetString("battleFriendEmail"),
-                PlayerPrefs.GetInt("PercentageDestroyed"),
-                PlayerPrefs.GetInt("ElixirStolen"),
-                PlayerPrefs.GetInt("GoldStolen"),
-                PlayerPrefs.GetInt("ExpReward")
+            {
+                ApiService.Instance.HandleBattleSubmission(
+                    onSuccess: () => {
+                        Debug.Log("cazzo");
+                    },
+                    onError: (error) => {
+                        ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+                            NotificationService.Instance.ShowNotification($"Error sending battle information: {error}");
+                        });
+                    }
                 );
-            ApiService.Instance.SendBattleInfomation(
-                battleInformation,
-                success =>
-                {
-                    if(PlayerPrefs.GetInt("PercentageDestroyed") >= 50)
-                    {
-                        NotificationService.Instance.ShowWinBattleNotification();
-                    }
-                    else
-                    {
-                        NotificationService.Instance.ShowLoseBattleNotification();
-                    }
+            }
 
-                    PlayerPrefs.DeleteKey("battleFriendEmail");
-                    PlayerPrefs.DeleteKey("PercentageDestroyed");
-                    PlayerPrefs.DeleteKey("ElixirStolen");
-                    PlayerPrefs.DeleteKey("GoldStolen");
-                    PlayerPrefs.DeleteKey("ExpReward");
-                    //TODO - Schermata di vittoria
-                   
-                 
-                },
-                error =>
-                {
-                    ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
-                        NotificationService.Instance.ShowNotification("Error sending battle information. Try again later.");
-                        //Player.Instance.SaveLocalGame();
-                    });
-                  
-                }
-                );
-            
-         
-        }
 
         public void GoHome()
         {

@@ -295,13 +295,84 @@ public class ApiService : MonoBehaviour
         string userEmail = PlayerPrefs.GetString("userEmail");
         if (string.IsNullOrEmpty(userEmail))
         {
-            Debug.LogError("User email not found");
+            Debug.LogError("[SendBattleInfomation] User email not found");
+            onError?.Invoke("User email not found");
             yield break;
         }
 
-        string endpoint = $"battle-information/result?email={Uri.EscapeDataString(userEmail)}";
-        Debug.Log($"Sending battle information for email: {userEmail}");
-        yield return StartCoroutine(SendRequest<BattleInformation>(endpoint, "POST", battleInformation, onSuccess, onError));
+        // Verifica che ci sia anche l'email del nemico
+        if (string.IsNullOrEmpty(battleInformation.enemyEmail))
+        {
+            Debug.LogError("[SendBattleInfomation] Enemy email is missing");
+            onError?.Invoke("Enemy email is missing");
+            yield break;
+        }
+
+        // Costruisci l'endpoint con il parametro userEmail richiesto
+        string endpoint = $"battle-information/result?userEmail={Uri.EscapeDataString(userEmail)}";
+
+        Debug.Log($"[SendBattleInfomation] Sending battle info:" +
+            $"\nUser Email: {userEmail}" +
+            $"\nEnemy Email: {battleInformation.enemyEmail}" +
+            $"\nPercentage Destroyed: {battleInformation.percentage_destroyed}%" +
+            $"\nElixir Stolen: {battleInformation.elixir_stolen}" +
+            $"\nGold Stolen: {battleInformation.gold_stolen}" +
+            $"\nExp Reward: {battleInformation.reward_exp}");
+
+        yield return StartCoroutine(SendRequest<BattleInformation>(
+            endpoint,
+            "POST",
+            battleInformation,
+            response => {
+                Debug.Log("[SendBattleInfomation] Battle information sent successfully");
+                onSuccess?.Invoke(response);
+            },
+            error => {
+                Debug.LogError($"[SendBattleInfomation] Error: {error}");
+                onError?.Invoke(error);
+            }
+        ));
+        }
+ public void HandleBattleSubmission(Action onSuccess = null, Action<string> onError = null)
+    {
+        Debug.Log("[HandleBattleSubmission] Starting battle submission");
+
+        BattleInformation battleInformation = new BattleInformation(
+            PlayerPrefs.GetString("battleFriendEmail"),
+            PlayerPrefs.GetInt("PercentageDestroyed"),
+            PlayerPrefs.GetInt("ElixirStolen"),
+            PlayerPrefs.GetInt("GoldStolen"),
+            PlayerPrefs.GetInt("ExpReward")
+        );
+
+        StartCoroutine(SendBattleInfomation(
+            battleInformation,
+            success =>
+            {
+                Debug.Log("[HandleBattleSubmission] Battle information sent successfully");
+                if(PlayerPrefs.GetInt("PercentageDestroyed") >= 50)
+                {
+                    NotificationService.Instance.ShowWinBattleNotification();
+                }
+                else
+                {
+                    NotificationService.Instance.ShowLoseBattleNotification();
+                }
+
+                PlayerPrefs.DeleteKey("battleFriendEmail");
+                PlayerPrefs.DeleteKey("PercentageDestroyed");
+                PlayerPrefs.DeleteKey("ElixirStolen");
+                PlayerPrefs.DeleteKey("GoldStolen");
+                PlayerPrefs.DeleteKey("ExpReward");
+
+                onSuccess?.Invoke();
+            },
+            error =>
+            {
+                Debug.LogError($"[HandleBattleSubmission] Error: {error}");
+                onError?.Invoke(error);
+            }
+        ));
     }
 
 }
