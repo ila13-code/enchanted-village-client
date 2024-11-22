@@ -7,7 +7,6 @@ namespace Unical.Demacs.EnchantedVillage
     public class ErrorDialog : MonoBehaviour
     {
         private TaskCompletionSource<bool> tcs;
-
         public void Hide()
         {
             gameObject.SetActive(false);
@@ -18,4 +17,5 @@ namespace Unical.Demacs.EnchantedVillage
             tcs = new TaskCompletionSource<bool>();
         }
     }
+
 }

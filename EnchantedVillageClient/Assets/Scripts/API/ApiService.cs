@@ -116,7 +116,7 @@ public class ApiService : MonoBehaviour
             else if (request.responseCode == 404)
             {
                 // Pass null for 404 responses to indicate no data found
-                if (typeof(T) == typeof(GameInformation))
+                if (typeof(T) == typeof(GameInformation) || typeof(T) == typeof(BattleInformation))
                 {
                     onSuccess?.Invoke(default(T));
                 }
@@ -288,6 +288,20 @@ public class ApiService : MonoBehaviour
                 onError?.Invoke(error);
             }
         ));
+    }
+
+    public IEnumerator SendBattleInfomation(BattleInformation battleInformation, Action<BattleInformation> onSuccess, Action<string> onError)
+    {
+        string userEmail = PlayerPrefs.GetString("userEmail");
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            Debug.LogError("User email not found");
+            yield break;
+        }
+
+        string endpoint = $"battle-information/result?email={Uri.EscapeDataString(userEmail)}";
+        Debug.Log($"Sending battle information for email: {userEmail}");
+        yield return StartCoroutine(SendRequest<BattleInformation>(endpoint, "POST", battleInformation, onSuccess, onError));
     }
 
 }

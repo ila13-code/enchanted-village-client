@@ -28,6 +28,8 @@ namespace Unical.Demacs.EnchantedVillage
         public int Elixir { get; private set; }
         public int Gold { get; private set; }
 
+        public int PercentageDestroyed { get; private set; }
+
         private Dictionary<string, (int exp, int elixir, int gold)> buildingRewards;
 
         private void Awake()
@@ -70,6 +72,12 @@ namespace Unical.Demacs.EnchantedVillage
                     Exp += reward.Value.exp;
                     Elixir += reward.Value.elixir;
                     Gold += reward.Value.gold;
+                    PercentageDestroyed = 70;
+
+                    PlayerPrefs.SetInt("ExpReward", Exp);
+                    PlayerPrefs.SetInt("ElixirStolen", Elixir);
+                    PlayerPrefs.SetInt("GoldStolen", Gold);
+                    PlayerPrefs.SetInt("PercentageDestroyed", PercentageDestroyed);
 
                     Debug.Log($"Attack completed on {buildingName}. Resources increased - EXP: {Exp}, Elixir: {Elixir}, Gold: {Gold}");
                     return;

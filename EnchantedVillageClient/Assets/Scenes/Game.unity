@@ -2429,6 +2429,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5419d419f3bdf504ba2532f036adf465, type: 3}
+--- !u!114 &794260094 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7168487999519312603, guid: 5419d419f3bdf504ba2532f036adf465, type: 3}
+  m_PrefabInstance: {fileID: 794260093}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dbd8d21a32faea4e958737cf037ab39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &926155157
 GameObject:
   m_ObjectHideFlags: 0
@@ -2930,7 +2941,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7c0d1c6d7f688d4da6822ac975d2706, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  errorDialog: {fileID: 7168487997619696451}
+  errorDialog: {fileID: 794260094}
+  winBattleDialog: {fileID: 794260094}
+  loseBattleDialog: {fileID: 794260094}
   messageText: {fileID: 7853186971012370565}
 --- !u!1 &1025301412
 GameObject:

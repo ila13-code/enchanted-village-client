@@ -207,7 +207,8 @@ namespace Unical.Demacs.EnchantedVillage
                                 localBuilding.GetUniqueId(),
                                 localBuilding.getPrefabIndex(),
                                 localBuilding.getX(),
-                                localBuilding.getY());
+                                localBuilding.getY(),
+                                localBuilding.getHealth());
                             mergedBuilding.setTroopsData(mergedTroops);
 
                             buildingMap[buildingId] = mergedBuilding;

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1658123382726471017}
   - component: {fileID: 7168487999519312603}
+  - component: {fileID: -510864153210525281}
   m_Layer: 5
   m_Name: ErrorDialog
   m_TagString: Untagged
@@ -49,6 +50,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2dbd8d21a32faea4e958737cf037ab39, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-510864153210525281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267760496734485565}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a84463dcec3d634eab9b9344806a9a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &1517953288709831669

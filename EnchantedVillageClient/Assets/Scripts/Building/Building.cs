@@ -24,6 +24,7 @@ namespace Unical.Demacs.EnchantedVillage
         private int _currentY;
         private bool _isConfirmed;
         private bool _isMoving;
+        private int _currentHealth;
         private String _id;
         private BuildGrid _buildGrid;
 
@@ -59,6 +60,7 @@ namespace Unical.Demacs.EnchantedVillage
         {
             _currentX = x;
             _currentY = y;
+            _currentHealth = 100;
             Vector3 position = _buildGrid.GetCenterPosition(x, y, _rows, _columns);
             transform.position = position;
         }
@@ -182,7 +184,7 @@ namespace Unical.Demacs.EnchantedVillage
                     Debug.Log($"Edificio già esistente: {_prefabIndex} {existingBuilding.getX()} {existingBuilding.getY()}");
 
                     // Crea un nuovo BuildingData mantenendo i dati delle truppe esistenti
-                    var updatedBuildingData = new BuildingData(this.Id, _prefabIndex, _currentX, _currentY);
+                    var updatedBuildingData = new BuildingData(this.Id, _prefabIndex, _currentX, _currentY, _currentHealth);
 
                     // Se l'edificio è una Training Base (assumendo che _prefabIndex 4 sia la Training Base)
                     if (_prefabIndex == 4)
@@ -199,7 +201,7 @@ namespace Unical.Demacs.EnchantedVillage
                 else if (create)
                 {
                     // Aggiungi un nuovo edificio solo se non esiste e create è true
-                    list.Add(new BuildingData(this.Id, _prefabIndex, _currentX, _currentY));
+                    list.Add(new BuildingData(this.Id, _prefabIndex, _currentX, _currentY, _currentHealth));
                     Debug.Log($"Aggiunto: {_prefabIndex} {_currentX} {_currentY}");
                 }
 

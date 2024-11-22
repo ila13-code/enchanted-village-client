@@ -11,7 +11,6 @@ namespace Unical.Demacs.EnchantedVillage
     [System.Serializable]
     public class BuildingData
     {
-        // Attributi esistenti
         [JsonProperty("_uniqueId")]
         private string _uniqueId;
         [JsonProperty("_prefabIndex")]
@@ -20,16 +19,18 @@ namespace Unical.Demacs.EnchantedVillage
         private int _x;
         [JsonProperty("_y")]
         private int _y;
+        [JsonProperty("_health")] 
+        private int _health;
         [JsonProperty("_troopsData")]
         private List<TroopsData> _troopsData;
 
-        // Costruttore esistente
-        public BuildingData(string uniqueId, int prefabIndex, int x, int y)
+        public BuildingData(string uniqueId, int prefabIndex, int x, int y, int health)
         {
             _uniqueId = uniqueId;
             _prefabIndex = prefabIndex;
             _x = x;
             _y = y;
+            _health = health;
             _troopsData = new List<TroopsData>();
         }
 
@@ -62,7 +63,7 @@ namespace Unical.Demacs.EnchantedVillage
         // Metodo per clonare l'edificio con le sue truppe
         public BuildingData Clone()
         {
-            var clone = new BuildingData(_uniqueId, _prefabIndex, _x, _y);
+            var clone = new BuildingData(_uniqueId, _prefabIndex, _x, _y, _health);
             if (_troopsData != null)
             {
                 clone._troopsData = _troopsData.Select(t => t.Clone()).ToList();
@@ -88,6 +89,13 @@ namespace Unical.Demacs.EnchantedVillage
             return _y;
         }
 
+    public int getHealth()
+        {
+            return _health;
+        }
+
+        public void setHealth(int health)
+        { _health = health; }
 
         public int getTroopsCount()
         {

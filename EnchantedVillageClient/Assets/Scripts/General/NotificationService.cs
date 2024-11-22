@@ -10,6 +10,8 @@ namespace Unical.Demacs.EnchantedVillage
         private static NotificationService instance;
 
         [SerializeField] private ErrorDialog errorDialog;
+        [SerializeField] private ErrorDialog winBattleDialog;
+        [SerializeField] private ErrorDialog loseBattleDialog;
         [SerializeField] private TextMeshProUGUI messageText;
 
         public static NotificationService Instance
@@ -43,6 +45,16 @@ namespace Unical.Demacs.EnchantedVillage
         {
             messageText.text = message;
             errorDialog.Show();
+        }
+
+        public void ShowWinBattleNotification()
+        {
+            winBattleDialog.Show();
+        }
+
+        public void ShowLoseBattleNotification()
+        {
+            loseBattleDialog.Show();
         }
     }
 }

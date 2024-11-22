@@ -269,7 +269,8 @@ namespace Unical.Demacs.EnchantedVillage
                         System.Guid.NewGuid().ToString(),
                         13, // indice del prefab iniziale
                         22,  // posizione x
-                        20   // posizione y
+                        20,  // posizione y
+                        100 //vita iniziale
                     )
                 }
             };

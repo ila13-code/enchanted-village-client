@@ -107,7 +107,8 @@ namespace Unical.Demacs.EnchantedVillage
                 troopInstance.transform.localPosition.x,
                 troopInstance.transform.localPosition.y,
                 troopInstance.transform.localPosition.z,
-                troopsType
+                troopsType,
+                100
             );
 
             troopsData.Add(newTroop);

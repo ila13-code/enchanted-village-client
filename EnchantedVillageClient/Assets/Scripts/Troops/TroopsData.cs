@@ -16,17 +16,21 @@ namespace Unical.Demacs.EnchantedVillage
         [JsonProperty("_type")]
         public int _type { get; set; }
 
-        public TroopsData(float x, float y, float z, int type)
+        [JsonProperty("_health")]
+        public int _health { get; set; }
+
+        public TroopsData(float x, float y, float z, int type, int health)
         {
             _x = x;
             _y = y;
             _z = z;
             _type = type;
+            _health = health;
         }
 
         public TroopsData Clone()
         {
-            return new TroopsData(_x, _y, _z, _type);
+            return new TroopsData(_x, _y, _z, _type, _health);
         }
     
 
@@ -62,5 +66,9 @@ namespace Unical.Demacs.EnchantedVillage
         {
             this._type = type;
         }
+
+        public void setHealth(int health) { this._health = health; }
+        public int getHealth() { return this._health; }
+
     }
 }

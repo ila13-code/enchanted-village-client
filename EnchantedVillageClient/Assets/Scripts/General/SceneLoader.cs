@@ -55,12 +55,53 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void Home()
         {
-            //todo battle info
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
-                PlayerPrefsController.Instance.Elixir += AttackManager.Instance.Elixir;
-                PlayerPrefsController.Instance.Gold += AttackManager.Instance.Gold;
-                PlayerPrefsController.Instance.Exp += AttackManager.Instance.Exp;
-                //Player.Instance.SaveLocalGame();
+            BattleInformation battleInformation = new BattleInformation(
+                PlayerPrefs.GetString("battleFriendEmail"),
+                PlayerPrefs.GetInt("PercentageDestroyed"),
+                PlayerPrefs.GetInt("ElixirStolen"),
+                PlayerPrefs.GetInt("GoldStolen"),
+                PlayerPrefs.GetInt("ExpReward")
+                );
+            ApiService.Instance.SendBattleInfomation(
+                battleInformation,
+                success =>
+                {
+                    if(PlayerPrefs.GetInt("PercentageDestroyed") >= 50)
+                    {
+                        NotificationService.Instance.ShowWinBattleNotification();
+                    }
+                    else
+                    {
+                        NotificationService.Instance.ShowLoseBattleNotification();
+                    }
+
+                    PlayerPrefs.DeleteKey("battleFriendEmail");
+                    PlayerPrefs.DeleteKey("PercentageDestroyed");
+                    PlayerPrefs.DeleteKey("ElixirStolen");
+                    PlayerPrefs.DeleteKey("GoldStolen");
+                    PlayerPrefs.DeleteKey("ExpReward");
+                    //TODO - Schermata di vittoria
+                   
+                 
+                },
+                error =>
+                {
+                    ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+                        NotificationService.Instance.ShowNotification("Error sending battle information. Try again later.");
+                        //Player.Instance.SaveLocalGame();
+                    });
+                  
+                }
+                );
+            
+         
+        }
+
+        public void GoHome()
+        {
+            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () =>
+            {
+                Player.Instance.SaveGame();
             });
         }
     }
