@@ -333,10 +333,9 @@ public class ApiService : MonoBehaviour
             }
         ));
         }
-    public void HandleBattleSubmission(Action onSuccess = null, Action<string> onError = null)
+    public void HandleBattleSubmission(Action<float> onSuccess = null, Action<string> onError = null)
     {
         Debug.Log("[HandleBattleSubmission] Starting battle submission");
-
         BattleInformation battleInformation = new BattleInformation(
             PlayerPrefs.GetString("battleFriendEmail"),
             PlayerPrefs.GetInt("PercentageDestroyed"),
@@ -344,29 +343,20 @@ public class ApiService : MonoBehaviour
             PlayerPrefs.GetInt("GoldStolen"),
             PlayerPrefs.GetInt("ExpReward")
         );
-
         StartCoroutine(SendBattleInfomation(
             battleInformation,
-            success =>
+            response =>
             {
                 Debug.Log("[HandleBattleSubmission] Battle information sent successfully");
-                if(PlayerPrefs.GetInt("PercentageDestroyed") >= 50)
-                {
-                    NotificationService.Instance.ShowWinBattleNotification();
-                    
-                }
-                else
-                {
-                    NotificationService.Instance.ShowLoseBattleNotification();
-                }
+                // Restituisci la percentuale attraverso onSuccess
+                onSuccess?.Invoke(response.percentage_destroyed);
 
+                // Pulisci i PlayerPrefs
                 PlayerPrefs.DeleteKey("battleFriendEmail");
                 PlayerPrefs.DeleteKey("PercentageDestroyed");
                 PlayerPrefs.DeleteKey("ElixirStolen");
                 PlayerPrefs.DeleteKey("GoldStolen");
                 PlayerPrefs.DeleteKey("ExpReward");
-
-                onSuccess?.Invoke();
             },
             error =>
             {
