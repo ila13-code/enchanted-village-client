@@ -9,16 +9,16 @@ public class BattleInformation
     [JsonProperty("enemyEmail")]
     public string enemyEmail { get; set; }
 
-    [JsonProperty("percentage_destroyed")]
+    [JsonProperty("percentageDestroyed")]
     public int percentage_destroyed { get; set; }
 
-    [JsonProperty("elixir_stolen")]
+    [JsonProperty("elixirStolen")]
     public int elixir_stolen { get; set; }
 
-    [JsonProperty("gold_stolen")]
+    [JsonProperty("goldStolen")]
     public int gold_stolen { get; set; }
 
-    [JsonProperty("reward_exp")]
+    [JsonProperty("rewardExp")]
     public int reward_exp { get; set; }
 
 

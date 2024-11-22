@@ -30,7 +30,7 @@ using System.Collections;
                 exists => {
                     if (exists)
                     {
-                        ServicesManager.Instance.SceneTransitionService.ChangeScene(3, () => {
+                        ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(3, () => {
                             Player.Instance.SaveLocalGame();
                             PlayerPrefs.SetString("battleFriendEmail", friendEmail);
                         });
@@ -64,14 +64,15 @@ using System.Collections;
     ApiService.Instance.HandleBattleSubmission(
         onSuccess: () => {
             Debug.Log("[Home] Battle submission successful");
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
-                Player.Instance.SaveGame();
+            ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(1, () => {
+               // Player.Instance.SaveGame();
             });
         },
         onError: (error) => {
             Debug.LogError($"[Home] Battle submission error: {error}");
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () => {
+            ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(1, () => {
                 // Aspetta un frame per assicurarsi che la scena sia caricata
+                
                 StartCoroutine(ShowErrorNextFrame(error));
             });
         }
@@ -84,12 +85,5 @@ private IEnumerator ShowErrorNextFrame(string error)
     NotificationService.Instance.ShowNotification($"Error sending battle information: {error}");
 }
 
-        public void GoHome()
-        {
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(1, () =>
-            {
-                Player.Instance.SaveGame();
-            });
-        }
     }
 }

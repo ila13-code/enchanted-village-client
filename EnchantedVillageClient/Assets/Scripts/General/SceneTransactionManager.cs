@@ -13,6 +13,11 @@ namespace Unical.Demacs.EnchantedVillage
             StartCoroutine(ChangeSceneRoutine(sceneIndex, preTransitionAction));
         }
 
+        public void ChangeSceneNoSync(int sceneIndex, System.Action preTransitionAction = null)
+        {
+            StartCoroutine(ChangeSceneRoutineNoSync(sceneIndex, preTransitionAction));
+        }
+
         private IEnumerator ChangeSceneRoutine(int sceneIndex, System.Action preTransitionAction)
         {
             // Esegui azioni pre-transizione
@@ -39,6 +44,18 @@ namespace Unical.Demacs.EnchantedVillage
 
             // Carica la nuova scena
             SceneManager.LoadSceneAsync(sceneIndex);
+        }
+
+
+        private IEnumerator ChangeSceneRoutineNoSync(int sceneIndex, System.Action preTransitionAction)
+        {
+            // Esegui azioni pre-transizione
+            preTransitionAction?.Invoke();
+
+            // Carica la nuova scena
+            SceneManager.LoadSceneAsync(sceneIndex);
+
+            yield return null;
         }
     }
 }

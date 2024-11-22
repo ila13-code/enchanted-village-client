@@ -333,7 +333,7 @@ public class ApiService : MonoBehaviour
             }
         ));
         }
- public void HandleBattleSubmission(Action onSuccess = null, Action<string> onError = null)
+    public void HandleBattleSubmission(Action onSuccess = null, Action<string> onError = null)
     {
         Debug.Log("[HandleBattleSubmission] Starting battle submission");
 
@@ -353,6 +353,7 @@ public class ApiService : MonoBehaviour
                 if(PlayerPrefs.GetInt("PercentageDestroyed") >= 50)
                 {
                     NotificationService.Instance.ShowWinBattleNotification();
+                    
                 }
                 else
                 {
