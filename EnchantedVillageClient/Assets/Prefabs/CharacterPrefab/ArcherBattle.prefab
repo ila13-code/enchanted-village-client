@@ -15,6 +15,8 @@ GameObject:
   - component: {fileID: 9061889749963303663}
   - component: {fileID: 5389716077402323851}
   - component: {fileID: 2387679577931403471}
+  - component: {fileID: 1145531921860137068}
+  - component: {fileID: 755316468403481240}
   m_Layer: 0
   m_Name: ArcherBattle
   m_TagString: Untagged
@@ -144,7 +146,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2516569403264494393}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2b16b3bd2b9a31245a38d78591f6469f, type: 3}
   m_Name: 
@@ -214,4 +216,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
+  deathDuration: 1
   healthBarPrefab: {fileID: 0}
+--- !u!114 &1145531921860137068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2516569403264494393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2774acf28a83d3f408777aa1d0324acc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 100
+  attackRange: 5
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  buildingLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  updateRate: 0.5
+--- !u!195 &755316468403481240
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2516569403264494393}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
