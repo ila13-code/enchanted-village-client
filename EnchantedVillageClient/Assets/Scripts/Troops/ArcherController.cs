@@ -505,7 +505,7 @@ namespace Unical.Demacs.EnchantedVillage
                     yield return new WaitForSeconds(0.5f);
                     if (CurrentAttackTarget != null && CurrentAttackTarget.gameObject != null)
                     {
-                        AttackManager.Instance?.ProcessAttack(CurrentAttackTarget.name);
+                        AttackManager.Instance?.ProcessAttack(enemyBuilding.GetUniqueId(), CurrentAttackTarget.name);
                         enemyBuilding.TakeDamage(1);
                     }
                 }

@@ -1,11 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
+using static BattleInformation;
+using System.Linq;
 
 namespace Unical.Demacs.EnchantedVillage
 {
     public class AttackManager : MonoBehaviour
     {
         private static AttackManager instance;
+        private List<BattleDestroyed> destroyedBuildings = new List<BattleDestroyed>();
         public static AttackManager Instance
         {
             get
@@ -61,9 +64,16 @@ namespace Unical.Demacs.EnchantedVillage
             };
         }
 
-        public void ProcessAttack(string buildingName)
+        public void ProcessAttack(string buildingId,string buildingName)
         {
             buildingName = buildingName.ToLower();
+
+            if (!string.IsNullOrEmpty(buildingId) && !destroyedBuildings.Any(b => b.uniqueId == buildingId))
+            {
+                destroyedBuildings.Add(new BattleDestroyed(buildingId));
+                SaveDestroyedBuildingsToPrefs();
+            }
+
 
             foreach (var reward in buildingRewards)
             {
@@ -93,5 +103,35 @@ namespace Unical.Demacs.EnchantedVillage
         public int GetExp() => Exp;
         public int GetElixir() => Elixir;
         public int GetGold() => Gold;
+
+
+        private void SaveDestroyedBuildingsToPrefs()
+        {
+            string destroyedBuildingsJson = JsonUtility.ToJson(new { buildings = destroyedBuildings });
+            PlayerPrefs.SetString("DestroyedBuildings", destroyedBuildingsJson);
+            Debug.Log($"Saved destroyed buildings: {destroyedBuildingsJson}");
+        }
+
+        public List<BattleDestroyed> GetDestroyedBuildings()
+        {
+            return new List<BattleDestroyed>(destroyedBuildings);
+        }
+
+        private void LoadDestroyedBuildingsFromPrefs()
+        {
+            string savedBuildingsJson = PlayerPrefs.GetString("DestroyedBuildings", "");
+            if (!string.IsNullOrEmpty(savedBuildingsJson))
+            {
+                var wrapper = JsonUtility.FromJson<DestroyedBuildingsWrapper>(savedBuildingsJson);
+                destroyedBuildings = wrapper.buildings;
+            }
+        }
+
+        // Classe wrapper per la serializzazione
+        [System.Serializable]
+        private class DestroyedBuildingsWrapper
+        {
+            public List<BattleDestroyed> buildings;
+        }
     }
 }

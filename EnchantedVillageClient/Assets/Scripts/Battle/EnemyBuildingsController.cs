@@ -9,6 +9,7 @@ namespace Unical.Demacs.EnchantedVillage
         [SerializeField] private int maxHealth = 1000;
         [SerializeField] private Material destroyedMaterial;
         [SerializeField] private float damagedAlpha = 0.3f;
+        private string UniqueId { get; set; }
 
         [Header("Health Bar UI")]
         [SerializeField] private GameObject healthBarPrefab;
@@ -28,7 +29,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-
+            UniqueId = battleBuilding.Id;
 
             currentHealth = maxHealth;
             meshRenderer = transform.Find("Mesh_1").GetComponent<MeshRenderer>();
@@ -235,6 +236,11 @@ namespace Unical.Demacs.EnchantedVillage
         public bool IsAlive()
         {
             return currentHealth > 0 && !isDestroyed;
+        }
+
+        public string GetUniqueId()
+        {
+            return UniqueId;
         }
     }
 }

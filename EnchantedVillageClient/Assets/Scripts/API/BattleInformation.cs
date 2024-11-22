@@ -5,6 +5,16 @@ using UnityEngine;
 
 public class BattleInformation
 {
+    public class BattleDestroyed
+    {
+        public string uniqueId { get; set; }
+
+        public BattleDestroyed(string uniqueId)
+        {
+            this.uniqueId = uniqueId;
+        }
+    }
+
 
     [JsonProperty("enemyEmail")]
     public string enemyEmail { get; set; }
@@ -21,13 +31,16 @@ public class BattleInformation
     [JsonProperty("rewardExp")]
     public int reward_exp { get; set; }
 
+    [JsonProperty("battleDestroyed")]
+    public List<BattleDestroyed> battle_destroyeds { get; set; }
 
     public BattleInformation(
         string enemyEmail,
         int percentage_destroyed,
         int elixir_stolen,
         int gold_stolen,
-        int reward_exp
+        int reward_exp,
+        List<BattleDestroyed> battle_destroyeds
     )
     {
         this.enemyEmail = enemyEmail;
@@ -35,6 +48,7 @@ public class BattleInformation
         this.elixir_stolen = elixir_stolen;
         this.gold_stolen = gold_stolen;
         this.reward_exp = reward_exp;
+        this.battle_destroyeds = battle_destroyeds;
     }
 
 

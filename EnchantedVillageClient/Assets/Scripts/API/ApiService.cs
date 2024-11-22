@@ -341,7 +341,10 @@ public class ApiService : MonoBehaviour
             PlayerPrefs.GetInt("PercentageDestroyed"),
             PlayerPrefs.GetInt("ElixirStolen"),
             PlayerPrefs.GetInt("GoldStolen"),
-            PlayerPrefs.GetInt("ExpReward")
+            PlayerPrefs.GetInt("ExpReward"),
+            AttackManager.Instance.GetDestroyedBuildings()
+
+
         );
         StartCoroutine(SendBattleInfomation(
             battleInformation,
