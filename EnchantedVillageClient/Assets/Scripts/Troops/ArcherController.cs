@@ -33,7 +33,9 @@ namespace Unical.Demacs.EnchantedVillage
         private float lastScanTime = 0f;
         private bool isInitialized = false;
         private Vector3 startingPosition;
-        private Coroutine scanCoroutine;
+        private Troops targetTroops; 
+        private bool isTargetDead = false;
+
 
         private enum AnimationState
         {
@@ -121,6 +123,10 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 if (enemyTroop != null && enemyTroop.gameObject.activeInHierarchy)
                 {
+                    // Verifica che la truppa nemica sia viva
+                    var troopsComponent = enemyTroop.GetComponent<Troops>();
+                    if (troopsComponent != null && troopsComponent.CurrentHealth <= 0) continue;
+
                     float distance = Vector3.Distance(transform.position, enemyTroop.transform.position);
                     if (distance <= detectionRange && distance < closestDistance)
                     {
@@ -130,6 +136,7 @@ namespace Unical.Demacs.EnchantedVillage
                     }
                 }
             }
+
 
             // Se non ci sono truppe nemiche vicine, cerca gli edifici
             if (!foundEnemyTroop)
@@ -172,6 +179,8 @@ namespace Unical.Demacs.EnchantedVillage
             if (closestTarget != null && closestTarget != currentTarget)
             {
                 currentTarget = closestTarget;
+                targetTroops = currentTarget.GetComponent<Troops>();
+                isTargetDead = false;
                 if (!isMoving)
                 {
                     MoveTowardsTarget();
@@ -422,32 +431,20 @@ namespace Unical.Demacs.EnchantedVillage
         {
             if (!isMoving && currentTarget != null)
             {
-                // Controlla se il target è una truppa nemica
+                // Verifica se il target è ancora vivo
                 var enemyTroop = currentTarget.GetComponent<EnemyTroopController>();
                 if (enemyTroop != null)
                 {
-                    float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
-                    if (distance <= attackRange)
+                    var troopsHealth = currentTarget.GetComponent<Troops>();
+                    if (troopsHealth == null || troopsHealth.CurrentHealth <= 0)
                     {
-                        StopMoving();
-                        UpdateAnimationBasedOnTarget();
-                        SetAnimationState(AnimationState.Attack);
-                        CurrentAttackTarget = currentTarget;
-                        StartCoroutine(PerformAttack());
+                        StopAttackAndReset();
+                        return;
                     }
-                    return;
                 }
 
-                // Se non è una truppa, controlla se è un edificio
-                var enemyBuilding = currentTarget.GetComponent<EnemyBuildingsController>();
-                if (enemyBuilding == null || !enemyBuilding.IsAlive())
-                {
-                    currentTarget = null;
-                    return;
-                }
-
-                float buildingDistance = Vector3.Distance(transform.position, currentTarget.transform.position);
-                if (buildingDistance <= attackRange)
+                float distance = Vector3.Distance(transform.position, currentTarget.transform.position);
+                if (distance <= attackRange)
                 {
                     StopMoving();
                     UpdateAnimationBasedOnTarget();
@@ -458,52 +455,50 @@ namespace Unical.Demacs.EnchantedVillage
             }
         }
 
-        IEnumerator PerformAttack()
-        {
-            yield return new WaitForSeconds(0.1f);
+            IEnumerator PerformAttack()
+            {
             if (CurrentAttackTarget == null)
             {
-                Debug.LogWarning("CurrentAttackTarget è null!");
                 StopAttackAndReset();
                 yield break;
             }
 
-            Debug.Log($"Attacco in corso verso: {CurrentAttackTarget.name}");
-
-            // Prima verifica se è una truppa nemica
+            // Verifica se il target è una truppa nemica
             var enemyTroop = CurrentAttackTarget.GetComponent<EnemyTroopController>();
             if (enemyTroop != null)
             {
-                Debug.Log("Target è una truppa nemica");
+                var enemyHealth = CurrentAttackTarget.GetComponent<Troops>();
+                if (enemyHealth == null || enemyHealth.CurrentHealth <= 0)
+                {
+                    StopAttackAndReset();
+                    yield break;
+                }
+
                 yield return new WaitForSeconds(0.5f);
 
-                // Verifica esplicita che il GameObject esista ancora
-                if (CurrentAttackTarget != null && CurrentAttackTarget.gameObject != null)
+                // Verifica nuovamente prima di infliggere danno
+                if (CurrentAttackTarget != null && CurrentAttackTarget.gameObject != null &&
+                    enemyHealth != null && enemyHealth.CurrentHealth > 0)
                 {
-                    var enemyHealth = CurrentAttackTarget.GetComponent<Troops>();
-                    if (enemyHealth != null && enemyHealth.CurrentHealth > 0)
+                    enemyHealth.TakeDamage(1);
+
+                    // Se il nemico è morto dopo questo attacco
+                    if (enemyHealth.CurrentHealth <= 0)
                     {
-                        enemyHealth.TakeDamage(1);
-                        Debug.Log($"Danno inflitto alla truppa! Vita rimanente: {enemyHealth.CurrentHealth}");
-                    }
-                    else
-                    {
-                        // Se la truppa è morta, resetta tutto e cerca un nuovo target
-                        Debug.Log("La truppa nemica è stata eliminata");
+                        isTargetDead = true;
                         StopAttackAndReset();
                         yield break;
                     }
                 }
                 else
                 {
-                    Debug.LogWarning("Il target è stato distrutto durante l'attacco!");
                     StopAttackAndReset();
                     yield break;
                 }
             }
             else
             {
-                // Se non è una truppa, prova con l'edificio
+                // Logica per gli edifici (resta invariata)
                 var enemyBuilding = CurrentAttackTarget.GetComponent<EnemyBuildingsController>();
                 if (enemyBuilding != null && enemyBuilding.IsAlive())
                 {
@@ -512,11 +507,6 @@ namespace Unical.Demacs.EnchantedVillage
                     {
                         AttackManager.Instance?.ProcessAttack(CurrentAttackTarget.name);
                         enemyBuilding.TakeDamage(1);
-                    }
-                    else
-                    {
-                        StopAttackAndReset();
-                        yield break;
                     }
                 }
                 else
@@ -527,18 +517,38 @@ namespace Unical.Demacs.EnchantedVillage
             }
 
             yield return new WaitForSeconds(0.4f);
-            FindNearestTarget();
+
+            // Se il target è morto, cerca un nuovo target
+            if (isTargetDead || CurrentAttackTarget == null)
+            {
+                StopAttackAndReset();
+            }
+            else
+            {
+                FindNearestTarget();
+            }
+
             yield return new WaitForSeconds(0.2f);
         }
 
-        private void StopAttackAndReset()
+
+     private void StopAttackAndReset()
+    {
+        SetAnimationState(AnimationState.Idle);
+        if (currentTarget != null)
         {
-            SetAnimationState(AnimationState.Idle);
-            currentTarget = null;
-            CurrentAttackTarget = null;
-            // Opzionale: potresti voler cercare immediatamente un nuovo target
-            FindNearestTarget();
+            var enemyTroops = currentTarget.GetComponent<Troops>();
+            if (enemyTroops != null && enemyTroops.CurrentHealth <= 0)
+            {
+                isTargetDead = true;
+            }
         }
+        currentTarget = null;
+        CurrentAttackTarget = null;
+        targetTroops = null;
+        FindNearestTarget();
+    }
+
         void ReturnToStartPosition()
         {
             if (!isMoving)

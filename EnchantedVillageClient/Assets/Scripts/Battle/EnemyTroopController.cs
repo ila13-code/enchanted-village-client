@@ -26,7 +26,14 @@ public class EnemyTroopController : MonoBehaviour
     private GameObject currentTarget;
     private static Dictionary<GameObject, int> targetAssignments = new Dictionary<GameObject, int>();
     private static List<EnemyTroopController> allTroops = new List<EnemyTroopController>();
+    private Troops troopsComponent;
+    private bool isDying = false;
 
+    private void Awake()
+    {
+        allTroops.Add(this);
+        troopsComponent = GetComponent<Troops>();
+    }
     private enum AnimationState
     {
         Idle = 0,
@@ -43,10 +50,7 @@ public class EnemyTroopController : MonoBehaviour
     private int health = 100;
     private bool isDead = false;
 
-    private void Awake()
-    {
-        allTroops.Add(this);
-    }
+
 
     private void Start()
     {
@@ -79,7 +83,7 @@ public class EnemyTroopController : MonoBehaviour
 
     private void Update()
     {
-        if (isDead) return;
+        if (isDead || isDying) return;
 
         if (currentTarget != null && !isAttacking)
         {
@@ -101,6 +105,102 @@ public class EnemyTroopController : MonoBehaviour
         }
     }
 
+    private bool IsTargetValid(GameObject target)
+    {
+        if (target == null || !target.activeInHierarchy) return false;
+
+        var troopsHealth = target.GetComponent<Troops>();
+        return troopsHealth != null && troopsHealth.CurrentHealth > 0;
+    }
+
+    private IEnumerator PerformAttack()
+    {
+        if (isDead || isDying)
+        {
+            isAttacking = false;
+            yield break;
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        if (currentTarget != null && IsInAttackRange(currentTarget.transform.position) && IsTargetValid(currentTarget))
+        {
+            var troopsHealth = currentTarget.GetComponent<Troops>();
+            if (troopsHealth != null && troopsHealth.CurrentHealth > 0)
+            {
+                troopsHealth.TakeDamage(damage);
+
+                // Se il target è morto dopo questo attacco
+                if (troopsHealth.CurrentHealth <= 0)
+                {
+                    ReleaseTarget(currentTarget);
+                    currentTarget = null;
+                }
+            }
+            else
+            {
+                ReleaseTarget(currentTarget);
+                currentTarget = null;
+            }
+        }
+
+        lastAttackTime = Time.time;
+        isAttacking = false;
+        SetAnimationState(AnimationState.Idle);
+    }
+
+    public void TakeDamage(int damageAmount)
+    {
+        if (isDead || isDying) return;
+
+        if (troopsComponent != null)
+        {
+            troopsComponent.TakeDamage(damageAmount);
+            if (troopsComponent.CurrentHealth <= 0)
+            {
+                Die();
+            }
+        }
+    }
+
+    private void Die()
+    {
+        if (isDead || isDying) return;
+        isDying = true;
+        isDead = true;
+
+        // Rilascia il target corrente
+        if (currentTarget != null)
+        {
+            ReleaseTarget(currentTarget);
+            currentTarget = null;
+        }
+
+        // Ferma tutti i comportamenti
+        StopAllCoroutines();
+        isMoving = false;
+        isAttacking = false;
+
+        // Disabilita i componenti
+        var collider = GetComponent<Collider>();
+        if (collider != null)
+        {
+            collider.enabled = false;
+        }
+
+        enabled = false;
+        allTroops.Remove(this);
+
+        if (animator != null)
+        {
+            animator.SetInteger(ANIM_STATE_PARAM, DEATH_STATE);
+            StartCoroutine(DeathSequence());
+        }
+        else
+        {
+            Destroy(gameObject, 1f);
+        }
+    }
     private static void AssignTarget(GameObject target, EnemyTroopController troop)
     {
         if (!targetAssignments.ContainsKey(target))
@@ -186,17 +286,6 @@ public class EnemyTroopController : MonoBehaviour
         return priority;
     }
 
-    private bool IsTargetValid(GameObject target)
-    {
-        if (target == null || !target.activeInHierarchy) return false;
-
-        var troopsHealth = target.GetComponent<Troops>();
-        if (troopsHealth != null)
-        {
-            return troopsHealth.CurrentHealth > 0;
-        }
-        return false;
-    }
 
     private bool IsInAttackRange(Vector3 targetPosition)
     {
@@ -329,29 +418,7 @@ public class EnemyTroopController : MonoBehaviour
         StartCoroutine(PerformAttack());
     }
 
-    private IEnumerator PerformAttack()
-    {
-        yield return new WaitForSeconds(0.5f);
 
-        if (currentTarget != null && IsInAttackRange(currentTarget.transform.position) && IsTargetValid(currentTarget))
-        {
-            var troopsHealth = currentTarget.GetComponent<Troops>();
-            if (troopsHealth != null && troopsHealth.CurrentHealth > 0)
-            {
-                troopsHealth.TakeDamage(damage);
-                Debug.Log($"Attacco eseguito! Danno inflitto: {damage}");
-            }
-            else
-            {
-                ReleaseTarget(currentTarget);
-                currentTarget = null;
-            }
-        }
-
-        lastAttackTime = Time.time;
-        isAttacking = false;
-        SetAnimationState(AnimationState.Idle);
-    }
 
     private void UpdateAnimationBasedOnTarget()
     {
@@ -417,47 +484,8 @@ public class EnemyTroopController : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damageAmount)
-    {
-        if (isDead) return;
 
-        health -= damageAmount;
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
 
-    private void Die()
-    {
-        if (isDead) return;
-        isDead = true;
-
-        // Rilascia il target corrente
-        if (currentTarget != null)
-        {
-            ReleaseTarget(currentTarget);
-            currentTarget = null;
-        }
-
-        // Ferma tutti i comportamenti
-        StopAllCoroutines();
-        isMoving = false;
-        isAttacking = false;
-
-        // Disabilita il controller
-        enabled = false;
-
-        // Rimuovi dalle truppe attive
-        allTroops.Remove(this);
-
-        // Attiva l'animazione di morte
-        if (animator != null)
-        {
-            animator.SetInteger(ANIM_STATE_PARAM, DEATH_STATE);
-            StartCoroutine(DeathSequence());
-        }
-    }
 
     private IEnumerator DeathSequence()
     {
