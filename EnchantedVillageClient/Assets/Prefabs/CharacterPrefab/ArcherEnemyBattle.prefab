@@ -12,11 +12,11 @@ GameObject:
   - component: {fileID: 1656149881740659151}
   - component: {fileID: 4621563069738246802}
   - component: {fileID: 9142307527650755872}
-  - component: {fileID: 9061889749963303663}
   - component: {fileID: 5389716077402323851}
-  - component: {fileID: 2387679577931403471}
+  - component: {fileID: 8908751904145181856}
+  - component: {fileID: 6800182272269028160}
   m_Layer: 0
-  m_Name: ArcherBattle
+  m_Name: ArcherEnemyBattle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -137,25 +137,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 6
---- !u!114 &9061889749963303663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2516569403264494393}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2b16b3bd2b9a31245a38d78591f6469f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  buildingLayer:
-    serializedVersion: 2
-    m_Bits: 8
-  attackRange: 5
-  detectionRange: 10
-  animator: {fileID: 4621563069738246802}
 --- !u!61 &5389716077402323851
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -201,7 +182,26 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.0001, y: 0.0001}
   m_EdgeRadius: 0
---- !u!114 &2387679577931403471
+--- !u!114 &8908751904145181856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2516569403264494393}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 328eaf6aa3de8ce4f9dfbb409ed2bb9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  attackRange: 2
+  detectionRange: 10
+  minDistanceFromOtherTroops: 1.5
+  damage: 1
+  attackCooldown: 1
+  animator: {fileID: 4621563069738246802}
+--- !u!114 &6800182272269028160
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -214,4 +214,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHealth: 100
-  healthBarPrefab: {fileID: 0}
+  healthBarPrefab: {fileID: 6655190132160058334, guid: 1e49f7691bab30a42a6947101a23e346, type: 3}
