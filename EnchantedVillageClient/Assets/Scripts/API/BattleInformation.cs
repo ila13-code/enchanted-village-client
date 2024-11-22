@@ -31,7 +31,7 @@ public class BattleInformation
     [JsonProperty("rewardExp")]
     public int reward_exp { get; set; }
 
-    [JsonProperty("battleDestroyed")]
+    [JsonProperty("battleDestroyeds")]
     public List<BattleDestroyed> battle_destroyeds { get; set; }
 
     public BattleInformation(
