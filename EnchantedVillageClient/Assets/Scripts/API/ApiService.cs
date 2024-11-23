@@ -336,6 +336,8 @@ public class ApiService : MonoBehaviour
     public void HandleBattleSubmission(Action<float> onSuccess = null, Action<string> onError = null)
     {
         Debug.Log("[HandleBattleSubmission] Starting battle submission");
+        Debug.Log("Destroyed Buildings JSON: " + JsonConvert.SerializeObject(AttackManager.Instance.GetDestroyedBuildings()));
+
         BattleInformation battleInformation = new BattleInformation(
             PlayerPrefs.GetString("battleFriendEmail"),
             PlayerPrefs.GetInt("PercentageDestroyed"),
@@ -343,9 +345,15 @@ public class ApiService : MonoBehaviour
             PlayerPrefs.GetInt("GoldStolen"),
             PlayerPrefs.GetInt("ExpReward"),
             AttackManager.Instance.GetDestroyedBuildings()
-
-
         );
+
+        // Aggiungi questo log per vedere l'oggetto completo
+        Debug.Log("Complete Battle Information JSON: " + JsonConvert.SerializeObject(battleInformation,
+            new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                Formatting = Formatting.Indented
+            }));
         StartCoroutine(SendBattleInfomation(
             battleInformation,
             response =>

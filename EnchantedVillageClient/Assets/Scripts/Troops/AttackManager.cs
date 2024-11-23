@@ -68,12 +68,6 @@ namespace Unical.Demacs.EnchantedVillage
         {
             buildingName = buildingName.ToLower();
 
-            if (!string.IsNullOrEmpty(buildingId) && !destroyedBuildings.Any(b => b.uniqueId == buildingId))
-            {
-                destroyedBuildings.Add(new BattleDestroyed(buildingId));
-                SaveDestroyedBuildingsToPrefs();
-            }
-
 
             foreach (var reward in buildingRewards)
             {
@@ -104,6 +98,12 @@ namespace Unical.Demacs.EnchantedVillage
         public int GetElixir() => Elixir;
         public int GetGold() => Gold;
 
+
+        public void AddDestroyedBuilding(string id)
+        { 
+            destroyedBuildings.Add(new BattleDestroyed(id));
+            SaveDestroyedBuildingsToPrefs();
+        }
 
         private void SaveDestroyedBuildingsToPrefs()
         {

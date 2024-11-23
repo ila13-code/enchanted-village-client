@@ -29,13 +29,13 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            UniqueId = battleBuilding.Id;
+          
 
             currentHealth = maxHealth;
             meshRenderer = transform.Find("Mesh_1").GetComponent<MeshRenderer>();
             buildGrid = FindObjectOfType<BuildGrid>();
             battleBuilding = GetComponent<BattleBuilding>();
-
+            UniqueId = battleBuilding.Id;
             if (meshRenderer != null)
             {
                 originalMaterial = meshRenderer.material;
@@ -47,6 +47,7 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 healthBarInstance.SetActive(false);
             }
+
         }
 
         private void CreateHealthBar()
@@ -185,6 +186,7 @@ namespace Unical.Demacs.EnchantedVillage
 
             if (currentHealth <= 0 && !isDestroyed)
             {
+                AttackManager.Instance.AddDestroyedBuilding(UniqueId);
                 isDestroyed = true;
                 if (meshRenderer.material != destroyedMaterialInstance)
                 {
