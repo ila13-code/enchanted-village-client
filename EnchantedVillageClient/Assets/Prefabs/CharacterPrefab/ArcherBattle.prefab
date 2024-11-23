@@ -201,7 +201,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.0001, y: 0.0001}
+  m_Size: {x: 0.001, y: 0.001}
   m_EdgeRadius: 0
 --- !u!114 &2387679577931403471
 MonoBehaviour:
@@ -230,15 +230,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2774acf28a83d3f408777aa1d0324acc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRadius: 100
-  attackRange: 5
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  buildingLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  updateRate: 0.5
 --- !u!195 &755316468403481240
 NavMeshAgent:
   m_ObjectHideFlags: 0

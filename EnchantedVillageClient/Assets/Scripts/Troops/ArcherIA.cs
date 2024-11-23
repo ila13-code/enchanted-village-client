@@ -5,26 +5,26 @@ using Unical.Demacs.EnchantedVillage;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ArcherIA : MonoBehaviour
-{
+public class ArcherIA : MonoBehaviour {
     NavMeshAgent agent;
     Troops troops;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+    private bool isInitialized = false;
 
-    [Header("Detection Settings")]
-    [SerializeField] private float detectionRadius = 100f;
-    [SerializeField] private float attackRange = 5f;
-    [SerializeField] private float updateRate = 0.5f;
+    private float detectionRadius = 30f;
+    private float attackRange = 6f;
+    private float updateRate = 0.5f;
 
     private Transform currentTarget;
     private bool isAttacking;
     private LayerMask targetLayer;
     private Vector2 lastPosition;
     private AnimationState currentState = AnimationState.Idle;
+    private int damage = 15;
+    private bool move = true;
 
-    private enum AnimationState
-    {
+    private enum AnimationState {
         Idle = 0,
         WalkDown = 1,
         WalkRight = 2,
@@ -34,267 +34,252 @@ public class ArcherIA : MonoBehaviour
         Attack = 6
     }
 
-    void Start()
-    {
+    void Start() {
         agent = GetComponent<NavMeshAgent>();
         troops = GetComponent<Troops>();
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         lastPosition = transform.position;
-
+        agent.speed = 5;
         agent.updateRotation = false;
         agent.updateUpAxis = false;
 
         targetLayer = LayerMask.GetMask("Building");
 
-        if (!agent.isOnNavMesh)
-        {
-            Debug.LogError("Agent is not on NavMesh! Position: " + transform.position);
-            NavMeshHit hit;
-            if (NavMesh.SamplePosition(transform.position, out hit, 5f, NavMesh.AllAreas))
-            {
-                transform.position = hit.position;
-                Debug.Log("Agent moved to nearest NavMesh position: " + hit.position);
-            }
-        }
-
-        StartCoroutine(UpdateTargeting());
+        StartCoroutine(WaitForBuildingsAndInitialize());
     }
 
-    void Update()
-    {
-        if (troops.CurrentHealth <= 0 || !agent.isOnNavMesh) return;
+    IEnumerator WaitForBuildingsAndInitialize() {
+        while (BattleMap.Instance == null || !BattleMap.Instance.isDataLoaded) {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        isInitialized = true;
+        
+    }
+
+    void Update() {
+        if (!move || troops.CurrentHealth <= 0 || !agent.isOnNavMesh || !isInitialized) return;
+
+        if (currentTarget == null || !IsValidTarget(currentTarget) || !IsTargetInRange(currentTarget)) {
+            FindTarget();
+            Debug.Log($"Current target: {currentTarget?.name}");
+
+            if (currentTarget == null) {
+                agent.isStopped = true;
+                move = false;
+                SetAnimationState(AnimationState.Idle);
+
+                return; 
+            }
+        }
 
         UpdateAnimation();
 
-        if (currentTarget != null)
-        {
+        if (currentTarget != null) {
             float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
 
-            if (distanceToTarget <= attackRange)
-            {
-                agent.isStopped = true;
-                if (!isAttacking)
-                {
+            if (distanceToTarget <= attackRange) {
+                if (!isAttacking) {
+                    agent.isStopped = true;
                     StartCoroutine(AttackRoutine());
                 }
             }
-            else
-            {
+            else {
                 agent.isStopped = false;
                 Vector3 targetPosition = currentTarget.position;
                 targetPosition.z = transform.position.z;
-
-                NavMeshHit hit;
-                if (NavMesh.SamplePosition(targetPosition, out hit, 5f, NavMesh.AllAreas))
-                {
-                    agent.SetDestination(hit.position);
-                }
+                Debug.Log($"Moving to target: {currentTarget.name} in position: {currentTarget.position}");
+                Debug.Log($"Archer position: {lastPosition}");
+                agent.SetDestination(targetPosition);
             }
-        }
-        else
-        {
-            SetAnimationState(AnimationState.Idle);
         }
 
         lastPosition = transform.position;
     }
 
-    private void FindTarget()
-    {
+    private bool IsValidTarget(Transform target) {
+        if (target == null) return false;
+
+        var enemyTroop = target.GetComponent<EnemyTroopController>();
+        if (enemyTroop != null) {
+            return enemyTroop.GetHealth() > 0;
+        }
+
+        var building = target.GetComponent<EnemyBuildingsController>();
+        if (building != null) {
+            return building.IsAlive();
+        }
+
+        return false;
+    }
+
+    private bool IsTargetInRange(Transform target) {
+        return target != null && Vector2.Distance(transform.position, target.position) <= detectionRadius;
+    }
+
+    private void FindTarget() {
         Collider2D[] allColliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius, targetLayer);
         Debug.Log($"Found {allColliders.Length} total objects in range on Building layer");
 
-        // Prima cerca nemici
         var enemies = allColliders
-            .Where(c => c.GetComponent<EnemyTroopController>() != null)
+            .Select(c => c.GetComponent<EnemyTroopController>())
+            .Where(c => c != null && c.GetHealth() > 0) 
             .ToArray();
 
         Debug.Log($"Found {enemies.Length} enemies in range");
 
-        if (enemies.Length > 0)
-        {
+        if (enemies.Length > 0) {
             Transform closestEnemy = enemies
                 .OrderBy(c => Vector2.Distance(transform.position, c.transform.position))
                 .First()
                 .transform;
 
-            if (currentTarget == null || currentTarget != closestEnemy)
-            {
+            if (currentTarget == null || currentTarget != closestEnemy) {
                 currentTarget = closestEnemy;
                 Debug.Log($"Found enemy target: {currentTarget.name}");
             }
         }
-        else
-        {
+        else {
             var buildings = allColliders
-                .Where(c => c.GetComponent<EnemyBuildingsController>() != null)
+                .Select(c => c.GetComponent<EnemyBuildingsController>())
+                .Where(c => c != null && c.IsAlive())
                 .ToArray();
 
             Debug.Log($"Found {buildings.Length} buildings in range");
 
-            if (buildings.Length > 0)
-            {
+            if (buildings.Length > 0) {
                 Transform closestBuilding = buildings
                     .OrderBy(c => Vector2.Distance(transform.position, c.transform.position))
                     .First()
                     .transform;
 
-                if (currentTarget == null || currentTarget != closestBuilding)
-                {
+                if (currentTarget == null || currentTarget != closestBuilding) {
                     currentTarget = closestBuilding;
                     Debug.Log($"Found building target: {currentTarget.name}");
                 }
             }
-            else
-            {
+            else {
                 currentTarget = null;
                 Debug.Log("No targets found");
+
             }
         }
 
-        if (currentTarget != null)
-        {
-            Debug.DrawLine(transform.position, currentTarget.position, Color.red, 0.5f);
-        }
     }
 
-    private void UpdateAnimation()
-    {
-        if (isAttacking)
-        {
+    private void UpdateAnimation() {
+        if (isAttacking) {
             SetAnimationState(AnimationState.Attack);
             return;
         }
 
         Vector2 movement = (Vector2)transform.position - lastPosition;
 
-        if (movement.magnitude < 0.01f)
-        {
+        if (movement.magnitude < 0.01f) {
             SetAnimationState(AnimationState.Idle);
             return;
         }
 
-        // Normalizza il movimento
         movement = movement.normalized;
-
-        // Calcola l'angolo del movimento
         float angle = Mathf.Atan2(movement.y, movement.x) * Mathf.Rad2Deg;
-
-        // Aggiusta l'angolo per essere tra 0 e 360
         if (angle < 0) angle += 360;
 
-        // Imposta lo stato dell'animazione in base all'angolo
-        if (angle >= 337.5f || angle < 22.5f) // Destra
-        {
+        if (angle >= 337.5f || angle < 22.5f) {
             SetAnimationState(AnimationState.WalkRight);
             spriteRenderer.flipX = false;
         }
-        else if (angle >= 22.5f && angle < 67.5f) // Destra-Su
-        {
+        else if (angle >= 22.5f && angle < 67.5f) {
             SetAnimationState(AnimationState.WalkRightUp);
             spriteRenderer.flipX = false;
         }
-        else if (angle >= 67.5f && angle < 112.5f) // Su
-        {
+        else if (angle >= 67.5f && angle < 112.5f) {
             SetAnimationState(AnimationState.WalkUp);
         }
-        else if (angle >= 112.5f && angle < 157.5f) // Sinistra-Su
-        {
+        else if (angle >= 112.5f && angle < 157.5f) {
             SetAnimationState(AnimationState.WalkRightUp);
             spriteRenderer.flipX = true;
         }
-        else if (angle >= 157.5f && angle < 202.5f) // Sinistra
-        {
+        else if (angle >= 157.5f && angle < 202.5f) {
             SetAnimationState(AnimationState.WalkRight);
             spriteRenderer.flipX = true;
         }
-        else if (angle >= 202.5f && angle < 247.5f) // Sinistra-Giù
-        {
+        else if (angle >= 202.5f && angle < 247.5f) {
             SetAnimationState(AnimationState.WalkRightDown);
             spriteRenderer.flipX = true;
         }
-        else if (angle >= 247.5f && angle < 292.5f) // Giù
-        {
+        else if (angle >= 247.5f && angle < 292.5f) {
             SetAnimationState(AnimationState.WalkDown);
         }
-        else // Destra-Giù
-        {
+        else {
             SetAnimationState(AnimationState.WalkRightDown);
             spriteRenderer.flipX = false;
         }
     }
 
-    private void SetAnimationState(AnimationState state)
-    {
-        if (currentState != state)
-        {
+    private void SetAnimationState(AnimationState state) {
+        if (currentState != state) {
             currentState = state;
             animator.SetInteger("State", (int)state);
         }
     }
 
-    private IEnumerator AttackRoutine()
-    {
+    private IEnumerator AttackRoutine() {
         isAttacking = true;
+        Debug.Log("Starting attack routine");
 
-        while (currentTarget != null &&
-               Vector2.Distance(transform.position, currentTarget.position) <= attackRange &&
-               troops.CurrentHealth > 0)
-        {
-            // Orienta il personaggio verso il target
-            Vector2 directionToTarget = ((Vector2)currentTarget.position - (Vector2)transform.position).normalized;
-            float angle = Mathf.Atan2(directionToTarget.y, directionToTarget.x) * Mathf.Rad2Deg;
-            if (angle < 0) angle += 360;
-
-            // Imposta il flip in base alla direzione
-            spriteRenderer.flipX = Mathf.Abs(angle) > 90 && Mathf.Abs(angle) < 270;
-
-            SetAnimationState(AnimationState.Attack);
-
-            if (currentTarget.TryGetComponent<EnemyTroopController>(out EnemyTroopController enemyTroops))
-            {
-                enemyTroops.TakeDamage(5);
+        if (troops.CurrentHealth > 0) {
+            if (currentTarget == null || !IsValidTarget(currentTarget)) {
+                Debug.Log("Target is invalid or dead, searching for new target");
+                FindTarget();
+                yield return new WaitForSeconds(1);
             }
-            else if (currentTarget.TryGetComponent<EnemyBuildingsController>(out EnemyBuildingsController building))
-            {
-                if (building.IsAlive())
-                {
-                    AttackManager.Instance?.ProcessAttack(building.GetUniqueId(), building.name);
-                    building.TakeDamage(5);
-                }
-               }
 
-            yield return new WaitForSeconds(1);
+            float distanceToTarget = Vector2.Distance(transform.position, currentTarget.position);
+            if (distanceToTarget > attackRange) {
+                Debug.Log($"Target out of range. Distance: {distanceToTarget}, Attack Range: {attackRange}");
+            }
+
+            var enemyTroops = currentTarget.GetComponent<EnemyTroopController>();
+            if (enemyTroops != null) {
+                Debug.Log($"Attacking enemy troop: {enemyTroops.name} with current health: {enemyTroops.GetHealth()}");
+                enemyTroops.TakeDamage(damage);
+                yield return new WaitForSeconds(1);
+            }
+            else {
+                var building = currentTarget.GetComponent<EnemyBuildingsController>();
+
+                if (building != null && building.IsAlive()) {
+                    Debug.Log($"Attacking building: {building.name}");
+                    AttackManager.Instance?.ProcessAttack(building.GetUniqueId(), building.name);
+                    building.TakeDamage(damage);
+                    yield return new WaitForSeconds(1);
+                }
+            }
         }
 
+        Debug.Log("Attack routine ended");
+        currentTarget = null;
         isAttacking = false;
         SetAnimationState(AnimationState.Idle);
     }
 
-    private IEnumerator UpdateTargeting()
-    {
-        while (troops.CurrentHealth > 0)
-        {
+    private IEnumerator UpdateTargeting() {
+        while (troops.CurrentHealth > 0) {
             FindTarget();
             yield return new WaitForSeconds(updateRate);
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        // Visualizza il raggio di rilevamento
+    private void OnDrawGizmos() {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
 
-        // Visualizza il raggio di attacco
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
 
-        // Se c'è un target, disegna una linea verso di esso
-        if (currentTarget != null)
-        {
+        if (currentTarget != null) {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(transform.position, currentTarget.position);
         }

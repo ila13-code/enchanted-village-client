@@ -27,15 +27,21 @@ namespace Unical.Demacs.EnchantedVillage
         private BuildGrid buildGrid;
         private BattleBuilding battleBuilding;
 
-        private void Start()
-        {
-            UniqueId = battleBuilding.Id;
+        public int GetCurrentHealth() {
+            return currentHealth;
+        }   
 
-            currentHealth = maxHealth;
+        void Start()
+        {
+            
             meshRenderer = transform.Find("Mesh_1").GetComponent<MeshRenderer>();
             buildGrid = FindObjectOfType<BuildGrid>();
             battleBuilding = GetComponent<BattleBuilding>();
+     
+            UniqueId = battleBuilding.Id;
 
+            currentHealth = maxHealth;
+       
             if (meshRenderer != null)
             {
                 originalMaterial = meshRenderer.material;

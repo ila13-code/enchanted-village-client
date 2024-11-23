@@ -50,7 +50,9 @@ public class EnemyTroopController : MonoBehaviour
     private int health = 100;
     private bool isDead = false;
 
-
+    public int GetHealth() {
+        return health;
+    }
 
     private void Start()
     {

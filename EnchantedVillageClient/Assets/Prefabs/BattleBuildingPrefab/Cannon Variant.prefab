@@ -77,6 +77,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3691641752519195514, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
       insertIndex: -1
       addedObject: {fileID: -6075720937136373499}
+    - targetCorrespondingSourceObject: {fileID: 3691641752519195514, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -3401074041648064484}
   m_SourcePrefab: {fileID: 100100000, guid: 8bbc4a43066ad4c4e90c1a4629ed0487, type: 3}
 --- !u!1 &815307010725701607 stripped
 GameObject:
@@ -159,4 +162,19 @@ MonoBehaviour:
   destroyedMaterial: {fileID: 2100000, guid: 55cf046d9cde64f41ac1e6cc47322589, type: 2}
   damagedAlpha: 0.3
   healthBarPrefab: {fileID: 6655190132160058334, guid: 1e49f7691bab30a42a6947101a23e346, type: 3}
-  healthBarHeight: 4
+--- !u!208 &-3401074041648064484
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 815307010725701607}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 0
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
