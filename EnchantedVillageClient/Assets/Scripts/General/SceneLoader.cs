@@ -53,7 +53,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void BattleDemo()
         {
-            ServicesManager.Instance.SceneTransitionService.ChangeScene(2, () => {
+            ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(2, () => {
                 Player.Instance.SaveLocalGame();
             });
         }

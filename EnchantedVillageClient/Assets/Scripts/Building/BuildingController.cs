@@ -96,7 +96,7 @@ namespace Unical.Demacs.EnchantedVillage
                         else if (building.PrefabIndex == 12) // Colleziono oro
                         {
                             Debug.Log($"Colleziono oro: {resourceCollector.Resources}");
-                            PlayerPrefsController.Instance.Elixir += resourceCollector.Resources;
+                            PlayerPrefsController.Instance.Gold += resourceCollector.Resources;
                             resourceCollector.Resources = 0;
                             if (particles != null)
                             {
