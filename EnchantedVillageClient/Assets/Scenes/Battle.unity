@@ -406,7 +406,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4938276940318908655, guid: beb86520b925c914394df21db4d06863, type: 3}
       propertyPath: m_text
-      value: 5x
+      value: 0x
       objectReference: {fileID: 0}
     - target: {fileID: 4938276940318908655, guid: beb86520b925c914394df21db4d06863, type: 3}
       propertyPath: m_fontColor.b
@@ -2136,7 +2136,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4938276940318908655, guid: beb86520b925c914394df21db4d06863, type: 3}
       propertyPath: m_text
-      value: 5x
+      value: 0x
       objectReference: {fileID: 0}
     - target: {fileID: 4938276940318908655, guid: beb86520b925c914394df21db4d06863, type: 3}
       propertyPath: m_fontColor.b
@@ -2581,6 +2581,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 1752366544863084780, guid: beb86520b925c914394df21db4d06863, type: 3}
   m_PrefabInstance: {fileID: 1179836112}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1179836114 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4938276940318908655, guid: beb86520b925c914394df21db4d06863, type: 3}
+  m_PrefabInstance: {fileID: 1179836112}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1186499960
 GameObject:
   m_ObjectHideFlags: 0
@@ -3148,6 +3159,7 @@ MonoBehaviour:
   archersContainer: {fileID: 1601379702}
   maxArchers: 10
   archersPerSpawn: 1
+  archerNum: {fileID: 1179836114}
 --- !u!1 &1645309602
 GameObject:
   m_ObjectHideFlags: 0

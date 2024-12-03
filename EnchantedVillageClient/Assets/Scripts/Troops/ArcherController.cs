@@ -145,7 +145,7 @@ namespace Unical.Demacs.EnchantedVillage
             bool foundEnemyTroop = false;
             // Se BattleMap.Instance non è disponibile o gli edifici non sono presenti, cerca manualmente
 
-            if (closestTarget == null)
+            if (BattleMap.Instance==null)
             {
                 closestTarget = FindNearestBuildingManually();
             }
@@ -552,8 +552,9 @@ namespace Unical.Demacs.EnchantedVillage
                     if (CurrentAttackTarget != null && CurrentAttackTarget.gameObject != null)
                     {
                         AttackManager.Instance?.ProcessAttack(enemyBuilding.GetUniqueId(), CurrentAttackTarget.name);
-                        enemyBuilding.TakeDamage(1);
+                       
                     }
+                    enemyBuilding.TakeDamage(1);
                 }
                 else
                 {
