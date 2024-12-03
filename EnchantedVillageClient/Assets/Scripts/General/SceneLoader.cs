@@ -53,6 +53,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void BattleDemo()
         {
+            PlayerPrefs.SetString("battleFriendEmail", "demo");
             ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(2, () => {
                 Player.Instance.SaveLocalGame();
             });
@@ -96,19 +97,33 @@ namespace Unical.Demacs.EnchantedVillage
             );
         }
 
+        public void HomeDemo()
+        {
+            Debug.Log("[Home] Demo");
+
+            // Nascondi eventuali dialog attivi prima di cambiare scena
+            NotificationService.Instance.HideAllDialogs();
+
+            
+        }
+
+
         private IEnumerator ShowErrorNextFrame(string error)
         {
             yield return new WaitForEndOfFrame();
             NotificationService.Instance.ShowNotification($"Error sending battle information: {error}");
         }
-
         public void GoHome()
         {
-            ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(1, () => {
-                
-            });
+            if (ServicesManager.Instance != null && ServicesManager.Instance.SceneTransitionService != null)
+            {
+                ServicesManager.Instance.SceneTransitionService.ChangeSceneNoSync(1);
+            }
+            else
+            {
+                Debug.LogError("ServicesManager or SceneTransitionService is null!");
+            }
         }
-    
 
     }
 }

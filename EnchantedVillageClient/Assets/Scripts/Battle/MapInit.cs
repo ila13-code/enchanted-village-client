@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using static Unical.Demacs.EnchantedVillage.BattleBuilding;
 
@@ -14,6 +15,8 @@ namespace Unical.Demacs.EnchantedVillage
         public bool isDataLoaded = false;
         private string ENEMY_EMAIL = "admin@admin.com";
         [SerializeField] private Troops[] troops;
+  
+        
 
         public static BattleMap Instance
         {
@@ -39,7 +42,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Awake()
         {
-            if (instance == null)
+            if (PlayerPrefs.GetString("battleFriendEmail") !="demo" &&   instance == null)
             {
                 instance = this;
                 ENEMY_EMAIL = PlayerPrefs.GetString("battleFriendEmail", ENEMY_EMAIL);
@@ -53,7 +56,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void Start()
         {
-            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false &&
+                PlayerPrefs.GetString("battleFriendEmail") != "demo")
             {
                 LoadEnemyMap();
             }
@@ -74,7 +78,8 @@ namespace Unical.Demacs.EnchantedVillage
 
         public void LoadEnemyMap()
         {
-            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false)
+            if (ServicesManager.Instance?.KeycloakService?.IsAuthenticated() ?? false &&
+                ENEMY_EMAIL != "demo")  
             {
                 Debug.Log("Caricamento mappa nemica dal server...");
                 StartCoroutine(LoadEnemyMapFromServer());

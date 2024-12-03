@@ -50,11 +50,40 @@ namespace Unical.Demacs.EnchantedVillage
 
         private const string ANIM_STATE_PARAM = "State";
 
-        private void Start()
+        void Start()
         {
-            startingPosition = transform.position;
-            StartCoroutine(WaitForBuildingsAndInitialize());
+            StartCoroutine(InitializeAndFindTarget());
         }
+
+        IEnumerator InitializeAndFindTarget()
+        {
+            // Timeout per evitare loop infiniti in caso di problemi con BattleMap
+            float timeout = 2f; // Tempo massimo di attesa (3 secondi)
+            float elapsedTime = 0f;
+
+            while ((BattleMap.Instance == null || !BattleMap.Instance.isDataLoaded) && elapsedTime < timeout)
+            {
+                Debug.Log("Aspettando BattleMap...");
+                yield return new WaitForSeconds(0.5f);
+                elapsedTime += 0.5f;
+            }
+
+            if (BattleMap.Instance == null || !BattleMap.Instance.isDataLoaded)
+            {
+                Debug.LogWarning("BattleMap non disponibile o non caricato correttamente. Procedendo con fallback manuale.");
+                isInitialized = true;
+
+                // Inizia subito a cercare manualmente
+                FindNearestTarget();
+                yield break;
+            }
+
+            // Se BattleMap è disponibile e caricato
+            Debug.Log("BattleMap inizializzato correttamente.");
+            isInitialized = true;
+            FindNearestTarget();
+        }
+
 
         IEnumerator WaitForBuildingsAndInitialize()
         {
@@ -91,6 +120,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         void Update()
         {
+
             if (!isInitialized) return;
 
             if (ArcherManager.Instance != null && ArcherManager.Instance.canMoveArchers)
@@ -110,20 +140,30 @@ namespace Unical.Demacs.EnchantedVillage
 
         void FindNearestTarget()
         {
-            if (!isInitialized || Time.time - lastScanTime < buildingScanInterval) return;
-            lastScanTime = Time.time;
-
             float closestDistance = float.MaxValue;
             GameObject closestTarget = null;
             bool foundEnemyTroop = false;
+            // Se BattleMap.Instance non è disponibile o gli edifici non sono presenti, cerca manualmente
 
-            // Prima cerca le truppe nemiche
+            if (closestTarget == null)
+            {
+                closestTarget = FindNearestBuildingManually();
+            }
+            else
+            { 
+            if (!isInitialized || Time.time - lastScanTime < buildingScanInterval) return;
+            lastScanTime = Time.time;
+
+             closestDistance = float.MaxValue;
+             closestTarget = null;
+             foundEnemyTroop = false;
+
+            // Cerca truppe nemiche
             var enemyTroops = FindObjectsOfType<EnemyTroopController>();
             foreach (var enemyTroop in enemyTroops)
             {
                 if (enemyTroop != null && enemyTroop.gameObject.activeInHierarchy)
                 {
-                    // Verifica che la truppa nemica sia viva
                     var troopsComponent = enemyTroop.GetComponent<Troops>();
                     if (troopsComponent != null && troopsComponent.CurrentHealth <= 0) continue;
 
@@ -137,44 +177,49 @@ namespace Unical.Demacs.EnchantedVillage
                 }
             }
 
-
-            // Se non ci sono truppe nemiche vicine, cerca gli edifici
+            // Cerca edifici nemici
             if (!foundEnemyTroop)
             {
-                var enemyBuildings = BattleMap.Instance.GetEnemyBuildings();
-                if (enemyBuildings != null)
+                if (BattleMap.Instance != null)
                 {
-                    int searchRadius = Mathf.CeilToInt(detectionRange);
-                    int startX = Mathf.Max(0, _currentX - searchRadius);
-                    int endX = Mathf.Min(maxGridX, _currentX + searchRadius);
-                    int startY = Mathf.Max(0, _currentY - searchRadius);
-                    int endY = Mathf.Min(maxGridY, _currentY + searchRadius);
-
-                    for (int x = startX; x <= endX; x++)
+                    var enemyBuildings = BattleMap.Instance.GetEnemyBuildings();
+                    if (enemyBuildings != null)
                     {
-                        for (int y = startY; y <= endY; y++)
+                        int searchRadius = Mathf.CeilToInt(detectionRange);
+                        int startX = Mathf.Max(0, _currentX - searchRadius);
+                        int endX = Mathf.Min(maxGridX, _currentX + searchRadius);
+                        int startY = Mathf.Max(0, _currentY - searchRadius);
+                        int endY = Mathf.Min(maxGridY, _currentY + searchRadius);
+
+                        for (int x = startX; x <= endX; x++)
                         {
-                            var buildingInCell = enemyBuildings[x, y];
-                            if (buildingInCell == null || buildingInCell is BuildingEnemyPlaceholder) continue;
-
-                            if (buildingInCell.gameObject == null) continue;
-
-                            Vector3 buildingPos = buildingInCell.transform.position;
-                            float distance = Vector3.Distance(transform.position, buildingPos);
-
-                            if (distance <= detectionRange && distance < closestDistance)
+                            for (int y = startY; y <= endY; y++)
                             {
-                                var enemyBuildingController = buildingInCell.GetComponent<EnemyBuildingsController>();
-                                if (enemyBuildingController != null && enemyBuildingController.IsAlive())
+                                var buildingInCell = enemyBuildings[x, y];
+                                if (buildingInCell == null || buildingInCell is BuildingEnemyPlaceholder) continue;
+
+                                if (buildingInCell.gameObject == null) continue;
+
+                                Vector3 buildingPos = buildingInCell.transform.position;
+                                float distance = Vector3.Distance(transform.position, buildingPos);
+
+                                if (distance <= detectionRange && distance < closestDistance)
                                 {
-                                    closestDistance = distance;
-                                    closestTarget = buildingInCell.gameObject;
+                                    var enemyBuildingController = buildingInCell.GetComponent<EnemyBuildingsController>();
+                                    if (enemyBuildingController != null && enemyBuildingController.IsAlive())
+                                    {
+                                        closestDistance = distance;
+                                        closestTarget = buildingInCell.gameObject;
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+
             }
+        }
 
             if (closestTarget != null && closestTarget != currentTarget)
             {
@@ -191,6 +236,7 @@ namespace Unical.Demacs.EnchantedVillage
                 ReturnToStartPosition();
             }
         }
+
 
         void FindSuitableAttackPosition(GameObject target, out int targetX, out int targetY)
         {
@@ -604,6 +650,29 @@ namespace Unical.Demacs.EnchantedVillage
                 currentTarget = null;
                 CurrentAttackTarget = null;
             }
+        }
+
+        private GameObject FindNearestBuildingManually()
+        {
+            var enemyBuildings = FindObjectsOfType<EnemyBuildingsController>();
+            Debug.Log("Enemy Buildings: " + enemyBuildings.Length);
+            GameObject closestBuilding = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (var building in enemyBuildings)
+            {
+                if (building.IsAlive())
+                {
+                    float distance = Vector2.Distance(transform.position, building.transform.position);
+                    if (distance <= detectionRange && distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestBuilding = building.gameObject;
+                    }
+                }
+            }
+
+            return closestBuilding;
         }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using Unical.Demacs.EnchantedVillage;
 using UnityEngine;
 
@@ -13,9 +14,11 @@ public class ArcherManager : MonoBehaviour
     [SerializeField] private Transform archersContainer;
     [SerializeField] private int maxArchers = 10;
     [SerializeField] private int archersPerSpawn = 3;
+    [SerializeField] private TextMeshProUGUI archerNum;
 
     private void Awake()
     {
+        archerNum.text = maxArchers.ToString() + "x";
         if (Instance == null)
         {
             Instance = this;
@@ -95,6 +98,7 @@ public class ArcherManager : MonoBehaviour
                     archers.Add(archer);
                     canMoveArchers = true;
                     archersSpawned++;
+                    archerNum.text = (maxArchers- archers.Count).ToString()+"x";
                     Debug.Log($"Successfully spawned archer at ({spawnX}, {spawnY})");
                 }
             }

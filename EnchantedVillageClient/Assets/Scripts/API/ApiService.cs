@@ -200,6 +200,16 @@ public class ApiService : MonoBehaviour
 
     public IEnumerator GetGameInformationByEmail(string userEmail, Action<GameInformation> onSuccess, Action<string> onError)
     {
+
+        Debug.Log($"[API Debug] GetGameInformationByEmail called with email: {userEmail}. Stack trace:\n{System.Environment.StackTrace}");
+
+        if (string.IsNullOrEmpty(userEmail))
+        {
+            Debug.LogError("[GetGameInformationByEmail] Email is null or empty");
+            onError?.Invoke("Email cannot be null or empty");
+            yield break;
+        }
+
         if (string.IsNullOrEmpty(userEmail))
         {
             Debug.LogError("[GetGameInformationByEmail] Email is null or empty");
