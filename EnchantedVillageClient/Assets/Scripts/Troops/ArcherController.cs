@@ -11,7 +11,9 @@ namespace Unical.Demacs.EnchantedVillage
         public float attackRange = 5f;
         public float detectionRange = 20f;
         public Animator animator;
-
+        private Vector2Int? reservedPosition = null;
+        private float lastMovementTime = 0f;
+        private const float MOVEMENT_COOLDOWN = 1f;
         private int _currentX;
         private int _currentY;
         public int CurrentX => _currentX;
@@ -240,6 +242,14 @@ namespace Unical.Demacs.EnchantedVillage
 
         void FindSuitableAttackPosition(GameObject target, out int targetX, out int targetY)
         {
+            // Se abbiamo già una posizione riservata valida, la manteniamo
+            if (reservedPosition.HasValue && !IsPositionOccupied(reservedPosition.Value.x, reservedPosition.Value.y))
+            {
+                targetX = reservedPosition.Value.x;
+                targetY = reservedPosition.Value.y;
+                return;
+            }
+
             Vector3 targetPos = target.transform.position;
             (int buildingX, int buildingY) = _buildGrid.WorldToGridPosition(targetPos);
 
@@ -272,36 +282,72 @@ namespace Unical.Demacs.EnchantedVillage
                         {
                             targetX = checkX;
                             targetY = checkY;
+                            reservedPosition = new Vector2Int(targetX, targetY);
                             return;
                         }
                     }
                 }
             }
 
+            // Se non troviamo una posizione migliore, rimaniamo dove siamo
             targetX = _currentX;
             targetY = _currentY;
         }
 
         bool IsPositionOccupied(int x, int y)
         {
-            var buildings = BattleMap.Instance.GetEnemyBuildings();
-            if (buildings != null && buildings[x, y] != null)
+            // Controlla edifici nemici e placeholder
+            var enemyBuildings = BattleMap.Instance?.GetEnemyBuildings();
+            if (enemyBuildings != null && enemyBuildings[x, y] != null)
             {
                 return true;
             }
+
+            // Controlla edifici nemici attraverso EnemyBuildingController
+            var enemyBuildingsInScene = Physics.OverlapSphere(_buildGrid.GetCenterPosition1(x, y, 1, 1), 2f, buildingLayer);
+            foreach (var collider in enemyBuildingsInScene)
+            {
+                if (collider.GetComponent<EnemyBuildingsController>() != null ||
+                    collider.GetComponent<BuildingEnemyPlaceholder>() != null)
+                {
+                    return true;
+                }
+            }
+
+            // Controlla altri arcieri e le loro posizioni riservate
+            var allArchers = FindObjectsOfType<ArcherController>();
+            foreach (var archer in allArchers)
+            {
+                if (archer != this)
+                {
+                    if ((archer.CurrentX == x && archer.CurrentY == y) ||
+                        (archer.reservedPosition.HasValue &&
+                         archer.reservedPosition.Value.x == x &&
+                         archer.reservedPosition.Value.y == y))
+                    {
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 
         void MoveTowardsTarget()
         {
-            if (currentTarget != null && !isMoving)
-            {
-                FindSuitableAttackPosition(currentTarget, out int targetGridX, out int targetGridY);
+            if (currentTarget == null || isMoving) return;
 
-                if (_currentX != targetGridX || _currentY != targetGridY)
-                {
-                    MoveToGridPosition(targetGridX, targetGridY);
-                }
+            // Previene movimenti troppo frequenti
+            if (Time.time - lastMovementTime < MOVEMENT_COOLDOWN) return;
+
+            FindSuitableAttackPosition(currentTarget, out int targetGridX, out int targetGridY);
+
+            // Muoviti solo se la nuova posizione è diversa e non sei già nel range di attacco
+            if ((_currentX != targetGridX || _currentY != targetGridY) &&
+                Vector3.Distance(transform.position, currentTarget.transform.position) > attackRange)
+            {
+                lastMovementTime = Time.time;
+                MoveToGridPosition(targetGridX, targetGridY);
             }
         }
 
@@ -309,13 +355,27 @@ namespace Unical.Demacs.EnchantedVillage
         {
             if (currentTarget == null) return;
 
+            // Calcoliamo la direzione nel world space
             Vector3 directionToTarget = (currentTarget.transform.position - transform.position).normalized;
-            float angle = Mathf.Atan2(directionToTarget.z, directionToTarget.x) * Mathf.Rad2Deg;
 
+            // Compensiamo la rotazione di 45 gradi della griglia
+            // Ruotiamo la direzione di -45 gradi per allinearla con gli assi della griglia
+            float angleRad = -45f * Mathf.Deg2Rad;
+            float cosAngle = Mathf.Cos(angleRad);
+            float sinAngle = Mathf.Sin(angleRad);
+            Vector3 rotatedDirection = new Vector3(
+                directionToTarget.x * cosAngle - directionToTarget.z * sinAngle,
+                0,
+                directionToTarget.x * sinAngle + directionToTarget.z * cosAngle
+            );
+
+            // Calcoliamo l'angolo della direzione ruotata
+            float angle = Mathf.Atan2(rotatedDirection.z, rotatedDirection.x) * Mathf.Rad2Deg;
             if (angle < 0) angle += 360;
 
             AnimationState newState = AnimationState.Idle;
 
+            // Ora possiamo usare l'angolo compensato per determinare la direzione dell'animazione
             if (angle >= 315 || angle < 45) // Destra
             {
                 newState = AnimationState.WalkRight;
@@ -337,7 +397,6 @@ namespace Unical.Demacs.EnchantedVillage
 
             SetAnimationState(newState);
         }
-
         void UpdateAnimationBasedOnGridMovement(int targetX, int targetY)
         {
             if (currentTarget != null)
@@ -458,6 +517,9 @@ namespace Unical.Demacs.EnchantedVillage
             float journeyLength = Vector3.Distance(startPosition, targetPosition);
             float startTime = Time.time;
 
+            // Riserva la nuova posizione prima di iniziare il movimento
+            reservedPosition = new Vector2Int(targetX, targetY);
+
             while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
             {
                 float distanceCovered = (Time.time - startTime) * moveSpeed;
@@ -470,7 +532,26 @@ namespace Unical.Demacs.EnchantedVillage
             transform.position = targetPosition;
             _currentX = targetX;
             _currentY = targetY;
+
+            // Aggiorna la posizione riservata alla posizione finale
+            reservedPosition = new Vector2Int(_currentX, _currentY);
+
             StopMoving();
+        }
+
+        void StopMoving()
+        {
+            isMoving = false;
+            if (currentTarget != null)
+            {
+                UpdateAnimationBasedOnTarget();
+            }
+            else
+            {
+                SetAnimationState(AnimationState.Idle);
+                // Se non c'è un target, rilascia la posizione riservata
+                reservedPosition = null;
+            }
         }
 
         void CheckForAttack()
@@ -614,18 +695,7 @@ namespace Unical.Demacs.EnchantedVillage
             animator.SetInteger(ANIM_STATE_PARAM, (int)state);
         }
 
-        void StopMoving()
-        {
-            isMoving = false;
-            if (currentTarget != null)
-            {
-                UpdateAnimationBasedOnTarget();
-            }
-            else
-            {
-                SetAnimationState(AnimationState.Idle);
-            }
-        }
+  
 
         void OnDrawGizmosSelected()
         {

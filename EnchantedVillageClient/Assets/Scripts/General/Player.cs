@@ -526,6 +526,7 @@ namespace Unical.Demacs.EnchantedVillage
 
         private void OnApplicationQuit()
         {
+            PlayerPrefs.DeleteAll();
             SaveGame();
         }
 

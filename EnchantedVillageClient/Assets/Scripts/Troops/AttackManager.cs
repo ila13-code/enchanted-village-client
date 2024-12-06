@@ -53,14 +53,12 @@ namespace Unical.Demacs.EnchantedVillage
         {
             buildingRewards = new Dictionary<string, (int, int, int)>
             {
-                { "towncenter", (1, 4, 6) },
+                { "towncenter", (1, 1, 1) },
                 { "cannon", (1, 0, 0) },
-                { "goldcollector", (1, 2, 0) },
-                { "goldstorage", (1, 2, 0) },
-                { "elixircollector", (1, 0, 3) },
-                { "elixirstorage", (2, 0, 2) },
-                { "wall", (0, 0, 0) },
-                { "flag", (1 , 2, 0) }
+                { "goldcollector", (1, 1, 0) },
+                { "goldstorage", (1, 1, 0) },
+                { "elixircollector", (1, 0, 0) },
+                { "elixirstorage", (1, 0, 1) }
             };
         }
 
@@ -73,24 +71,14 @@ namespace Unical.Demacs.EnchantedVillage
             {
                 if (buildingName.Contains(reward.Key))
                 {
-                    Exp += reward.Value.exp;
-                    Elixir += reward.Value.elixir;
-                    Gold += reward.Value.gold;
-                    PercentageDestroyed = 70;
-
-                    PlayerPrefs.SetInt("ExpReward", Exp);
-                    PlayerPrefs.SetInt("ElixirStolen", Elixir);
-                    PlayerPrefs.SetInt("GoldStolen", Gold);
-                    PlayerPrefs.SetInt("PercentageDestroyed", PercentageDestroyed);
+                    
+                    
 
                     Debug.Log($"Attack completed on {buildingName}. Resources increased - EXP: {Exp}, Elixir: {Elixir}, Gold: {Gold}");
                     return;
                 }
             }
 
-            Exp += 1;
-            Elixir += 1;
-            Gold += 1;
             Debug.Log($"Attack completed on unknown building type: {buildingName}. Default resources increase applied.");
         }
 

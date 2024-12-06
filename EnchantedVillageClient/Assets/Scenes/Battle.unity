@@ -796,7 +796,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000015258789}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &196729526
@@ -966,7 +966,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -9.712006, y: -0.000015258789}
+  m_AnchoredPosition: {x: -9.712006, y: 0}
   m_SizeDelta: {x: 19.424, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &429399668
@@ -3157,7 +3157,7 @@ MonoBehaviour:
   canMoveArchers: 0
   archerPrefab: {fileID: 2516569403264494393, guid: 2d86d53178dde51458d84cd482be97ed, type: 3}
   archersContainer: {fileID: 1601379702}
-  maxArchers: 10
+  maxArchers: 7
   archersPerSpawn: 1
   archerNum: {fileID: 1179836114}
 --- !u!1 &1645309602

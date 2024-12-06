@@ -190,6 +190,9 @@ namespace Unical.Demacs.EnchantedVillage
                 isDestroyed = true;
                 if (meshRenderer.material != destroyedMaterialInstance)
                 {
+                    PlayerPrefsController.Instance.Exp += 2;
+                    PlayerPrefsController.Instance.Elixir += 3;
+                    PlayerPrefsController.Instance.Gold += 3;
                     meshRenderer.material = destroyedMaterialInstance;
                 }
                 SetMaterialAlpha(1f);
